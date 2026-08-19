@@ -1,18 +1,47 @@
 # jib.atlas
 
-# React + Vite
+사용자가 성격/라이프스타일 진단을 받고, 그 결과에 맞는 집 구조(평면도)를
+추천받은 뒤, 2D 에디터에서 직접 가구를 배치하며 인테리어를 커스터마이징하는 웹앱.
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+## 기술 스택
 
-Currently, two official plugins are available:
+- **Frontend**: Next.js (App Router) + TypeScript + Tailwind CSS
+- **상태관리**: Zustand (예정)
+- **2D 캔버스**: react-konva (예정)
+- **DB**: 우선 로컬 JSON/SQLite로 시작 (추후 Supabase 전환 고려)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 폴더 구조
 
-## React Compiler
+```
+/data     문항, 템플릿 등 JSON 데이터 저장용
+/lib      스코어 계산, 매칭 로직 등 순수 함수
+/app
+  /test     진단 테스트 페이지
+  /result   결과 페이지
+  /editor   인테리어 에디터 페이지
+/components  공용 UI 컴포넌트
+```
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 개발 로드맵
 
-## Expanding the Oxlint configuration
+`jib-atlas-claude-code-prompts.md`에 STEP 0~7(+참고용 STEP 8 이후) 단계별
+구현 계획이 정리되어 있습니다. 각 STEP은 이전 STEP의 산출물(데이터/타입/로직)을
+참고해서 순서대로 진행합니다.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+- [x] STEP 0. 프로젝트 초기 세팅
+- [ ] STEP 1. 라이프스타일 문항 15개 데이터
+- [ ] STEP 2. MBTI 보조 문항 + 가중치 설계
+- [ ] STEP 3. 스코어 계산 로직
+- [ ] STEP 4. 집 구조 템플릿 설계
+- [ ] STEP 5. 매칭 알고리즘
+- [ ] STEP 6. 결과 설명 자동 조립
+- [ ] STEP 7. UI 연결 (테스트 → 결과)
+
+## 시작하기
+
+```bash
+npm install
+npm run dev
+```
+
+[http://localhost:3000](http://localhost:3000) 에서 확인할 수 있습니다.
