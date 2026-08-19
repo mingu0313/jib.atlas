@@ -15,9 +15,11 @@
     "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts"
   },
   "dependencies": {
+    "konva": "^10.3.1",
     "next": "16.3.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
+    "react-konva": "^19.2.5",
     "recharts": "^3.10.1",
     "zustand": "^5.0.15"
   },

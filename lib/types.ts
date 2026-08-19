@@ -141,6 +141,26 @@ export interface HouseTemplate {
   features: Feature[];
 }
 
+/** 2D 에디터 팔레트에 등장하는 가구 카탈로그 항목. */
+export interface FurnitureCatalogItem {
+  id: string;
+  label: string;
+  /** 평면도와 같은 좌표계(viewBox "0 0 400 300") 기준 크기. */
+  width: number;
+  height: number;
+  color: string;
+}
+
+/** 캔버스에 배치된 가구 하나. x/y는 중심점 기준 좌표. */
+export interface PlacedFurniture {
+  id: string;
+  catalogId: string;
+  x: number;
+  y: number;
+  /** 회전 각도(도). */
+  rotation: number;
+}
+
 /** matchHouseTemplate()이 반환하는 개별 매칭 결과. */
 export interface TemplateMatch {
   template: HouseTemplate;

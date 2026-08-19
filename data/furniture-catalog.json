@@ -1,0 +1,10 @@
+[
+  { "id": "bed", "label": "침대", "width": 90, "height": 60, "color": "#c7b7a3" },
+  { "id": "sofa", "label": "소파", "width": 80, "height": 35, "color": "#9fb3c8" },
+  { "id": "table", "label": "테이블", "width": 50, "height": 50, "color": "#d9b98a" },
+  { "id": "desk", "label": "책상", "width": 60, "height": 30, "color": "#b7a58f" },
+  { "id": "chair", "label": "의자", "width": 20, "height": 20, "color": "#8c7a6b" },
+  { "id": "wardrobe", "label": "옷장", "width": 40, "height": 60, "color": "#a89a86" },
+  { "id": "bookshelf", "label": "책장", "width": 60, "height": 20, "color": "#8f9e8a" },
+  { "id": "plant", "label": "화분", "width": 18, "height": 18, "color": "#7fa06f" }
+]
