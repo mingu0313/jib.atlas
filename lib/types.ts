@@ -56,6 +56,34 @@ export const AXES: Axis[] = [
   "nature",
 ];
 
+/** 축의 한글 표시명. */
+export const AXIS_LABELS: Record<Axis, string> = {
+  sociability: "사교성",
+  minimalism: "미니멀",
+  activity: "활동성",
+  openness: "개방성",
+  nature: "자연친화",
+};
+
+/** 방 종류의 한글 표시명. */
+export const ROOM_TYPE_LABELS: Record<RoomType, string> = {
+  entrance: "현관",
+  livingRoom: "거실",
+  kitchen: "주방",
+  diningRoom: "다이닝룸",
+  bedroom: "침실",
+  masterBedroom: "안방",
+  kidsRoom: "아이방",
+  bathroom: "욕실",
+  balcony: "발코니",
+  terrace: "테라스",
+  garden: "정원",
+  study: "서재",
+  gym: "홈짐",
+  workshop: "작업실",
+  storage: "수납",
+};
+
 /** calculateScores()의 반환값. */
 export interface ScoringResult {
   axisScores: AxisScores;
