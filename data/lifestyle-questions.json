@@ -1,0 +1,92 @@
+[
+  {
+    "id": "q1",
+    "axis": "sociability",
+    "text": "친구나 가족을 집에 자주 초대해서 시간을 보내고 싶다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q2",
+    "axis": "sociability",
+    "text": "주방/거실이 분리되기보다 하나로 이어져서 사람들과 어울리는 공간이면 좋겠다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q3",
+    "axis": "sociability",
+    "text": "혼자만의 조용한 공간보다 함께 쓰는 넓은 공용 공간이 더 중요하다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q4",
+    "axis": "minimalism",
+    "text": "물건을 최소한으로 두고 깔끔하게 비워진 공간을 선호한다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q5",
+    "axis": "minimalism",
+    "text": "수납공간이 넉넉해서 물건을 눈에 안 띄게 정리할 수 있으면 좋겠다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q6",
+    "axis": "minimalism",
+    "text": "좋아하는 소품이나 가구로 공간을 꾸미고 채우는 걸 즐긴다.",
+    "reverseScored": true
+  },
+  {
+    "id": "q7",
+    "axis": "activity",
+    "text": "집에서 운동, DIY, 작업 같은 활동적인 취미를 할 공간이 필요하다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q8",
+    "axis": "activity",
+    "text": "집은 쉬고 회복하는 공간이지, 뭔가를 하는 공간은 아니다.",
+    "reverseScored": true
+  },
+  {
+    "id": "q9",
+    "axis": "activity",
+    "text": "다목적으로 쓸 수 있는 방(홈짐, 작업실 등)이 있으면 좋겠다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q10",
+    "axis": "openness",
+    "text": "벽으로 나뉜 아늑한 방보다 탁 트인 개방형 구조를 좋아한다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q11",
+    "axis": "openness",
+    "text": "새로운 스타일이나 독특한 구조의 공간에 끌린다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q12",
+    "axis": "openness",
+    "text": "익숙하고 안정적인 전통적 구조가 더 편안하다.",
+    "reverseScored": true
+  },
+  {
+    "id": "q13",
+    "axis": "nature",
+    "text": "넓은 창문과 채광이 인테리어에서 가장 중요한 요소다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q14",
+    "axis": "nature",
+    "text": "발코니나 테라스에서 시간을 보내는 걸 좋아한다.",
+    "reverseScored": false
+  },
+  {
+    "id": "q15",
+    "axis": "nature",
+    "text": "실내 식물이나 자연 소재(우드, 스톤 등)로 공간을 채우고 싶다.",
+    "reverseScored": false
+  }
+]

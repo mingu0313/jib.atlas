@@ -1,0 +1,50 @@
+[
+  {
+    "id": "m1",
+    "indicator": "EI",
+    "text": "새로운 사람들을 만나면 오히려 에너지가 충전되는 느낌이다.",
+    "direction": "E"
+  },
+  {
+    "id": "m2",
+    "indicator": "EI",
+    "text": "사람을 많이 만난 날은 혼자만의 시간을 보내야 에너지가 회복된다.",
+    "direction": "I"
+  },
+  {
+    "id": "m3",
+    "indicator": "SN",
+    "text": "익숙한 방식보다 새로운 가능성이나 아이디어에 더 끌린다.",
+    "direction": "N"
+  },
+  {
+    "id": "m4",
+    "indicator": "SN",
+    "text": "추상적인 아이디어보다 구체적이고 실제적인 정보를 더 신뢰한다.",
+    "direction": "S"
+  },
+  {
+    "id": "m5",
+    "indicator": "TF",
+    "text": "물건을 정리하거나 버릴지 판단할 때 효율/기능 같은 논리적 기준을 우선한다.",
+    "direction": "T"
+  },
+  {
+    "id": "m6",
+    "indicator": "TF",
+    "text": "물건에 담긴 추억이나 감정적 애착 때문에 쉽게 버리지 못한다.",
+    "direction": "F"
+  },
+  {
+    "id": "m7",
+    "indicator": "JP",
+    "text": "계획을 세우고 정해진 방식대로 정돈된 상태를 유지하는 걸 좋아한다.",
+    "direction": "J"
+  },
+  {
+    "id": "m8",
+    "indicator": "JP",
+    "text": "즉흥적으로 움직이고 상황에 따라 유연하게 바꾸는 걸 좋아한다.",
+    "direction": "P"
+  }
+]
