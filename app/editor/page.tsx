@@ -4,7 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
-import { useEditorStore } from "@/lib/editorStore";
+import { useEditorHasHydrated, useEditorStore } from "@/lib/editorStore";
 import { matchHouseTemplate } from "@/lib/matching";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
@@ -30,11 +30,13 @@ function CanvasSkeleton() {
 
 export default function EditorPage() {
   const answers = useTestStore((state) => state.answers);
+  const hasHydrated = useEditorHasHydrated();
   const items = useEditorStore((s) => s.items);
   const selectedId = useEditorStore((s) => s.selectedId);
   const rotateItem = useEditorStore((s) => s.rotateItem);
   const removeItem = useEditorStore((s) => s.removeItem);
   const clear = useEditorStore((s) => s.clear);
+  const syncTemplate = useEditorStore((s) => s.syncTemplate);
 
   // Delete/Backspace로 선택된 가구 삭제
   useEffect(() => {
@@ -47,6 +49,19 @@ export default function EditorPage() {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [selectedId, removeItem]);
+
+  const answerList: Answer[] = Object.entries(answers).map(
+    ([questionId, value]) => ({ questionId, value }),
+  );
+  const { axisScores } = calculateScores(answerList);
+  const [topMatch] = matchHouseTemplate(axisScores);
+
+  // 저장된 배치가 지금 매칭된 템플릿과 다르면(재진단으로 집 구조가 바뀐 경우)
+  // 새 템플릿에 맞춰 초기화한다. localStorage 복원이 끝난 뒤에만 실행해야
+  // 아직 안 불러온 이전 배치를 잘못 지우지 않는다.
+  useEffect(() => {
+    if (hasHydrated) syncTemplate(topMatch.template.id);
+  }, [hasHydrated, topMatch.template.id, syncTemplate]);
 
   const answeredCount = Object.keys(answers).length;
   if (answeredCount < TOTAL_QUESTION_COUNT) {
@@ -66,11 +81,6 @@ export default function EditorPage() {
     );
   }
 
-  const answerList: Answer[] = Object.entries(answers).map(
-    ([questionId, value]) => ({ questionId, value }),
-  );
-  const { axisScores } = calculateScores(answerList);
-  const [topMatch] = matchHouseTemplate(axisScores);
   const selectedItem = items.find((i) => i.id === selectedId);
 
   return (
@@ -145,8 +155,8 @@ export default function EditorPage() {
       </div>
 
       <p className="text-xs text-gray-400">
-        ⚠ 지금은 배치 결과가 저장되지 않아요. 새로고침하면 초기화됩니다 — 저장/불러오기는
-        다음 스텝에서 추가할 예정이에요.
+        배치는 이 브라우저에 자동으로 저장돼요. 나중에 다시 들어와도 이어서 꾸밀 수
+        있어요. (다른 결과가 매칭되면 배치가 초기화돼요.)
       </p>
     </main>
   );
