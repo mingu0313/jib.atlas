@@ -23,29 +23,34 @@ export function LoginForm() {
     setPending(true);
     setError(null);
 
-    const supabase = createClient();
+    try {
+      const supabase = createClient();
 
-    if (mode === "login") {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
-      if (error) {
-        setError(error.message);
-        setPending(false);
-        return;
+      if (mode === "login") {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) {
+          setError(error.message);
+          return;
+        }
+        router.push(next);
+        router.refresh();
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=${next}` },
+        });
+        if (error) {
+          setError(error.message);
+          return;
+        }
+        setSignupDone(true);
       }
-      router.push(next);
-      router.refresh();
-    } else {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=${next}` },
-      });
-      if (error) {
-        setError(error.message);
-        setPending(false);
-        return;
-      }
-      setSignupDone(true);
+    } catch (err) {
+      // createClient()가 던지는 경우(예: env var 누락으로 supabaseUrl이 비어있음)를
+      // 포함해서, "처리 중…"에 멈춰있지 않고 항상 에러를 보여준다.
+      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+    } finally {
       setPending(false);
     }
   }
