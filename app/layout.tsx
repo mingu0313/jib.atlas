@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
-import { createClient } from "@/lib/supabase/server";
+import { getUserSafe } from "@/lib/supabase/server";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,10 +22,9 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // 로그인 상태 조회가 실패해도(env var 누락, Supabase 장애 등) 절대
+  // 사이트 전체를 죽이지 않는다 — 실패하면 로그아웃 상태로 취급한다.
+  const user = await getUserSafe();
 
   return (
     <html

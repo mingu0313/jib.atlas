@@ -34,10 +34,31 @@ export async function createClient() {
               cookieStore.set(name, value, options);
             }
           } catch {
-            // 서버 컴포넌트에서 호출된 경우 — proxy.ts가 세션 갱신을 대신 처리한다.
+            // 서버 컴포넌트에서 호출된 경우 — 이 요청 한정으로만 갱신된
+            // 토큰을 못 쓰고 넘어간다 (server.ts 상단 설명 참고).
           }
         },
       },
     },
   );
+}
+
+/**
+ * getUser()를 호출하되 절대 던지지 않는다. RootLayout처럼 모든 페이지를
+ * 감싸는 곳에서 그대로 getUser()를 쓰면, env var가 빠졌거나 Supabase가
+ * 잠깐이라도 응답을 안 하는 순간 사이트 전체가 500으로 죽는다 — 로그인
+ * 상태 표시는 로그인 기능 자체보다 덜 중요하니 실패하면 "로그아웃 상태"로
+ * 취급하고 넘어간다.
+ */
+export async function getUserSafe() {
+  try {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    return user;
+  } catch (error) {
+    console.error("getUserSafe failed:", error);
+    return null;
+  }
 }
