@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
+import { getSupabaseEnv } from "@/lib/supabase/env";
 import { getUserSafe } from "@/lib/supabase/server";
 import "./globals.css";
 
@@ -25,12 +26,27 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   // 로그인 상태 조회가 실패해도(env var 누락, Supabase 장애 등) 절대
   // 사이트 전체를 죽이지 않는다 — 실패하면 로그아웃 상태로 취급한다.
   const user = await getUserSafe();
+  // 브라우저의 Supabase 클라이언트(lib/supabase/client.ts)가 쓸 설정.
+  // Next.js의 NEXT_PUBLIC_* 빌드 타임 주입에 기대지 않고, 요청 시점에
+  // Cloudflare 런타임 바인딩에서 읽은 값을 페이지에 그대로 심어준다.
+  const supabaseEnv = await getSupabaseEnv();
 
   return (
     <html
       lang="ko"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {supabaseEnv && (
+          <script
+            id="__supabase_config"
+            type="application/json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(supabaseEnv).replace(/</g, "\\u003c"),
+            }}
+          />
+        )}
+      </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 text-sm">
           <Link

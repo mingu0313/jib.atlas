@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getSupabaseEnv } from "./env";
 
 /**
  * 서버 컴포넌트/라우트 핸들러에서 쓰는 Supabase 클라이언트.
  * next/headers의 cookies()를 통해 요청/응답 쿠키를 읽고 쓴다.
+ * URL/anon key는 getSupabaseEnv()로 가져온다 (env.ts 설명 참고 — Next.js
+ * 빌드 타임 주입에 의존하지 않고 Cloudflare 런타임 바인딩을 우선 쓴다).
  *
  * 원래는 proxy.ts(구 middleware)에서 매 요청마다 세션을 갱신하는 게
  * 정석이지만, Next.js 16의 proxy는 Node.js 런타임 전용으로 바뀌었고
@@ -19,28 +22,31 @@ import { cookies } from "next/headers";
  */
 export async function createClient() {
   const cookieStore = await cookies();
+  const env = await getSupabaseEnv();
+  if (!env) {
+    throw new Error(
+      "Supabase 설정을 못 찾았어요 (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY). " +
+        "Cloudflare Worker의 Variables and Secrets에 값이 들어있는지 확인해주세요.",
+    );
+  }
 
-  return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          try {
-            for (const { name, value, options } of cookiesToSet) {
-              cookieStore.set(name, value, options);
-            }
-          } catch {
-            // 서버 컴포넌트에서 호출된 경우 — 이 요청 한정으로만 갱신된
-            // 토큰을 못 쓰고 넘어간다 (server.ts 상단 설명 참고).
+  return createServerClient(env.url, env.anonKey, {
+    cookies: {
+      getAll() {
+        return cookieStore.getAll();
+      },
+      setAll(cookiesToSet) {
+        try {
+          for (const { name, value, options } of cookiesToSet) {
+            cookieStore.set(name, value, options);
           }
-        },
+        } catch {
+          // 서버 컴포넌트에서 호출된 경우 — 이 요청 한정으로만 갱신된
+          // 토큰을 못 쓰고 넘어간다 (server.ts 상단 설명 참고).
+        }
       },
     },
-  );
+  });
 }
 
 /**
