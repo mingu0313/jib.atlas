@@ -32,8 +32,13 @@ export default function TestPage() {
   const [index, setIndex] = useState(0);
 
   // 새로고침 등으로 다시 들어왔을 때, 이미 응답한 문항 다음부터 이어서 시작한다.
+  // answers는 zustand persist가 localStorage에서 복원하는 값이라 서버에는 없다.
+  // 서버 렌더 결과와 index=0으로 일치시켜 하이드레이션 불일치를 피하고,
+  // 복원된 answers는 마운트 후 이 effect에서 한 번만 index에 반영한다.
   useEffect(() => {
     const firstUnanswered = allQuestions.findIndex((q) => !(q.id in answers));
+    // 마운트 직후 localStorage 복원값과 1회 동기화하는 의도된 부작용이라 억제한다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIndex(firstUnanswered === -1 ? allQuestions.length - 1 : firstUnanswered);
     // 최초 마운트 시 1회만 동기화한다.
     // eslint-disable-next-line react-hooks/exhaustive-deps
