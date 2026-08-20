@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
 import type { PlacedFurniture } from "./types";
 
+type Status = "idle" | "loading" | "ready";
+
 interface EditorState {
+  /** 서버에서 배치를 불러왔는지 여부. "idle" 상태에서 syncTemplate 등을
+   * 호출하면 아직 안 불러온 배치를 "다른 템플릿"으로 오판해 지워버릴 수 있다. */
+  status: Status;
   /** 이 배치가 어떤 집 구조 템플릿을 기준으로 만들어졌는지. */
   templateId: string | null;
   items: PlacedFurniture[];
   selectedId: string | null;
+  /** 로그인한 유저의 배치를 서버(Supabase)에서 불러온다. 로그인 안 했으면
+   * 401을 받고 빈 상태로 "ready"가 된다. */
+  loadFromServer: () => Promise<void>;
   addItem: (catalogId: string, x: number, y: number) => void;
   moveItem: (id: string, x: number, y: number) => void;
   rotateItem: (id: string, deltaDeg: number) => void;
@@ -21,69 +27,91 @@ interface EditorState {
   syncTemplate: (templateId: string) => void;
 }
 
-/**
- * 인테리어 에디터에 배치한 가구 상태. localStorage에 저장해서
- * 새로고침하거나 나중에 다시 들어와도 배치가 그대로 유지된다.
- */
-export const useEditorStore = create<EditorState>()(
-  persist(
-    (set, get) => ({
-      templateId: null,
-      items: [],
-      selectedId: null,
-      addItem: (catalogId, x, y) =>
-        set((state) => {
-          const id = crypto.randomUUID();
-          return {
-            items: [...state.items, { id, catalogId, x, y, rotation: 0 }],
-            selectedId: id,
-          };
-        }),
-      moveItem: (id, x, y) =>
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id ? { ...item, x, y } : item,
-          ),
-        })),
-      rotateItem: (id, deltaDeg) =>
-        set((state) => ({
-          items: state.items.map((item) =>
-            item.id === id
-              ? { ...item, rotation: (item.rotation + deltaDeg + 360) % 360 }
-              : item,
-          ),
-        })),
-      removeItem: (id) =>
-        set((state) => ({
-          items: state.items.filter((item) => item.id !== id),
-          selectedId: state.selectedId === id ? null : state.selectedId,
-        })),
-      selectItem: (id) => set({ selectedId: id }),
-      clear: () => set({ items: [], selectedId: null }),
-      syncTemplate: (templateId) => {
-        if (get().templateId !== templateId) {
-          set({ templateId, items: [], selectedId: null });
-        }
-      },
-    }),
-    { name: "jib-atlas-editor-layout" },
-  ),
-);
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
-/**
- * localStorage에서 배치를 다 불러왔는지 여부. persist는 마운트 후 비동기로
- * 복원되기 때문에, 이 값을 기다리지 않고 syncTemplate() 등을 호출하면
- * 아직 불러오지 않은 이전 배치를 "다른 템플릿"으로 오판해 지워버릴 수 있다.
- */
-export function useEditorHasHydrated() {
-  // 서버(prerender) 환경에는 persist API 자체가 없을 수 있어 초기값은 항상 false로
-  // 시작하고, 실제 확인/구독은 클라이언트에서만 도는 useEffect 안에서 한다.
-  const [hydrated, setHydrated] = useState(false);
-
-  useEffect(() => {
-    setHydrated(useEditorStore.persist?.hasHydrated() ?? true);
-    return useEditorStore.persist?.onFinishHydration(() => setHydrated(true));
-  }, []);
-
-  return hydrated;
+/** 변경 후 400ms 안에 또 바뀌면 이전 저장 예약을 취소하고 다시 미룬다
+ * (회전 버튼 연타 등으로 매번 요청을 날리지 않도록). */
+function scheduleSave(get: () => EditorState) {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    const { templateId, items } = get();
+    if (!templateId) return;
+    fetch("/api/layout", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ templateId, items }),
+    }).catch(() => {
+      // 저장 실패는 조용히 무시한다 — 다음 변경 때 다시 저장을 시도한다.
+    });
+  }, 400);
 }
+
+/**
+ * 인테리어 에디터에 배치한 가구 상태. Supabase(로그인한 유저별 테이블)에
+ * 저장해서 다른 브라우저/기기에서도 로그인만 하면 이어서 꾸밀 수 있다.
+ */
+export const useEditorStore = create<EditorState>((set, get) => ({
+  status: "idle",
+  templateId: null,
+  items: [],
+  selectedId: null,
+  loadFromServer: async () => {
+    if (get().status !== "idle") return;
+    set({ status: "loading" });
+    try {
+      const res = await fetch("/api/layout");
+      if (res.ok) {
+        const data = await res.json();
+        set({ templateId: data.templateId, items: data.items, status: "ready" });
+        return;
+      }
+    } catch {
+      // 네트워크 오류 등 — 빈 상태로 시작한다.
+    }
+    set({ status: "ready" });
+  },
+  addItem: (catalogId, x, y) => {
+    set((state) => {
+      const id = crypto.randomUUID();
+      return {
+        items: [...state.items, { id, catalogId, x, y, rotation: 0 }],
+        selectedId: id,
+      };
+    });
+    scheduleSave(get);
+  },
+  moveItem: (id, x, y) => {
+    set((state) => ({
+      items: state.items.map((item) => (item.id === id ? { ...item, x, y } : item)),
+    }));
+    scheduleSave(get);
+  },
+  rotateItem: (id, deltaDeg) => {
+    set((state) => ({
+      items: state.items.map((item) =>
+        item.id === id
+          ? { ...item, rotation: (item.rotation + deltaDeg + 360) % 360 }
+          : item,
+      ),
+    }));
+    scheduleSave(get);
+  },
+  removeItem: (id) => {
+    set((state) => ({
+      items: state.items.filter((item) => item.id !== id),
+      selectedId: state.selectedId === id ? null : state.selectedId,
+    }));
+    scheduleSave(get);
+  },
+  selectItem: (id) => set({ selectedId: id }),
+  clear: () => {
+    set({ items: [], selectedId: null });
+    scheduleSave(get);
+  },
+  syncTemplate: (templateId) => {
+    if (get().templateId !== templateId) {
+      set({ templateId, items: [], selectedId: null });
+      scheduleSave(get);
+    }
+  },
+}));

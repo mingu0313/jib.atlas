@@ -4,10 +4,11 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
-import { useEditorHasHydrated, useEditorStore } from "@/lib/editorStore";
+import { useEditorStore } from "@/lib/editorStore";
 import { matchHouseTemplate } from "@/lib/matching";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
+import { useUser } from "@/lib/supabase/useUser";
 import type { Answer, FurnitureCatalogItem } from "@/lib/types";
 
 const furnitureCatalog = furnitureCatalogData as FurnitureCatalogItem[];
@@ -30,13 +31,20 @@ function CanvasSkeleton() {
 
 export default function EditorPage() {
   const answers = useTestStore((state) => state.answers);
-  const hasHydrated = useEditorHasHydrated();
+  const { user, loading: userLoading } = useUser();
+  const status = useEditorStore((s) => s.status);
+  const loadFromServer = useEditorStore((s) => s.loadFromServer);
   const items = useEditorStore((s) => s.items);
   const selectedId = useEditorStore((s) => s.selectedId);
   const rotateItem = useEditorStore((s) => s.rotateItem);
   const removeItem = useEditorStore((s) => s.removeItem);
   const clear = useEditorStore((s) => s.clear);
   const syncTemplate = useEditorStore((s) => s.syncTemplate);
+
+  // 로그인이 확인되면 서버에 저장된 배치를 불러온다.
+  useEffect(() => {
+    if (user) loadFromServer();
+  }, [user, loadFromServer]);
 
   // Delete/Backspace로 선택된 가구 삭제
   useEffect(() => {
@@ -57,11 +65,11 @@ export default function EditorPage() {
   const [topMatch] = matchHouseTemplate(axisScores);
 
   // 저장된 배치가 지금 매칭된 템플릿과 다르면(재진단으로 집 구조가 바뀐 경우)
-  // 새 템플릿에 맞춰 초기화한다. localStorage 복원이 끝난 뒤에만 실행해야
+  // 새 템플릿에 맞춰 초기화한다. 서버에서 다 불러온 뒤에만 실행해야
   // 아직 안 불러온 이전 배치를 잘못 지우지 않는다.
   useEffect(() => {
-    if (hasHydrated) syncTemplate(topMatch.template.id);
-  }, [hasHydrated, topMatch.template.id, syncTemplate]);
+    if (status === "ready") syncTemplate(topMatch.template.id);
+  }, [status, topMatch.template.id, syncTemplate]);
 
   const answeredCount = Object.keys(answers).length;
   if (answeredCount < TOTAL_QUESTION_COUNT) {
@@ -76,6 +84,25 @@ export default function EditorPage() {
           className="rounded-full bg-black px-6 py-3 text-white transition hover:bg-gray-800"
         >
           진단 테스트 하러 가기
+        </Link>
+      </main>
+    );
+  }
+
+  if (userLoading) return null;
+
+  if (!user) {
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
+        <h1 className="text-xl font-semibold">로그인하고 배치를 저장해보세요</h1>
+        <p className="text-gray-500">
+          로그인하면 가구 배치가 계정에 저장돼서, 다른 기기에서도 이어서 꾸밀 수 있어요.
+        </p>
+        <Link
+          href={`/login?next=${encodeURIComponent("/editor")}`}
+          className="rounded-full bg-black px-6 py-3 text-white transition hover:bg-gray-800"
+        >
+          로그인 / 회원가입
         </Link>
       </main>
     );
@@ -155,7 +182,7 @@ export default function EditorPage() {
       </div>
 
       <p className="text-xs text-gray-400">
-        배치는 이 브라우저에 자동으로 저장돼요. 나중에 다시 들어와도 이어서 꾸밀 수
+        배치는 계정에 자동으로 저장돼요. 다른 기기에서 로그인해도 이어서 꾸밀 수
         있어요. (다른 결과가 매칭되면 배치가 초기화돼요.)
       </p>
     </main>
