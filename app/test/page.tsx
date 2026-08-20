@@ -58,15 +58,15 @@ export default function TestPage() {
     <main className="flex min-h-screen flex-col items-center justify-center p-6">
       <div className="w-full max-w-lg">
         <div className="mb-6">
-          <div className="mb-2 flex items-center justify-between text-sm text-gray-500">
+          <div className="mb-2 flex items-center justify-between text-sm text-muted">
             <span>
               {index + 1} / {totalCount}
             </span>
             <span>{answeredCount}개 응답 완료</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-border">
             <div
-              className="h-full rounded-full bg-black transition-all"
+              className="h-full rounded-full bg-teal-600 transition-all duration-200"
               style={{ width: `${((index + 1) / totalCount) * 100}%` }}
             />
           </div>
@@ -85,10 +85,10 @@ export default function TestPage() {
                 key={value}
                 type="button"
                 onClick={() => handleAnswer(value)}
-                className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition ${
+                className={`flex flex-col items-center gap-2 rounded-xl border p-3 text-center transition-colors duration-150 ${
                   selected
-                    ? "border-black bg-black text-white"
-                    : "border-gray-200 hover:border-gray-400"
+                    ? "border-teal-600 bg-teal-600 text-white"
+                    : "border-border text-foreground hover:border-teal-500/60"
                 }`}
               >
                 <span className="text-lg font-bold">{value}</span>
@@ -105,7 +105,7 @@ export default function TestPage() {
             type="button"
             onClick={() => setIndex((i) => Math.max(0, i - 1))}
             disabled={index === 0}
-            className="text-gray-500 underline disabled:opacity-0"
+            className="text-muted underline underline-offset-2 disabled:opacity-0"
           >
             이전 문항
           </button>
@@ -115,7 +115,7 @@ export default function TestPage() {
               reset();
               setIndex(0);
             }}
-            className="text-gray-400 underline"
+            className="text-muted/70 underline underline-offset-2"
           >
             처음부터 다시
           </button>

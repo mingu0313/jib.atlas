@@ -49,7 +49,7 @@ export function EditorCanvas({
 
   return (
     <div
-      className="overflow-x-auto rounded-2xl border border-gray-200 bg-gray-50"
+      className="overflow-x-auto rounded-2xl border border-border bg-surface"
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >

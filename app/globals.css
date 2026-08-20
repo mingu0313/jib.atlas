@@ -1,26 +1,82 @@
 @import "tailwindcss";
 
+/*
+ * jib.atlas 디자인 시스템 — 미니멀 웜톤 + teal/coral 액센트
+ * - 배경/표면은 따뜻한 크림톤, 본문 텍스트는 웜 에스프레소 톤
+ * - teal: 주요 액션(버튼, 진행바, 선택 상태)
+ * - coral: 강조 요소(배지, 희귀도, 포인트 텍스트)
+ * - 명도 차이로 위계를 표현하고 그라디언트/과한 그림자는 쓰지 않는다 (변주 낮게 유지)
+ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #faf6f0;
+  --surface: #fffdfa;
+  --foreground: #2b241d;
+  --muted: #8a7d6d;
+
+  --border: #e7ddcd;
+  --border-strong: #d8cab2;
+
+  --teal-50: #eaf5f2;
+  --teal-100: #d3e9e3;
+  --teal-500: #16897c;
+  --teal-600: #0f6e63;
+  --teal-700: #0b544c;
+
+  --coral-50: #fdece7;
+  --coral-100: #fbd7cb;
+  --coral-500: #ef6b4c;
+  --coral-600: #dd5537;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+
+  --color-teal-50: var(--teal-50);
+  --color-teal-100: var(--teal-100);
+  --color-teal-500: var(--teal-500);
+  --color-teal-600: var(--teal-600);
+  --color-teal-700: var(--teal-700);
+
+  --color-coral-50: var(--coral-50);
+  --color-coral-100: var(--coral-100);
+  --color-coral-500: var(--coral-500);
+  --color-coral-600: var(--coral-600);
+
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #211c17;
+    --surface: #2a231c;
+    --foreground: #f3ece2;
+    --muted: #a99c8a;
+
+    --border: #3c3327;
+    --border-strong: #4c4132;
+
+    --teal-50: #16302c;
+    --teal-100: #1c3f39;
+    --teal-500: #35b3a2;
+    --teal-600: #4bc4b3;
+    --teal-700: #7ad6c8;
+
+    --coral-50: #3a241d;
+    --coral-100: #4a2c22;
+    --coral-500: #f5876a;
+    --coral-600: #f79c82;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
