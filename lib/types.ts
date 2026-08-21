@@ -148,24 +148,30 @@ export interface HouseTemplate {
   features: Feature[];
 }
 
-/** 2D 에디터 팔레트에 등장하는 가구 카탈로그 항목. */
-export interface FurnitureCatalogItem {
+/**
+ * 아이소메트릭 룸 에디터 팔레트에 등장하는 가구 정의. col/row 격자 단위
+ * 크기(w×d)와 높이(h), 이소메트릭 3면(top/left/right) 색을 갖는다.
+ * (components/EditorCanvas.tsx의 ixy/up 투영에 그대로 쓰인다.)
+ */
+export interface IsoFurnitureDef {
   id: string;
   label: string;
-  /** 평면도와 같은 좌표계(viewBox "0 0 400 300") 기준 크기. */
-  width: number;
-  height: number;
-  color: string;
+  /** 캔버스 위 가구 이름표(모노 8px)에 쓰는 영문 라벨. */
+  en: string;
+  w: number;
+  d: number;
+  h: number;
+  top: string;
+  left: string;
+  right: string;
 }
 
-/** 캔버스에 배치된 가구 하나. x/y는 중심점 기준 좌표. */
+/** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅). */
 export interface PlacedFurniture {
   id: string;
-  catalogId: string;
-  x: number;
-  y: number;
-  /** 회전 각도(도). */
-  rotation: number;
+  defId: string;
+  col: number;
+  row: number;
 }
 
 /** matchHouseTemplate()이 반환하는 개별 매칭 결과. */

@@ -1,14 +1,21 @@
 import Link from "next/link";
 import { IsoRoomArt } from "@/components/IsoRoomArt";
 import houseTemplatesData from "@/data/house-templates.json";
+import { AXIS_LABELS } from "@/lib/types";
 import type { HouseTemplate } from "@/lib/types";
 
 /**
- * 랜딩 페이지 — design_handoff_jib_atlas/jib.atlas.dc.html("에디토리얼 딥틸"
- * 하이파이 디자인, README 기준 픽셀 단위 재현 대상)를 이 Next.js/Tailwind
- * 환경의 패턴으로 다시 구현했다. 색·radius·폰트는 app/globals.css 토큰과
- * app/layout.tsx의 next/font 변수만 쓰고, 프로토타입의 하드코딩 값은
- * 옮기지 않았다.
+ * 랜딩 페이지. 색·radius·폰트는 app/globals.css 토큰과 app/layout.tsx의
+ * next/font 변수만 쓰고, 프로토타입의 하드코딩 값은 옮기지 않았다.
+ *
+ * 히어로만 새 handoff(app/result/jib-atlas.design/jib.atlas.dc.html, 섹션 1)에
+ * 맞춰 다시 구현했다 — 아이폰 목업 안의 "결과 화면 축소판"은 순수 장식용
+ * 미리보기라 실제 유저 데이터가 없다. 대신 House Types 섹션과 같은 대표
+ * 템플릿(FEATURED[0], t9)의 실제 이름/특징/scoreProfile로 채워서 완전히
+ * 지어낸 문구는 없게 했다.
+ *
+ * Process~Footer는 아직 이전 handoff(design_handoff_jib_atlas/jib.atlas.dc.html)
+ * 버전 그대로다 — 다음 단계에서 새 handoff에 맞춰 다시 구현할 예정.
  *
  * 원본 프로토타입과 다르게 채운 부분(README에도 명시돼 있던 괴리):
  * - 4가지 고정 유형(Serene Nest 등) → 실제 데이터(data/house-templates.json,
@@ -17,8 +24,8 @@ import type { HouseTemplate } from "@/lib/types";
  *   실제 문항 수(23)·템플릿 수(22)·가구 수(furniture-catalog.json, 8)로 교체
  * - Unsplash 이미지 hotlink → 이 프로젝트는 실사진을 안 쓰기로 해왔어서
  *   같은 자리에 flat 컬러 + 도트 텍스처로 대체
- * - "10×8 타일 클릭 배치" 같은 에디터 설명 → 지금 실제 에디터(react-konva
- *   드래그앤드롭)에 맞는 문구로 수정
+ * - Editor Preview 섹션의 에디터 설명 문구는 실제 /editor 구현(아이소메트릭
+ *   타일 클릭 배치, components/EditorCanvas.tsx)과 정확히 일치한다
  * - 아이소메트릭 미니룸 SVG는 순수 장식용으로 새로 만든 components/
  *   IsoRoomArt.tsx — 실제 에디터 캔버스 로직과는 무관하다 (그 파일 설명 참고)
  */
@@ -27,7 +34,6 @@ const houseTemplates = houseTemplatesData as HouseTemplate[];
 
 const QUESTION_COUNT = 23;
 const TEMPLATE_COUNT = houseTemplates.length; // 22
-const FURNITURE_COUNT = 8;
 
 function templateById(id: string) {
   const t = houseTemplates.find((h) => h.id === id);
@@ -48,82 +54,182 @@ const DOT_TEXTURE = (rgba: string, size = 16) => ({
   backgroundSize: `${size}px ${size}px`,
 });
 
+/** "은둔형 프라이빗 스튜디오" → { lead: "은둔형 프라이빗", tail: "스튜디오" } — 히어로 목업/
+ * /result 양쪽에서 쓰는 "수식어 + 명사" 2행 타이틀 분리 규칙(모든 템플릿명이 이 구조). */
+function splitTitle(name: string) {
+  const idx = name.lastIndexOf(" ");
+  if (idx === -1) return { lead: "", tail: name };
+  return { lead: name.slice(0, idx), tail: name.slice(idx + 1) };
+}
+
+/** 히어로 아이폰 목업 안 "결과 화면 축소판"용 — FEATURED[0](t9)의 실제 데이터로 채운다.
+ * 방문자 본인의 진단 결과가 아니라 순수 미리보기 예시라, 실제 similarity/rarity 대신
+ * scoreProfile 중 3축만 뽑아 보여준다. */
+const HERO_PREVIEW_TEMPLATE = FEATURED[0].template;
+const HERO_PREVIEW_TITLE = splitTitle(HERO_PREVIEW_TEMPLATE.name);
+const HERO_PREVIEW_TAGLINE = HERO_PREVIEW_TEMPLATE.features[0]?.text ?? "";
+const HERO_PREVIEW_AXES = (["nature", "minimalism", "sociability"] as const).map(
+  (axis, i) => ({
+    axis,
+    val: Math.round(HERO_PREVIEW_TEMPLATE.scoreProfile[axis]),
+    color: i % 2 ? "var(--color-teal-500)" : "var(--color-teal-600)",
+  }),
+);
+
 export default function Home() {
   return (
     <main>
       {/* ── Hero ── */}
-      <section className="grid min-h-[calc(100vh_-_63px)] grid-cols-1 border-b border-border lg:grid-cols-[55fr_45fr]">
-        <div className="flex flex-col justify-center gap-[30px] px-6 py-16 sm:px-10 lg:px-16 lg:py-20">
+      <section className="relative grid grid-cols-1 items-center overflow-hidden border-b border-border bg-background px-6 py-16 sm:px-10 lg:min-h-[calc(100vh_-_63px)] lg:grid-cols-[52fr_48fr] lg:px-16 lg:py-20">
+        <div
+          className="pointer-events-none absolute -right-[120px] top-[60px] hidden h-[480px] w-[540px] bg-teal-600 opacity-[0.045] lg:block"
+          style={{ borderRadius: "62% 38% 47% 53% / 44% 58% 42% 56%" }}
+        />
+
+        {/* 좌: 카피 + CTA */}
+        <div className="relative flex flex-col items-start gap-[34px] pb-14 lg:pb-0">
           <span className="font-mono text-[10px] tracking-[0.45em] text-teal-600 uppercase">
             jib.atlas — house series 2026
           </span>
-          <h1 className="font-serif text-[clamp(50px,6vw,84px)] leading-[1.02] tracking-[-0.02em]">
+          <h1 className="font-serif text-[clamp(50px,6vw,84px)] leading-[1.06] tracking-[-0.02em]">
             <span className="block font-light">나는 어떤</span>
-            <span className="block font-bold text-teal-600">집에</span>
-            <span className="block font-light italic">살아야 할까?</span>
+            <span className="block font-normal">집에</span>
+            <span className="block font-light text-coral-600 italic">살아야 할까?</span>
           </h1>
-          <p className="max-w-[420px] text-[13px] leading-[1.8] text-muted">
-            사교성·미니멀리즘·활동성·개방성·자연친화도. 다섯 개의 축으로
-            취향을 읽고, {TEMPLATE_COUNT}가지 집 구조 중 당신에게 맞는 곳을
-            찾아 직접 꾸며봅니다.
-          </p>
-          <div className="flex flex-wrap items-center gap-[22px]">
-            <Link
-              href="/test"
-              className="rounded-[2px] bg-teal-600 px-10 py-[18px] text-[13px] font-medium text-white transition hover:bg-coral-600"
-            >
-              성향 진단 시작하기
-            </Link>
-            <span className="font-mono text-[10px] tracking-[0.3em] text-muted uppercase">
-              {QUESTION_COUNT}문항 · 5분
-            </span>
-          </div>
-          <div className="mt-5 flex items-center gap-3.5">
-            <span className="h-px w-14 bg-teal-600 opacity-40" />
-            <span className="font-mono text-[9px] tracking-[0.4em] text-muted uppercase">
-              scroll
-            </span>
-          </div>
+          <span className="font-mono text-[11px] tracking-[0.34em] text-muted uppercase">
+            {QUESTION_COUNT}문항 · 5분 · 회원가입 없음
+          </span>
+          <Link
+            href="/test"
+            className="rounded-full bg-teal-600 px-[46px] py-5 text-sm font-medium text-white shadow-[0_12px_32px_rgba(8,80,65,0.14)] transition-all duration-200 hover:bg-coral-600 hover:shadow-[0_14px_36px_rgba(217,97,62,0.20)]"
+          >
+            진단 시작하기
+          </Link>
         </div>
 
-        <div className="relative min-h-[420px] overflow-hidden border-t border-border bg-secondary lg:border-t-0 lg:border-l">
+        {/* 우: 기울어진 아이폰 목업 — 결과 화면 축소판 */}
+        <div className="relative flex min-h-[460px] items-center justify-center lg:min-h-[600px] lg:[perspective:1400px]">
           <div
-            className="pointer-events-none absolute inset-0 opacity-50"
-            style={DOT_TEXTURE("rgba(8,80,65,0.22)")}
+            className="pointer-events-none absolute top-[64%] left-1/2 h-[150px] w-[340px] -translate-x-1/2 -translate-y-1/2 blur-[18px]"
+            style={{
+              background:
+                "radial-gradient(ellipse at center, rgba(8,80,65,0.10) 0%, rgba(8,80,65,0.04) 45%, rgba(8,80,65,0) 72%)",
+            }}
           />
-          <div
-            className="pointer-events-none absolute -left-[90px] top-[110px] h-[380px] w-[420px] bg-teal-600 opacity-[0.07]"
-            style={{ borderRadius: "62% 38% 47% 53% / 44% 58% 42% 56%" }}
-          />
-          <div className="absolute inset-0 flex items-center justify-center [animation:floaty_7s_ease-in-out_infinite]">
-            <IsoRoomArt className="w-[86%]" />
-          </div>
-          <div className="absolute top-10 left-10 flex flex-col gap-1.5">
-            <span className="font-mono text-[9px] tracking-[0.4em] text-teal-600 uppercase">
-              preview
-            </span>
-            <span className="text-[11px] text-muted">가구 배치 예시</span>
-          </div>
-          <div className="absolute right-6 bottom-6 flex border border-border bg-surface sm:right-10 sm:bottom-10">
-            <div className="border-r border-border px-[20px] py-[14px]">
-              <div className="font-serif text-[22px]">{TEMPLATE_COUNT}</div>
-              <div className="font-mono text-[8px] tracking-[0.3em] text-muted uppercase">
-                types
+
+          <div className="relative [animation:floaty_8s_ease-in-out_infinite] [transform-style:preserve-3d]">
+            <div
+              className="w-[280px] rounded-[48px] p-[11px] sm:w-[308px] lg:[transform:rotateY(-17deg)_rotateX(5deg)_rotateZ(-2.5deg)]"
+              style={{
+                background: "linear-gradient(150deg,#ffffff 0%,#f4f1e9 60%,#e9e4d8 100%)",
+                boxShadow: "0 2px 3px rgba(28,28,24,0.05), 0 30px 70px -20px rgba(8,80,65,0.16)",
+              }}
+            >
+              <div
+                className="relative overflow-hidden rounded-[38px] bg-surface"
+                style={{ boxShadow: "inset 0 0 0 1px rgba(28,28,24,0.06)" }}
+              >
+                <div className="absolute top-[11px] left-1/2 h-[22px] w-[78px] -translate-x-1/2 rounded-full bg-foreground opacity-90" />
+
+                <div className="flex flex-col gap-5 px-6 pt-[52px] pb-[30px]">
+                  <div className="flex flex-col gap-[9px]">
+                    <span className="font-mono text-[7px] tracking-[0.42em] text-teal-600 uppercase">
+                      your house type — 01
+                    </span>
+                    <span className="font-serif text-[31px] leading-[1.04] font-light">
+                      {HERO_PREVIEW_TITLE.lead && (
+                        <>
+                          {HERO_PREVIEW_TITLE.lead}
+                          <br />
+                        </>
+                      )}
+                      <span className="font-semibold text-teal-600">
+                        {HERO_PREVIEW_TITLE.tail}
+                      </span>
+                    </span>
+                    <span className="font-serif text-[13px] leading-[1.5] text-muted italic">
+                      {HERO_PREVIEW_TAGLINE}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-center border-t border-b border-border py-2">
+                    <svg viewBox="0 0 120 116" width={128} style={{ display: "block" }}>
+                      <polygon
+                        points="60,10 105.6,43.2 88.2,96.8 31.8,96.8 14.4,43.2"
+                        fill="none"
+                        stroke="rgba(8,80,65,0.12)"
+                        strokeWidth={1}
+                      />
+                      <polygon
+                        points="60,34 82.8,50.6 74.1,77.4 45.9,77.4 37.2,50.6"
+                        fill="none"
+                        stroke="rgba(8,80,65,0.10)"
+                        strokeWidth={1}
+                      />
+                      <polygon
+                        points="60,22 87.4,49.1 68.5,69.7 47.3,75.5 21.2,45.4"
+                        fill="rgba(8,80,65,0.13)"
+                        stroke="var(--color-teal-600)"
+                        strokeWidth={1.6}
+                      />
+                      {[
+                        [60, 22],
+                        [87.4, 49.1],
+                        [68.5, 69.7],
+                        [47.3, 75.5],
+                        [21.2, 45.4],
+                      ].map(([x, y], i) => (
+                        <circle key={i} cx={x} cy={y} r={2.6} fill="var(--color-coral-500)" />
+                      ))}
+                    </svg>
+                  </div>
+
+                  <div className="flex flex-col gap-[11px]">
+                    {HERO_PREVIEW_AXES.map((row) => (
+                      <div
+                        key={row.axis}
+                        className="grid grid-cols-[52px_1fr_22px] items-center gap-2.5"
+                      >
+                        <span className="text-[9px] text-secondary-foreground">
+                          {AXIS_LABELS[row.axis]}
+                        </span>
+                        <span className="relative block h-[3px] bg-[rgba(8,80,65,0.08)]">
+                          <span
+                            className="absolute top-0 left-0 h-[3px]"
+                            style={{ background: row.color, width: `${row.val}%` }}
+                          />
+                        </span>
+                        <span className="text-right font-mono text-[8px] text-muted">
+                          {row.val}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-full bg-teal-600 py-[13px] text-center text-[10px] font-medium text-white">
+                    이 집 꾸미러 가기
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="border-r border-border px-[20px] py-[14px]">
-              <div className="font-serif text-[22px]">{FURNITURE_COUNT}</div>
-              <div className="font-mono text-[8px] tracking-[0.3em] text-muted uppercase">
-                furniture
-              </div>
-            </div>
-            <div className="px-[20px] py-[14px]">
-              <div className="font-serif text-[22px]">
-                5<span className="text-[13px]">분</span>
-              </div>
-              <div className="font-mono text-[8px] tracking-[0.3em] text-muted uppercase">
-                to finish
-              </div>
+          </div>
+
+          {/* 떠 있는 원형 배지 */}
+          <div className="absolute top-[66px] right-4 hidden [animation:floaty_6s_ease-in-out_infinite] sm:block">
+            <div
+              className="flex h-[66px] w-[66px] rotate-[-8deg] items-center justify-center rounded-full bg-surface"
+              style={{ boxShadow: "0 10px 26px -8px rgba(8,80,65,0.20), 0 0 0 1px rgba(8,80,65,0.06)" }}
+            >
+              <svg viewBox="0 0 34 26" width={30} style={{ display: "block" }}>
+                <polygon
+                  points="17,3 31,11 17,19 3,11"
+                  fill="none"
+                  stroke="var(--color-teal-600)"
+                  strokeWidth={1.4}
+                />
+                <polygon points="3,11 17,19 17,23.6 3,15.6" fill="rgba(8,80,65,0.14)" />
+                <polygon points="31,11 17,19 17,23.6 31,15.6" fill="rgba(217,97,62,0.22)" />
+              </svg>
             </div>
           </div>
         </div>
@@ -261,9 +367,9 @@ export default function Home() {
               꾸며보세요
             </h2>
             <p className="max-w-[400px] text-[13px] leading-[1.8] text-white/75">
-              추천받은 집 구조 위에서, 팔레트의 가구를 캔버스로 끌어놓고
-              선택해서 이동·회전·삭제하며 나만의 공간을 완성하세요. 배치는
-              계정에 자동으로 저장돼요.
+              10 × 8 타일의 아이소메트릭 룸. 팔레트에서 가구를 고르고 타일을
+              클릭하면 그 자리에 놓입니다. 겹치는 자리에는 놓이지 않아요.
+              배치는 계정에 자동으로 저장돼요.
             </p>
             <Link
               href="/editor"

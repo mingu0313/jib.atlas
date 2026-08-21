@@ -20,8 +20,9 @@
  * spec 원문에서 그대로 안 가져온 것(의도적으로 뺌):
  * - 4가지 고정 집 유형(SERENE NEST 등)·Unsplash 이미지 hotlink: 실제 앱은
  *   22개 템플릿 + 5축 매칭이라 안 맞고, 실사진도 안 쓰는 게 기존 원칙
- * - "다크모드는 에디터에만" 같은 아키텍처 변경: 지금 시스템(prefers-color-scheme
- *   자동 다크모드)과 범위가 달라 이번엔 손대지 않음
+ *
+ * "다크모드는 에디터에만"은 나중에 `.dark` 클래스 활성화 경로로 실제
+ * 구현했다 (아래 참고) — app/editor/page.tsx만 이 클래스를 쓴다.
  */
 :root {
   --font-size: 16px;
@@ -116,6 +117,38 @@
     --coral-600: #ef906c;
     --coral-700: #f5ab8f;
   }
+}
+
+/*
+ * app/editor/page.tsx 전용 — 시스템 라이트/다크 설정과 무관하게 항상
+ * 다크로 보여줘야 하는 유일한 화면이라(다른 페이지는 전부 위
+ * prefers-color-scheme 자동 다크만 따른다), `.dark` 클래스로 강제
+ * 적용할 수 있는 경로를 하나 더 열어둔다. 값은 위 다크 블록과 완전히
+ * 동일 — 새 토큰이 아니라 같은 값의 또 다른 활성화 셀렉터다.
+ */
+.dark {
+  --background: #0b1815;
+  --surface: #10201c;
+  --foreground: #e5efeb;
+  --muted: #8fac9f;
+
+  --secondary: #142e28;
+  --secondary-foreground: #c8ddd8;
+
+  --border: rgba(58, 172, 142, 0.16);
+  --border-strong: rgba(58, 172, 142, 0.3);
+
+  --teal-50: #12302a;
+  --teal-100: #173d34;
+  --teal-500: #3aac8e;
+  --teal-600: #4bc4a5;
+  --teal-700: #7ad9c0;
+
+  --coral-50: #2c1a12;
+  --coral-100: #3a2318;
+  --coral-500: #e37a53;
+  --coral-600: #ef906c;
+  --coral-700: #f5ab8f;
 }
 
 body {

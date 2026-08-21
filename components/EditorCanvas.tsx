@@ -1,148 +1,142 @@
 "use client";
 
-import { useRef } from "react";
-import { Group, Layer, Rect, Stage, Text } from "react-konva";
-import type Konva from "konva";
-import { useEditorStore } from "@/lib/editorStore";
-import { ROOM_TYPE_LABELS, type FurnitureCatalogItem, type Room } from "@/lib/types";
+import { canPlace, RD, RW, useEditorStore } from "@/lib/editorStore";
+import type { IsoFurnitureDef } from "@/lib/types";
 
-// 모델 좌표계는 FloorPlan과 동일한 "0 0 400 300"을 쓰고, 화면에는 2배로 키워 보여준다.
-const MODEL_WIDTH = 400;
-const MODEL_HEIGHT = 300;
-const SCALE = 2;
+/**
+ * 인테리어 에디터 캔버스 — 아이소메트릭 2.5D 타일 렌더링.
+ * app/result/jib-atlas.design/jib.atlas.dc.html "4. 에디터 > 아이소메트릭
+ * 렌더링" 스펙의 수식을 그대로 쓴다: TW=64,TH=32,OX=468,OY=140,WH=108,
+ * RW=10,RD=8 / ixy(col,row)=[(col-row)*TW/2+OX,(col+row)*TH/2+OY] /
+ * up([x,y],h)=[x,y-h]. 드래그 앤 드롭이 아니라 "팔레트에서 가구 선택 →
+ * 타일 클릭 → 배치"라 상태는 lib/editorStore.ts가 갖고, 이 컴포넌트는
+ * 순수 렌더링 + 클릭 위임만 한다.
+ *
+ * components/FloorPlan.tsx(탑다운, viewBox "0 0 400 300")와는 좌표계가
+ * 완전히 다른 별개 컴포넌트다 — FloorPlan은 /result의 평면도 미리보기에
+ * 계속 쓰인다. 이 파일이 예전엔 react-konva `<Stage>` 기반 자유배치+회전
+ * 시스템이었는데, 지금은 순수 SVG 기반 타일 스냅 시스템으로 전면 교체됐다.
+ */
 
-export function EditorCanvas({
-  rooms,
-  catalog,
-}: {
-  rooms: Room[];
-  catalog: FurnitureCatalogItem[];
-}) {
-  const stageRef = useRef<Konva.Stage>(null);
+const TW = 64;
+const TH = 32;
+const OX = 468;
+const OY = 140;
+const WH = 108;
+
+type Pt = [number, number];
+
+function ixy(col: number, row: number): Pt {
+  return [((col - row) * TW) / 2 + OX, ((col + row) * TH) / 2 + OY];
+}
+function up([x, y]: Pt, h: number): Pt {
+  return [x, y - h];
+}
+function pts(ps: Pt[]): string {
+  return ps.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(" ");
+}
+
+/** 바닥 타일 80개(RW×RD) — 좌표는 고정이라 모듈 스코프에서 한 번만 계산한다. */
+const TILES = Array.from({ length: RD }, (_, row) =>
+  Array.from({ length: RW }, (_, col) => ({
+    col,
+    row,
+    points: pts([ixy(col, row), ixy(col + 1, row), ixy(col + 1, row + 1), ixy(col, row + 1)]),
+  })),
+).flat();
+
+// 벽 2면: col=0 변, row=0 변.
+const WALL_COL0 = pts([ixy(0, 0), ixy(0, RD), up(ixy(0, RD), WH), up(ixy(0, 0), WH)]);
+const WALL_ROW0 = pts([ixy(0, 0), ixy(RW, 0), up(ixy(RW, 0), WH), up(ixy(0, 0), WH)]);
+
+export function EditorCanvas({ catalog }: { catalog: IsoFurnitureDef[] }) {
   const items = useEditorStore((s) => s.items);
-  const selectedId = useEditorStore((s) => s.selectedId);
-  const addItem = useEditorStore((s) => s.addItem);
-  const moveItem = useEditorStore((s) => s.moveItem);
-  const selectItem = useEditorStore((s) => s.selectItem);
+  const selectedDefId = useEditorStore((s) => s.selectedDefId);
+  const placeAt = useEditorStore((s) => s.placeAt);
+  const removeItem = useEditorStore((s) => s.removeItem);
 
-  const catalogById = new Map(catalog.map((c) => [c.id, c]));
+  const defById = new Map(catalog.map((d) => [d.id, d]));
+  const selectedDef = selectedDefId ? (defById.get(selectedDefId) ?? null) : null;
 
-  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
-    e.preventDefault();
-    const catalogId = e.dataTransfer.getData("text/catalog-id");
-    const stage = stageRef.current;
-    if (!catalogId || !stage) return;
-    stage.setPointersPositions(e);
-    // getPointerPosition()은 캔버스 픽셀 기준 좌표를 주기 때문에, Stage의
-    // scaleX/scaleY(2배)를 적용해 모델 좌표(0~400, 0~300)로 변환해주는
-    // getRelativePointerPosition()을 써야 한다.
-    const pos = stage.getRelativePointerPosition();
-    if (!pos) return;
-    addItem(catalogId, pos.x, pos.y);
-  }
-
-  function handleStageMouseDown(e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) {
-    if (e.target === e.target.getStage()) {
-      selectItem(null);
-    }
-  }
+  // 그리기 순서: col+row 오름차순(페인터스 알고리즘) — 안 지키면 뒤쪽 가구가
+  // 앞쪽 가구를 덮어써서 겹침 순서가 어긋난다.
+  const drawnItems = [...items]
+    .sort((a, b) => a.col + a.row - (b.col + b.row))
+    .map((item) => {
+      const def = defById.get(item.defId);
+      if (!def) return null;
+      const a = ixy(item.col, item.row);
+      const b = ixy(item.col + def.w, item.row);
+      const c = ixy(item.col + def.w, item.row + def.d);
+      const e = ixy(item.col, item.row + def.d);
+      return {
+        id: item.id,
+        top: pts([up(a, def.h), up(b, def.h), up(c, def.h), up(e, def.h)]),
+        right: pts([b, c, up(c, def.h), up(b, def.h)]),
+        left: pts([c, e, up(e, def.h), up(c, def.h)]),
+        topFill: def.top,
+        leftFill: def.left,
+        rightFill: def.right,
+        en: def.en,
+        lx: (a[0] + c[0]) / 2,
+        ly: (a[1] + c[1]) / 2 - def.h - 6,
+      };
+    })
+    .filter((box): box is NonNullable<typeof box> => box !== null);
 
   return (
-    <div
-      className={`overflow-x-auto rounded-2xl border bg-surface transition-colors ${
-        selectedId ? "border-coral-500/50" : "border-border"
-      }`}
-      onDragOver={(e) => e.preventDefault()}
-      onDrop={handleDrop}
-    >
-      <Stage
-        ref={stageRef}
-        width={MODEL_WIDTH * SCALE}
-        height={MODEL_HEIGHT * SCALE}
-        scaleX={SCALE}
-        scaleY={SCALE}
-        onMouseDown={handleStageMouseDown}
-        onTouchStart={handleStageMouseDown}
-      >
-        <Layer listening={false}>
-          <Rect x={0} y={0} width={MODEL_WIDTH} height={MODEL_HEIGHT} fill="#f9fafb" />
-          {rooms.map((room, i) => (
-            <Group key={i}>
-              <Rect
-                x={room.position.x}
-                y={room.position.y}
-                width={room.position.width}
-                height={room.position.height}
-                fill="#eef0ee"
-                stroke="#c7ccc7"
-                strokeWidth={1}
-                cornerRadius={4}
-              />
-              <Text
-                x={room.position.x}
-                y={room.position.y + room.position.height / 2 - 6}
-                width={room.position.width}
-                align="center"
-                text={ROOM_TYPE_LABELS[room.type]}
-                fontSize={11}
-                fill="#9aa19a"
-              />
-            </Group>
-          ))}
-        </Layer>
+    <svg viewBox="180 10 640 470" className="relative w-full max-w-[860px]" style={{ overflow: "visible" }}>
+      <polygon points={WALL_COL0} fill="#0d2620" />
+      <polygon points={WALL_ROW0} fill="#0a1f1a" />
 
-        <Layer>
-          {items.map((item) => {
-            const catalogItem = catalogById.get(item.catalogId);
-            if (!catalogItem) return null;
-            const { width, height, color, label } = catalogItem;
-            const selected = item.id === selectedId;
-            return (
-              <Group
-                key={item.id}
-                x={item.x}
-                y={item.y}
-                rotation={item.rotation}
-                draggable
-                onClick={() => selectItem(item.id)}
-                onTap={() => selectItem(item.id)}
-                onDragEnd={(e) => moveItem(item.id, e.target.x(), e.target.y())}
-                // dragBoundFunc의 pos는 (로컬이 아니라) 스테이지 절대 픽셀 좌표로 들어오고
-                // 나가야 해서, SCALE로 모델 좌표로 바꿔 클램프한 뒤 다시 픽셀로 되돌린다.
-                dragBoundFunc={(pos) => ({
-                  x:
-                    Math.max(width / 2, Math.min(MODEL_WIDTH - width / 2, pos.x / SCALE)) *
-                    SCALE,
-                  y:
-                    Math.max(height / 2, Math.min(MODEL_HEIGHT - height / 2, pos.y / SCALE)) *
-                    SCALE,
-                })}
-              >
-                <Rect
-                  x={-width / 2}
-                  y={-height / 2}
-                  width={width}
-                  height={height}
-                  fill={color}
-                  stroke={selected ? "#111827" : "#00000030"}
-                  strokeWidth={selected ? 2 : 1}
-                  dash={selected ? [4, 3] : undefined}
-                  cornerRadius={4}
-                />
-                <Text
-                  x={-width / 2}
-                  y={-5}
-                  width={width}
-                  align="center"
-                  text={label}
-                  fontSize={10}
-                  fill="#1f2937"
-                />
-              </Group>
-            );
-          })}
-        </Layer>
-      </Stage>
-    </div>
+      {TILES.map((tile) => {
+        const fill = selectedDef
+          ? canPlace(tile.col, tile.row, selectedDef, items)
+            ? "rgba(58,172,142,0.16)"
+            : "rgba(9,26,22,0.9)"
+          : (tile.col + tile.row) % 2
+            ? "#0c211c"
+            : "#0e2620";
+        return (
+          <polygon
+            key={`${tile.col}-${tile.row}`}
+            points={tile.points}
+            fill={fill}
+            stroke="rgba(58,172,142,0.14)"
+            strokeWidth={0.75}
+            className="cursor-pointer"
+            onClick={() => placeAt(tile.col, tile.row)}
+          />
+        );
+      })}
+
+      {drawnItems.map((box) => (
+        <g
+          key={box.id}
+          className="cursor-pointer"
+          onClick={(e) => {
+            // 아래 타일 클릭(배치)과 겹치지 않도록 — SVG는 형제 엘리먼트라
+            // 버블링으로 충돌하진 않지만, 명시적으로 막아 의도를 분명히 한다.
+            e.stopPropagation();
+            removeItem(box.id);
+          }}
+        >
+          <polygon points={box.left} fill={box.leftFill} />
+          <polygon points={box.right} fill={box.rightFill} />
+          <polygon points={box.top} fill={box.topFill} stroke="rgba(58,172,142,0.18)" strokeWidth={1} />
+          <text
+            x={box.lx}
+            y={box.ly}
+            textAnchor="middle"
+            fill="rgba(224,237,232,0.55)"
+            fontFamily="var(--font-mono)"
+            fontSize={8}
+            letterSpacing="0.25em"
+          >
+            {box.en}
+          </text>
+        </g>
+      ))}
+    </svg>
   );
 }

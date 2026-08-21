@@ -13,8 +13,11 @@ function labelFontSize(width: number, height: number) {
  * jib.atlas 디자인 토큰(teal/coral, globals.css)만으로 표현한 평면도 —
  * 방 유형별 실내/실외 구분, 크기(S/M/L) 배지, 도면 느낌의 격자 배경을 더했다.
  *
- * viewBox는 "0 0 400 300" 그대로 유지 — EditorCanvas.tsx가 같은 좌표계를
- * 2배로 스케일해서 가구 배치에 쓰므로, 여길 바꾸면 에디터 쪽 배치가 어긋난다.
+ * viewBox는 "0 0 400 300" 그대로 유지 — data/house-templates.json의
+ * Room.position이 이 좌표계 기준으로 저장돼 있다(lib/types.ts의
+ * RoomPosition 설명 참고). 여길 바꾸면 모든 템플릿의 방 위치가 어긋난다.
+ * (예전엔 components/EditorCanvas.tsx도 이 좌표계를 2배 스케일해서 썼지만,
+ * 지금 EditorCanvas는 완전히 다른 아이소메트릭 좌표계라 더는 얽혀있지 않다.)
  */
 export function FloorPlan({ rooms }: { rooms: Room[] }) {
   return (

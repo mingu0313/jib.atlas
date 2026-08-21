@@ -11,10 +11,9 @@ function isPlacedFurnitureArray(value: unknown): value is PlacedFurniture[] {
         item &&
         typeof item === "object" &&
         typeof item.id === "string" &&
-        typeof item.catalogId === "string" &&
-        typeof item.x === "number" &&
-        typeof item.y === "number" &&
-        typeof item.rotation === "number",
+        typeof item.defId === "string" &&
+        typeof item.col === "number" &&
+        typeof item.row === "number",
     )
   );
 }

@@ -1,10 +1,11 @@
 /**
  * 랜딩 페이지 전용 장식용 아이소메트릭 미니룸 일러스트.
  *
- * 이건 실제 인테리어 에디터(components/EditorCanvas.tsx의 <Stage>,
- * components/FloorPlan.tsx)와는 완전히 별개의, 순수 장식 SVG다. 저 둘의
- * 투영/렌더링 로직은 직접 작성하기로 정해둔 영역이라 안 건드렸고, 이
- * 컴포넌트는 마케팅용 랜딩 페이지에만 쓰는 새 그림이다.
+ * 이건 실제 인테리어 에디터(components/EditorCanvas.tsx)와는 완전히 별개의,
+ * 순수 장식 SVG다. EditorCanvas도 지금은 같은 계열의 아이소메트릭 투영
+ * (ixy/up 공식)을 쓰지만, 상수(TW/TH/OX/OY/WH/RW/RD)도 배치 데이터도 서로
+ * 다른 완전히 독립된 코드다 — 여길 고친다고 실제 에디터가 바뀌지 않는다.
+ * 이 컴포넌트는 마케팅용 랜딩 페이지에만 쓰는 그림이다.
  *
  * design_handoff_jib_atlas/jib.atlas.dc.html의 hero room() 함수(작은
  * 소파+화분+테이블+라운지체어 배치, tw:44 th:22 ox:130 oy:70 rw:5 rd:4
