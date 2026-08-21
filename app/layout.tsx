@@ -1,18 +1,21 @@
 import type { Metadata } from "next";
-import { DM_Mono, DM_Sans, Fraunces, Noto_Sans_KR } from "next/font/google";
+import { DM_Mono, DM_Sans, Noto_Sans_KR, Space_Grotesk } from "next/font/google";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { getUserSafe } from "@/lib/supabase/server";
 import "./globals.css";
 
-// 헤딩용 세리프(Fraunces) — 본문은 계속 산세리프를 쓰되 h1~h3만 세리프로
-// 바꾸는 것만으로 "AI가 뽑아낸 제네릭 SaaS UI" 느낌에서 벗어나는 효과가 크다.
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+// 디스플레이 헤딩용 — 각지고 기하학적인 그로테스크 산세리프(Space Grotesk).
+// v2의 세리프(Fraunces) 헤딩을 대체한다: "그레이지+카퍼, 건축 도면" 팔레트
+// 브리프가 명시적으로 세리프를 금지했다 — 건축적 느낌은 각진 산세리프가 더
+// 잘 산다는 이유. app/globals.css의 --font-serif가 이 폰트를 가리킨다
+// (이름은 남겨뒀지만 실제로는 세리프가 아니다 — 토큰 이름 그대로 유지하고
+// 값만 바꾸는 이 프로젝트의 기존 관례를 그대로 따름).
+const spaceGrotesk = Space_Grotesk({
+  variable: "--font-space-grotesk",
   subsets: ["latin"],
-  axes: ["opsz"],
-  style: ["normal", "italic"],
+  weight: ["500", "600", "700"],
 });
 const dmSans = DM_Sans({
   variable: "--font-dm-sans",
@@ -48,7 +51,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${fraunces.variable} ${dmSans.variable} ${dmMono.variable} ${notoSansKr.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} ${dmSans.variable} ${dmMono.variable} ${notoSansKr.variable} h-full antialiased`}
     >
       <head>
         {supabaseEnv && (

@@ -256,7 +256,7 @@ export default function ResultPage() {
               ))}
               <polygon
                 points={radar.shapePoints}
-                fill="rgba(8,80,65,0.14)"
+                fill="rgba(35,40,58,0.14)"
                 stroke="var(--color-teal-600)"
                 strokeWidth={2}
               />
@@ -287,7 +287,7 @@ export default function ResultPage() {
                 className="grid grid-cols-[96px_1fr_44px] items-center gap-[18px] border-b border-border py-4"
               >
                 <span className="text-xs text-secondary-foreground">{row.ko}</span>
-                <span className="relative block h-[3px] bg-[rgba(8,80,65,0.08)]">
+                <span className="relative block h-[3px] bg-[rgba(35,40,58,0.08)]">
                   <span
                     className="absolute top-0 left-0 h-[3px]"
                     style={{ background: row.color, width: `${row.val}%` }}

@@ -52,7 +52,7 @@ function pts(ps: [number, number][]): string {
 const TILES = Array.from({ length: RD }, (_, row) =>
   Array.from({ length: RW }, (_, col) => ({
     points: pts([ixy(col, row), ixy(col + 1, row), ixy(col + 1, row + 1), ixy(col, row + 1)]),
-    fill: (col + row) % 2 ? "rgba(8,80,65,0.07)" : "rgba(8,80,65,0.12)",
+    fill: (col + row) % 2 ? "rgba(35,40,58,0.07)" : "rgba(35,40,58,0.12)",
   })),
 ).flat();
 
@@ -81,18 +81,18 @@ export function IsoRoomArt({
   tone = "light",
 }: {
   className?: string;
-  /** light: 밝은(--muted 계열) 배경 위. onPrimary: --primary(딥틸) 배경 위 — 타일 테두리만 흰 톤으로. */
+  /** light: 밝은(--muted 계열) 배경 위. onPrimary: --primary(잉크) 배경 위 — 타일 테두리만 밝은 톤으로. */
   tone?: "light" | "onPrimary";
 }) {
-  const tileStroke = tone === "light" ? "rgba(8,80,65,0.10)" : "rgba(240,247,244,0.10)";
+  const tileStroke = tone === "light" ? "rgba(35,40,58,0.10)" : "rgba(244,242,237,0.10)";
 
   return (
     <svg viewBox="20 -24 240 214" className={className} style={{ overflow: "visible" }}>
       {TILES.map((t, i) => (
         <polygon key={i} points={t.points} fill={t.fill} stroke={tileStroke} strokeWidth={0.5} />
       ))}
-      <polygon points={WALL_LEFT} fill="rgba(8,80,65,0.16)" />
-      <polygon points={WALL_RIGHT} fill="rgba(8,80,65,0.10)" />
+      <polygon points={WALL_LEFT} fill="rgba(35,40,58,0.16)" />
+      <polygon points={WALL_RIGHT} fill="rgba(35,40,58,0.10)" />
       {DRAWN_BOXES.map((b, i) => (
         <g key={i}>
           <polygon points={b.left} fill={b.leftFill} />
