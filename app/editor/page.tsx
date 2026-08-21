@@ -112,34 +112,47 @@ export default function EditorPage() {
 
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-6 p-6 sm:p-10">
-      <header>
-        <p className="text-sm text-muted">{topMatch.template.name}</p>
-        <h1 className="text-2xl font-bold">인테리어 에디터</h1>
-        <p className="mt-1 text-sm text-muted">
-          아래 가구를 캔버스로 드래그해서 배치해보세요. 배치한 가구는 클릭해서
-          선택한 뒤 이동/회전/삭제할 수 있어요.
-        </p>
+      <header className="flex items-start justify-between gap-4">
+        <div>
+          <p className="text-sm text-muted">{topMatch.template.name}</p>
+          <h1 className="text-2xl font-bold">인테리어 에디터</h1>
+          <p className="mt-1 text-sm text-muted">
+            아래 가구를 캔버스로 드래그해서 배치해보세요. 배치한 가구는 클릭해서
+            선택한 뒤 이동/회전/삭제할 수 있어요.
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <p className="font-serif text-3xl leading-none font-normal text-teal-700">
+            {items.length}
+          </p>
+          <p className="font-mono text-[10px] tracking-wide text-muted uppercase">
+            배치됨
+          </p>
+        </div>
       </header>
 
-      <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-surface p-3">
-        {furnitureCatalog.map((item) => (
-          <button
-            key={item.id}
-            type="button"
-            draggable
-            onDragStart={(e) => {
-              e.dataTransfer.setData("text/catalog-id", item.id);
-              e.dataTransfer.effectAllowed = "copy";
-            }}
-            className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-teal-500/60 active:cursor-grabbing"
-          >
-            <span
-              className="inline-block h-3 w-3 rounded-sm"
-              style={{ backgroundColor: item.color }}
-            />
-            {item.label}
-          </button>
-        ))}
+      <div>
+        <p className="section-label mb-2">가구 고르기</p>
+        <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-surface p-3">
+          {furnitureCatalog.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              draggable
+              onDragStart={(e) => {
+                e.dataTransfer.setData("text/catalog-id", item.id);
+                e.dataTransfer.effectAllowed = "copy";
+              }}
+              className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-teal-500/60 active:cursor-grabbing"
+            >
+              <span
+                className="inline-block h-3 w-3 rounded-sm"
+                style={{ backgroundColor: item.color }}
+              />
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <EditorCanvas rooms={topMatch.template.rooms} catalog={furnitureCatalog} />
@@ -148,8 +161,10 @@ export default function EditorPage() {
         <div className="flex items-center gap-2 text-muted">
           {selectedItem ? (
             <>
+              <span className="font-mono text-xs tracking-wide text-muted uppercase">
+                선택됨
+              </span>
               <span>
-                선택됨:{" "}
                 {furnitureCatalog.find((c) => c.id === selectedItem.catalogId)?.label}
               </span>
               <button

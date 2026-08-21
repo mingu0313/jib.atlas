@@ -49,7 +49,9 @@ export function EditorCanvas({
 
   return (
     <div
-      className="overflow-x-auto rounded-2xl border border-border bg-surface"
+      className={`overflow-x-auto rounded-2xl border bg-surface transition-colors ${
+        selectedId ? "border-coral-500/50" : "border-border"
+      }`}
       onDragOver={(e) => e.preventDefault()}
       onDrop={handleDrop}
     >
