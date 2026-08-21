@@ -1,7 +1,6 @@
 import traitDescriptionsData from "../data/trait-descriptions.json";
+import { pickTopAxesByExtremity, simpleBand } from "./axisUtils";
 import {
-  AXES,
-  type Axis,
   type AxisScores,
   type HouseTemplate,
   type TraitBand,
@@ -17,13 +16,6 @@ function getBand(score: number): TraitBand {
   if (score >= HIGH_THRESHOLD) return "high";
   if (score <= LOW_THRESHOLD) return "low";
   return "mid";
-}
-
-/** 점수 기준 상위 축 n개를 뽑는다 (동점이면 AXES에 나열된 순서를 따른다). */
-function pickTopAxes(axisScores: AxisScores, count: number): Axis[] {
-  return [...AXES]
-    .sort((a, b) => axisScores[b] - axisScores[a])
-    .slice(0, count);
 }
 
 /**
@@ -57,7 +49,7 @@ export function generateExplanation(
   userAxisScores: AxisScores,
   matchedTemplate: HouseTemplate,
 ): string {
-  const topAxes = pickTopAxes(userAxisScores, 3);
+  const topAxes = pickTopAxesByExtremity(userAxisScores, 3);
   const descriptions = topAxes.map(
     (axis) => traitDescriptions[axis][getBand(userAxisScores[axis])],
   );
@@ -70,8 +62,13 @@ export function generateExplanation(
   const particle = subjectParticle(matchedTemplate.name);
   const matchSentence = `그래서 ${matchedTemplate.name}${particle} 어울려요.`;
 
-  const relevantFeatures = matchedTemplate.features.filter((f) =>
-    topAxes.includes(f.linkedTrait),
+  // 축(axis)뿐 아니라 극(band)까지 맞아야 한다 — 예를 들어 유저의 상위 축이
+  // "minimalism(low, 즉 맥시멀 성향)"이면 미니멀을 어필하는 feature가 아니라
+  // 맥시멀을 어필하는 feature를 보여줘야 한다.
+  const relevantFeatures = matchedTemplate.features.filter(
+    (f) =>
+      topAxes.includes(f.linkedTrait) &&
+      f.band === simpleBand(userAxisScores[f.linkedTrait]),
   );
   const featuresToShow =
     relevantFeatures.length > 0 ? relevantFeatures : matchedTemplate.features;

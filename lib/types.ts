@@ -125,10 +125,17 @@ export interface Room {
   position: RoomPosition;
 }
 
-/** 집 구조의 특징 하나. 어떤 축(axis)과 연결되는지 태깅한다. */
+/**
+ * 집 구조의 특징 하나. 어떤 축(axis)과 연결되는지, 그 축의 어느 극(band)을
+ * 어필하는 특징인지 태깅한다. 5축은 전부 양극형(예: minimalism은 높을수록
+ * 미니멀·낮을수록 맥시멀)이라 linkedTrait만으로는 "미니멀해서 좋다"와
+ * "맥시멀해서 좋다"를 구분할 수 없다 — band가 그 극을 명시한다.
+ */
 export interface Feature {
   text: string;
   linkedTrait: Axis;
+  /** 이 특징이 해당 축의 high(예: 미니멀) 쪽을 어필하는지 low(예: 맥시멀) 쪽을 어필하는지. */
+  band: "high" | "low";
 }
 
 /** 집 구조 템플릿. */

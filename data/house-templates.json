@@ -11,9 +11,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 310, "y": 160, "width": 70, "height": 60 } }
     ],
     "features": [
-      { "text": "주방·거실·다이닝이 하나로 이어진 완전 개방형 구조라 손님을 초대해 어울리기 좋아요.", "linkedTrait": "sociability" },
-      { "text": "천장까지 트인 개방감 넘치는 로프트 구조예요.", "linkedTrait": "openness" },
-      { "text": "높은 층고와 큰 창으로 채광이 풍부해요.", "linkedTrait": "nature" }
+      { "text": "주방·거실·다이닝이 하나로 이어진 완전 개방형 구조라 손님을 초대해 어울리기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "천장까지 트인 개방감 넘치는 로프트 구조예요.", "linkedTrait": "openness", "band": "high" },
+      { "text": "높은 층고와 큰 창으로 채광이 풍부해요.", "linkedTrait": "nature", "band": "high" }
     ]
   },
   {
@@ -29,9 +29,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 270, "y": 160, "width": 90, "height": 70 } }
     ],
     "features": [
-      { "text": "불필요한 가구 없이 꼭 필요한 것만 남긴 화이트 톤 공간이에요.", "linkedTrait": "minimalism" },
-      { "text": "붙박이 수납장으로 물건이 눈에 띄지 않게 정리돼요.", "linkedTrait": "minimalism" },
-      { "text": "군더더기 없는 단순한 동선으로 개방감을 살렸어요.", "linkedTrait": "openness" }
+      { "text": "불필요한 가구 없이 꼭 필요한 것만 남긴 화이트 톤 공간이에요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "붙박이 수납장으로 물건이 눈에 띄지 않게 정리돼요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "군더더기 없는 단순한 동선으로 개방감을 살렸어요.", "linkedTrait": "openness", "band": "high" }
     ]
   },
   {
@@ -47,9 +47,9 @@
       { "type": "garden", "size": "L", "position": { "x": 340, "y": 30, "width": 50, "height": 240 } }
     ],
     "features": [
-      { "text": "벽으로 아늑하게 나뉜 전통적인 방 구조라 안정감을 느낄 수 있어요.", "linkedTrait": "openness" },
-      { "text": "작은 정원과 맞닿아 있어 자연을 가까이 느낄 수 있어요.", "linkedTrait": "nature" },
-      { "text": "작은 서재가 있어 혼자만의 시간을 보내기 좋아요.", "linkedTrait": "sociability" }
+      { "text": "벽으로 아늑하게 나뉜 전통적인 방 구조라 안정감을 느낄 수 있어요.", "linkedTrait": "openness", "band": "low" },
+      { "text": "작은 정원과 맞닿아 있어 자연을 가까이 느낄 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "작은 서재가 있어 혼자만의 시간을 보내기 좋아요.", "linkedTrait": "sociability", "band": "low" }
     ]
   },
   {
@@ -65,9 +65,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 230, "y": 230, "width": 70, "height": 60 } }
     ],
     "features": [
-      { "text": "넓은 홈오피스 공간에서 집중해서 작업할 수 있어요.", "linkedTrait": "activity" },
-      { "text": "정돈된 붙박이 수납으로 깔끔하게 유지돼요.", "linkedTrait": "minimalism" },
-      { "text": "혼자만의 작업 공간이 확보돼 조용히 몰입할 수 있어요.", "linkedTrait": "sociability" }
+      { "text": "넓은 홈오피스 공간에서 집중해서 작업할 수 있어요.", "linkedTrait": "activity", "band": "high" },
+      { "text": "정돈된 붙박이 수납으로 깔끔하게 유지돼요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "혼자만의 작업 공간이 확보돼 조용히 몰입할 수 있어요.", "linkedTrait": "sociability", "band": "low" }
     ]
   },
   {
@@ -83,9 +83,9 @@
       { "type": "kidsRoom", "size": "M", "position": { "x": 20, "y": 30, "width": 80, "height": 170 } }
     ],
     "features": [
-      { "text": "거실·주방·다이닝이 넓게 이어져 가족과 손님이 다 같이 모이기 좋아요.", "linkedTrait": "sociability" },
-      { "text": "여러 개의 침실이 있어 대가족이 함께 지내기 편해요.", "linkedTrait": "sociability" },
-      { "text": "개방형 공용 공간과 독립된 침실이 균형 있게 배치됐어요.", "linkedTrait": "openness" }
+      { "text": "거실·주방·다이닝이 넓게 이어져 가족과 손님이 다 같이 모이기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "여러 개의 침실이 있어 대가족이 함께 지내기 편해요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "개방형 공용 공간과 독립된 침실이 균형 있게 배치됐어요.", "linkedTrait": "openness", "band": "high" }
     ]
   },
   {
@@ -101,9 +101,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 330, "y": 150, "width": 60, "height": 60 } }
     ],
     "features": [
-      { "text": "홈짐이 따로 마련돼 있어 매일 운동하기 좋아요.", "linkedTrait": "activity" },
-      { "text": "DIY·취미 작업을 할 수 있는 다목적 공간이에요.", "linkedTrait": "activity" },
-      { "text": "적당히 트인 구조로 몸을 움직이기 편해요.", "linkedTrait": "openness" }
+      { "text": "홈짐이 따로 마련돼 있어 매일 운동하기 좋아요.", "linkedTrait": "activity", "band": "high" },
+      { "text": "DIY·취미 작업을 할 수 있는 다목적 공간이에요.", "linkedTrait": "activity", "band": "high" },
+      { "text": "적당히 트인 구조로 몸을 움직이기 편해요.", "linkedTrait": "openness", "band": "high" }
     ]
   },
   {
@@ -119,9 +119,9 @@
       { "type": "garden", "size": "L", "position": { "x": 20, "y": 30, "width": 60, "height": 170 } }
     ],
     "features": [
-      { "text": "넓은 테라스와 정원이 있어 자연을 매일 누릴 수 있어요.", "linkedTrait": "nature" },
-      { "text": "큰 창으로 채광과 통풍이 잘 돼요.", "linkedTrait": "nature" },
-      { "text": "거실에서 정원으로 바로 이어지는 개방적인 구조예요.", "linkedTrait": "openness" }
+      { "text": "넓은 테라스와 정원이 있어 자연을 매일 누릴 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "큰 창으로 채광과 통풍이 잘 돼요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "거실에서 정원으로 바로 이어지는 개방적인 구조예요.", "linkedTrait": "openness", "band": "high" }
     ]
   },
   {
@@ -136,9 +136,9 @@
       { "type": "storage", "size": "M", "position": { "x": 90, "y": 230, "width": 100, "height": 60 } }
     ],
     "features": [
-      { "text": "좋아하는 소품과 빈티지 가구로 가득 채운 개성 있는 공간이에요.", "linkedTrait": "minimalism" },
-      { "text": "혼자 또는 가까운 사람과 조용히 나만의 컬렉션을 즐기기 좋은 아늑한 구조예요.", "linkedTrait": "sociability" },
-      { "text": "곳곳에 진열장과 수납장을 배치해 다양한 소품을 마음껏 채울 수 있어요.", "linkedTrait": "minimalism" }
+      { "text": "좋아하는 소품과 빈티지 가구로 가득 채운 개성 있는 공간이에요.", "linkedTrait": "minimalism", "band": "low" },
+      { "text": "다른 사람 신경 쓰지 않고 나만의 컬렉션에 몰입할 수 있는 아늑한 공간이에요.", "linkedTrait": "sociability", "band": "low" },
+      { "text": "곳곳에 진열장과 수납장을 배치해 다양한 소품을 마음껏 채울 수 있어요.", "linkedTrait": "minimalism", "band": "low" }
     ]
   },
   {
@@ -153,9 +153,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 90, "y": 220, "width": 70, "height": 60 } }
     ],
     "features": [
-      { "text": "혼자만의 시간을 방해받지 않는 독립적인 구조예요.", "linkedTrait": "sociability" },
-      { "text": "군더더기 없이 정돈된 심플한 공간이에요.", "linkedTrait": "minimalism" },
-      { "text": "작은 창으로 은은한 채광이 들어와 차분한 분위기예요.", "linkedTrait": "nature" }
+      { "text": "혼자만의 시간을 방해받지 않는 독립적인 구조예요.", "linkedTrait": "sociability", "band": "low" },
+      { "text": "군더더기 없이 정돈된 심플한 공간이에요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "책 읽기나 영상 몰아보기처럼 잔잔한 취미를 즐기기 좋은 조용한 공간이에요.", "linkedTrait": "activity", "band": "low" }
     ]
   },
   {
@@ -171,9 +171,9 @@
       { "type": "garden", "size": "L", "position": { "x": 330, "y": 30, "width": 60, "height": 250 } }
     ],
     "features": [
-      { "text": "방마다 벽으로 나뉜 아늑하고 안정적인 전통 구조예요.", "linkedTrait": "openness" },
-      { "text": "마당이 있어 자연을 가까이서 느낄 수 있어요.", "linkedTrait": "nature" },
-      { "text": "가족이 마루에 모여 시간을 보내기 좋아요.", "linkedTrait": "sociability" }
+      { "text": "방마다 벽으로 나뉜 아늑하고 안정적인 전통 구조예요.", "linkedTrait": "openness", "band": "low" },
+      { "text": "마당이 있어 자연을 가까이서 느낄 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "가족이 마루에 모여 시간을 보내기 좋아요.", "linkedTrait": "sociability", "band": "high" }
     ]
   },
   {
@@ -188,9 +188,9 @@
       { "type": "storage", "size": "S", "position": { "x": 290, "y": 240, "width": 90, "height": 40 } }
     ],
     "features": [
-      { "text": "군더더기 없는 원룸형 구조로 관리가 쉬워요.", "linkedTrait": "minimalism" },
-      { "text": "붙박이 수납으로 물건을 깔끔하게 숨길 수 있어요.", "linkedTrait": "minimalism" },
-      { "text": "작지만 효율적으로 동선이 짜여 있어요.", "linkedTrait": "activity" }
+      { "text": "군더더기 없는 원룸형 구조로 관리가 쉬워요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "붙박이 수납으로 물건을 깔끔하게 숨길 수 있어요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "작지만 효율적으로 동선이 짜여 있어요.", "linkedTrait": "minimalism", "band": "high" }
     ]
   },
   {
@@ -206,9 +206,9 @@
       { "type": "balcony", "size": "S", "position": { "x": 20, "y": 30, "width": 70, "height": 170 } }
     ],
     "features": [
-      { "text": "홈짐과 작업실을 겸한 워크숍 공간이 따로 있어요.", "linkedTrait": "activity" },
-      { "text": "거실이 넓게 트여 있어 친구들과 모이기 좋아요.", "linkedTrait": "sociability" },
-      { "text": "발코니에서 바깥 공기를 쉽게 즐길 수 있어요.", "linkedTrait": "nature" }
+      { "text": "홈짐과 작업실을 겸한 워크숍 공간이 따로 있어요.", "linkedTrait": "activity", "band": "high" },
+      { "text": "거실이 넓게 트여 있어 친구들과 모이기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "발코니에서 바깥 공기를 쉽게 즐길 수 있어요.", "linkedTrait": "nature", "band": "high" }
     ]
   },
   {
@@ -223,9 +223,9 @@
       { "type": "bathroom", "size": "S", "position": { "x": 330, "y": 150, "width": 60, "height": 60 } }
     ],
     "features": [
-      { "text": "탁 트인 통유리창으로 도시 전망을 즐길 수 있는 개방형 구조예요.", "linkedTrait": "openness" },
-      { "text": "넓은 거실에서 파티나 모임을 열기 좋아요.", "linkedTrait": "sociability" },
-      { "text": "군더더기 없이 정돈된 도시적인 인테리어예요.", "linkedTrait": "minimalism" }
+      { "text": "탁 트인 통유리창으로 도시 전망을 즐길 수 있는 개방형 구조예요.", "linkedTrait": "openness", "band": "high" },
+      { "text": "넓은 거실에서 파티나 모임을 열기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "군더더기 없이 정돈된 도시적인 인테리어예요.", "linkedTrait": "minimalism", "band": "high" }
     ]
   },
   {
@@ -240,9 +240,154 @@
       { "type": "terrace", "size": "M", "position": { "x": 260, "y": 30, "width": 120, "height": 100 } }
     ],
     "features": [
-      { "text": "휴식에 집중한 넓은 침실과 라운지 공간이에요.", "linkedTrait": "activity" },
-      { "text": "테라스에서 조용히 자연을 즐길 수 있어요.", "linkedTrait": "nature" },
-      { "text": "혼자만의 여유로운 시간을 보내기 좋은 조용한 구조예요.", "linkedTrait": "sociability" }
+      { "text": "휴식에 집중한 넓은 침실과 라운지 공간이에요.", "linkedTrait": "activity", "band": "low" },
+      { "text": "테라스에서 조용히 자연을 즐길 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "혼자만의 여유로운 시간을 보내기 좋은 조용한 구조예요.", "linkedTrait": "sociability", "band": "low" }
+    ]
+  },
+  {
+    "id": "t15",
+    "name": "루프탑 소셜 펜트하우스",
+    "scoreProfile": { "sociability": 90, "minimalism": 40, "activity": 55, "openness": 85, "nature": 60 },
+    "rooms": [
+      { "type": "entrance", "size": "S", "position": { "x": 20, "y": 220, "width": 50, "height": 60 } },
+      { "type": "livingRoom", "size": "L", "position": { "x": 90, "y": 30, "width": 190, "height": 130 } },
+      { "type": "terrace", "size": "M", "position": { "x": 290, "y": 30, "width": 90, "height": 130 } },
+      { "type": "diningRoom", "size": "M", "position": { "x": 90, "y": 170, "width": 110, "height": 100 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 210, "y": 170, "width": 90, "height": 100 } },
+      { "type": "masterBedroom", "size": "S", "position": { "x": 310, "y": 170, "width": 70, "height": 100 } }
+    ],
+    "features": [
+      { "text": "옥상 테라스에서 파티나 모임을 자주 열 수 있는 소셜 특화 구조예요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "통유리 거실이 테라스로 바로 이어지는 완전 개방형이에요.", "linkedTrait": "openness", "band": "high" },
+      { "text": "루프탑에서 도시 야경과 바람을 가까이 즐길 수 있어요.", "linkedTrait": "nature", "band": "high" }
+    ]
+  },
+  {
+    "id": "t16",
+    "name": "오프그리드 우드캐빈",
+    "scoreProfile": { "sociability": 15, "minimalism": 45, "activity": 40, "openness": 25, "nature": 98 },
+    "rooms": [
+      { "type": "entrance", "size": "S", "position": { "x": 20, "y": 230, "width": 50, "height": 50 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 90, "y": 30, "width": 140, "height": 100 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 240, "y": 30, "width": 80, "height": 100 } },
+      { "type": "livingRoom", "size": "M", "position": { "x": 90, "y": 150, "width": 140, "height": 110 } },
+      { "type": "bathroom", "size": "S", "position": { "x": 240, "y": 150, "width": 80, "height": 70 } },
+      { "type": "garden", "size": "L", "position": { "x": 330, "y": 30, "width": 60, "height": 250 } }
+    ],
+    "features": [
+      { "text": "장작 난로가 있는 아늑하고 폐쇄적인 통나무집 구조예요.", "linkedTrait": "openness", "band": "low" },
+      { "text": "숲 한가운데 자리 잡아 사계절 자연을 온전히 누릴 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "이웃 없이 고요하게 혼자(또는 단둘이) 지낼 수 있어요.", "linkedTrait": "sociability", "band": "low" }
+    ]
+  },
+  {
+    "id": "t17",
+    "name": "미니멀 패밀리 하우스",
+    "scoreProfile": { "sociability": 72, "minimalism": 62, "activity": 48, "openness": 52, "nature": 45 },
+    "rooms": [
+      { "type": "entrance", "size": "M", "position": { "x": 20, "y": 220, "width": 70, "height": 60 } },
+      { "type": "storage", "size": "S", "position": { "x": 20, "y": 30, "width": 70, "height": 170 } },
+      { "type": "livingRoom", "size": "L", "position": { "x": 110, "y": 30, "width": 160, "height": 130 } },
+      { "type": "kitchen", "size": "M", "position": { "x": 270, "y": 30, "width": 110, "height": 100 } },
+      { "type": "diningRoom", "size": "M", "position": { "x": 110, "y": 170, "width": 110, "height": 100 } },
+      { "type": "masterBedroom", "size": "M", "position": { "x": 220, "y": 170, "width": 90, "height": 100 } },
+      { "type": "kidsRoom", "size": "M", "position": { "x": 310, "y": 150, "width": 70, "height": 120 } }
+    ],
+    "features": [
+      { "text": "패밀리룸과 다이닝이 넉넉해 온 가족이 함께 밥 먹고 어울리기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "붙박이 수납이 넉넉해 아이 물건까지 깔끔하게 정리돼요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "아이방과 안방이 분리돼 있어 각자의 공간을 지키면서도 가까이 지낼 수 있어요.", "linkedTrait": "openness", "band": "high" }
+    ]
+  },
+  {
+    "id": "t18",
+    "name": "아티스트 아틀리에 로프트",
+    "scoreProfile": { "sociability": 35, "minimalism": 15, "activity": 50, "openness": 75, "nature": 30 },
+    "rooms": [
+      { "type": "entrance", "size": "S", "position": { "x": 20, "y": 230, "width": 50, "height": 50 } },
+      { "type": "livingRoom", "size": "L", "position": { "x": 90, "y": 30, "width": 220, "height": 160 } },
+      { "type": "bathroom", "size": "S", "position": { "x": 330, "y": 30, "width": 60, "height": 70 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 330, "y": 110, "width": 60, "height": 80 } },
+      { "type": "storage", "size": "M", "position": { "x": 90, "y": 200, "width": 120, "height": 80 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 220, "y": 200, "width": 100, "height": 80 } }
+    ],
+    "features": [
+      { "text": "작업 도구와 소품을 잔뜩 늘어놓아도 되는 자유로운 창작 공간이에요.", "linkedTrait": "minimalism", "band": "low" },
+      { "text": "천장이 높고 벽이 거의 없는 완전 개방형 로프트예요.", "linkedTrait": "openness", "band": "high" },
+      { "text": "가까운 사람만 초대해 조용히 작업물을 보여주기 좋아요.", "linkedTrait": "sociability", "band": "low" }
+    ]
+  },
+  {
+    "id": "t19",
+    "name": "액티브 아웃도어 리조트",
+    "scoreProfile": { "sociability": 60, "minimalism": 50, "activity": 90, "openness": 70, "nature": 85 },
+    "rooms": [
+      { "type": "entrance", "size": "M", "position": { "x": 20, "y": 220, "width": 60, "height": 60 } },
+      { "type": "gym", "size": "L", "position": { "x": 100, "y": 30, "width": 150, "height": 130 } },
+      { "type": "terrace", "size": "L", "position": { "x": 260, "y": 30, "width": 120, "height": 130 } },
+      { "type": "livingRoom", "size": "M", "position": { "x": 100, "y": 170, "width": 120, "height": 100 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 230, "y": 170, "width": 80, "height": 100 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 310, "y": 170, "width": 80, "height": 100 } }
+    ],
+    "features": [
+      { "text": "홈짐과 트레일로 바로 이어지는 테라스가 있어 매일 몸을 움직이기 좋아요.", "linkedTrait": "activity", "band": "high" },
+      { "text": "큰 테라스에서 산과 하늘을 가까이 느낄 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "운동 후 친구들과 어울리기 좋은 널찍한 거실이에요.", "linkedTrait": "sociability", "band": "high" }
+    ]
+  },
+  {
+    "id": "t20",
+    "name": "코업 셰어하우스",
+    "scoreProfile": { "sociability": 80, "minimalism": 70, "activity": 50, "openness": 65, "nature": 35 },
+    "rooms": [
+      { "type": "entrance", "size": "M", "position": { "x": 20, "y": 220, "width": 60, "height": 60 } },
+      { "type": "livingRoom", "size": "L", "position": { "x": 100, "y": 30, "width": 160, "height": 130 } },
+      { "type": "kitchen", "size": "M", "position": { "x": 270, "y": 30, "width": 110, "height": 100 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 100, "y": 170, "width": 110, "height": 100 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 220, "y": 170, "width": 100, "height": 100 } },
+      { "type": "bathroom", "size": "S", "position": { "x": 330, "y": 170, "width": 70, "height": 60 } },
+      { "type": "storage", "size": "S", "position": { "x": 330, "y": 240, "width": 70, "height": 40 } }
+    ],
+    "features": [
+      { "text": "공용 거실과 주방이 넉넉해 룸메이트들과 자연스럽게 어울릴 수 있어요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "개인 짐은 각자 자리에 정리해서 공용공간은 늘 깔끔하게 유지돼요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "함께 살아도 각자 독립된 방이 있어 개인 시간은 보장돼요.", "linkedTrait": "openness", "band": "high" }
+    ]
+  },
+  {
+    "id": "t21",
+    "name": "제로웨이스트 에코 하우스",
+    "scoreProfile": { "sociability": 40, "minimalism": 75, "activity": 55, "openness": 50, "nature": 90 },
+    "rooms": [
+      { "type": "entrance", "size": "S", "position": { "x": 20, "y": 230, "width": 50, "height": 50 } },
+      { "type": "bedroom", "size": "M", "position": { "x": 90, "y": 30, "width": 130, "height": 100 } },
+      { "type": "storage", "size": "S", "position": { "x": 230, "y": 30, "width": 90, "height": 100 } },
+      { "type": "livingRoom", "size": "M", "position": { "x": 90, "y": 150, "width": 130, "height": 110 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 230, "y": 150, "width": 90, "height": 80 } },
+      { "type": "garden", "size": "L", "position": { "x": 330, "y": 30, "width": 60, "height": 250 } }
+    ],
+    "features": [
+      { "text": "텃밭과 퇴비함이 있어 자연의 순환을 일상에서 실천할 수 있어요.", "linkedTrait": "nature", "band": "high" },
+      { "text": "꼭 필요한 물건만 남긴 미니멀하고 지속가능한 살림 구조예요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "텃밭을 가꾸고 손질하는 소소한 활동으로 하루를 채울 수 있어요.", "linkedTrait": "activity", "band": "high" }
+    ]
+  },
+  {
+    "id": "t22",
+    "name": "다운타운 마이크로 스튜디오",
+    "scoreProfile": { "sociability": 35, "minimalism": 85, "activity": 20, "openness": 45, "nature": 15 },
+    "rooms": [
+      { "type": "entrance", "size": "S", "position": { "x": 20, "y": 230, "width": 50, "height": 50 } },
+      { "type": "livingRoom", "size": "L", "position": { "x": 90, "y": 30, "width": 200, "height": 200 } },
+      { "type": "kitchen", "size": "S", "position": { "x": 300, "y": 30, "width": 80, "height": 90 } },
+      { "type": "bathroom", "size": "S", "position": { "x": 300, "y": 130, "width": 80, "height": 70 } },
+      { "type": "storage", "size": "S", "position": { "x": 300, "y": 210, "width": 80, "height": 70 } }
+    ],
+    "features": [
+      { "text": "군더더기 없이 작지만 알차게 짜여진 도심형 원룸이에요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "복잡한 취미 공간 없이 잠자고 쉬는 데 집중한 컴팩트 구조예요.", "linkedTrait": "activity", "band": "low" },
+      { "text": "창은 작지만 다운타운 편의시설이 가까워 실용적이에요.", "linkedTrait": "nature", "band": "low" }
     ]
   }
 ]

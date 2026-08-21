@@ -1,16 +1,14 @@
-import { AXES, type Axis, type AxisScores } from "./types";
+import { pickTopAxesByExtremity, simpleBand } from "./axisUtils";
+import { type Axis, type AxisScores } from "./types";
 
 /**
- * 결과 페이지의 "캐릭터 네이밍" — 5축 스코어에서 가장 두드러진 축 2개를 뽑아
- * 수식어(2순위 축) + 정체성 명사(1순위 축)를 조합한 짧은 별명을 만든다.
- * 순수 함수. trait-descriptions.json과 톤은 맞추되 문장이 아닌 짧은 라벨을 생성한다.
+ * 결과 페이지의 "캐릭터 네이밍" — 5축 스코어에서 가장 두드러진(중립에서 가장
+ * 먼) 축 2개를 뽑아 수식어(2순위 축) + 정체성 명사(1순위 축)를 조합한 짧은
+ * 별명을 만든다. 순수 함수. trait-descriptions.json과 톤은 맞추되 문장이
+ * 아닌 짧은 라벨을 생성한다.
  */
 
 type Band = "high" | "low";
-
-function getBand(score: number): Band {
-  return score >= 50 ? "high" : "low";
-}
 
 /** 정체성 명사 — 1순위 축을 대표하는 캐릭터 유형. */
 const IDENTITY: Record<Axis, Record<Band, string>> = {
@@ -37,17 +35,13 @@ export interface Persona {
   topAxes: [Axis, Axis];
 }
 
-/** 점수 기준 상위 축 n개를 뽑는다 (동점이면 AXES 나열 순서를 따른다). */
-function pickTopAxes(axisScores: AxisScores, count: number): Axis[] {
-  return [...AXES]
-    .sort((a, b) => axisScores[b] - axisScores[a])
-    .slice(0, count);
-}
-
 export function generatePersona(axisScores: AxisScores): Persona {
-  const [primary, secondary] = pickTopAxes(axisScores, 2) as [Axis, Axis];
-  const identity = IDENTITY[primary][getBand(axisScores[primary])];
-  const modifier = MODIFIER[secondary][getBand(axisScores[secondary])];
+  const [primary, secondary] = pickTopAxesByExtremity(axisScores, 2) as [
+    Axis,
+    Axis,
+  ];
+  const identity = IDENTITY[primary][simpleBand(axisScores[primary])];
+  const modifier = MODIFIER[secondary][simpleBand(axisScores[secondary])];
   return { name: `${modifier} ${identity}`, topAxes: [primary, secondary] };
 }
 
