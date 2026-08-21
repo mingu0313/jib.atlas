@@ -1,14 +1,20 @@
-import { ROOM_TYPE_LABELS, type Room } from "@/lib/types";
+import { ROOM_TYPE_LABELS, type Room, type RoomType } from "@/lib/types";
 
-const ROOM_FILL: Record<Room["size"], string> = {
-  S: "#e5e7eb",
-  M: "#d1d5db",
-  L: "#9ca3af",
-};
+/** 실내가 아니라 바깥/반옥외 공간 — 점선 테두리 + coral 톤으로 구분한다. */
+const OUTDOOR_TYPES = new Set<RoomType>(["balcony", "terrace", "garden"]);
+
+/** 방이 작을수록 라벨 폰트도 줄여서 좁은 방에서 글자가 넘치지 않게 한다. */
+function labelFontSize(width: number, height: number) {
+  return Math.max(8, Math.min(13, width / 7, height / 4));
+}
 
 /**
- * 템플릿의 rooms 데이터를 간단한 평면도 SVG로 그린다.
- * 실제 이미지 에셋이 없는 지금 단계의 임시 placeholder다.
+ * 템플릿의 rooms 데이터를 평면도 SVG로 그린다. 실제 이미지 에셋 없이
+ * jib.atlas 디자인 토큰(teal/coral, globals.css)만으로 표현한 평면도 —
+ * 방 유형별 실내/실외 구분, 크기(S/M/L) 배지, 도면 느낌의 격자 배경을 더했다.
+ *
+ * viewBox는 "0 0 400 300" 그대로 유지 — EditorCanvas.tsx가 같은 좌표계를
+ * 2배로 스케일해서 가구 배치에 쓰므로, 여길 바꾸면 에디터 쪽 배치가 어긋난다.
  */
 export function FloorPlan({ rooms }: { rooms: Room[] }) {
   return (
@@ -18,9 +24,30 @@ export function FloorPlan({ rooms }: { rooms: Room[] }) {
       role="img"
       aria-label="집 구조 평면도"
     >
-      <rect x={0} y={0} width={400} height={300} fill="#f9fafb" />
+      <defs>
+        <pattern
+          id="floor-plan-grid"
+          width={20}
+          height={20}
+          patternUnits="userSpaceOnUse"
+        >
+          <path
+            d="M 20 0 L 0 0 0 20"
+            fill="none"
+            stroke="var(--color-border)"
+            strokeWidth={1}
+          />
+        </pattern>
+      </defs>
+
+      <rect x={0} y={0} width={400} height={300} fill="var(--color-surface)" />
+      <rect x={0} y={0} width={400} height={300} fill="url(#floor-plan-grid)" />
+
       {rooms.map((room, i) => {
         const { x, y, width, height } = room.position;
+        const outdoor = OUTDOOR_TYPES.has(room.type);
+        const accent = outdoor ? "var(--color-coral-500)" : "var(--color-teal-600)";
+
         return (
           <g key={i}>
             <rect
@@ -28,24 +55,50 @@ export function FloorPlan({ rooms }: { rooms: Room[] }) {
               y={y}
               width={width}
               height={height}
-              fill={ROOM_FILL[room.size]}
-              stroke="#4b5563"
+              rx={6}
+              fill={outdoor ? "var(--color-coral-50)" : "var(--color-teal-50)"}
+              stroke={outdoor ? "var(--color-coral-500)" : "var(--color-border-strong)"}
               strokeWidth={1.5}
-              rx={4}
+              strokeDasharray={outdoor ? "4 3" : undefined}
             />
+            <circle cx={x + 11} cy={y + 11} r={7} fill={accent} />
+            <text
+              x={x + 11}
+              y={y + 11}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize={8}
+              fontWeight={700}
+              fill="#fff"
+            >
+              {room.size}
+            </text>
             <text
               x={x + width / 2}
               y={y + height / 2}
               textAnchor="middle"
               dominantBaseline="middle"
-              fontSize={12}
-              fill="#1f2937"
+              fontSize={labelFontSize(width, height)}
+              fontWeight={600}
+              fill="var(--color-foreground)"
             >
               {ROOM_TYPE_LABELS[room.type]}
             </text>
           </g>
         );
       })}
+
+      {/* 세대 외곽선 */}
+      <rect
+        x={2}
+        y={2}
+        width={396}
+        height={296}
+        rx={10}
+        fill="none"
+        stroke="var(--color-border-strong)"
+        strokeWidth={3}
+      />
     </svg>
   );
 }
