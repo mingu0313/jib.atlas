@@ -1,8 +1,9 @@
 @import "tailwindcss";
 
 /*
- * jib.atlas 디자인 시스템 v2 — "에디토리얼 딥틸" (lib/jib-atlas-design-spec.md 참고,
- * 그대로 옮기지 않고 실제 앱 구조/기능에 맞게 다듬었다)
+ * jib.atlas 디자인 시스템 v2 — "에디토리얼 딥틸" (예전에 참고했던 디자인 spec
+ * 문서를 그대로 옮기지 않고 실제 앱 구조/기능에 맞게 다듬었다. 그 문서 자체는
+ * 이미 반영 완료돼 repo에서 정리함)
  *
  * v1(웜톤 flat teal+coral, Geist Sans 전용)은 어디서나 보이는 "제네릭 AI SaaS"
  * 느낌이 강했다 — 큰 radius의 pill 버튼, 그라디언트 히어로, 헤딩까지 전부
@@ -129,11 +130,11 @@ h3 {
 }
 
 /*
- * 공유 유틸리티 클래스 — design-reference/kyiv-luxebouquets의
- * styles/global.css(.section-label/.section-title/.text-link/
- * .btn-primary/.btn-outline-light)와 같은 타이포 스케일·스페이싱을
- * 그대로 따르되 색·폰트·radius는 v2 토큰으로 매핑했다. app/page.tsx의
- * 여러 섹션에서 재사용한다.
+ * 공유 유틸리티 클래스 — 예전에 참고했던 디자인 자료의 공유 유틸
+ * (.section-label/.section-title/.text-link/.btn-primary/
+ * .btn-outline-light)과 같은 타이포 스케일·스페이싱을 그대로 따르되
+ * 색·폰트·radius는 v2 토큰으로 매핑했다. app/page.tsx의 여러 섹션에서
+ * 재사용한다.
  */
 @layer components {
   .section-label {

@@ -1,12 +1,13 @@
 import Link from "next/link";
 
 /**
- * 랜딩 페이지 — design-reference/kyiv-luxebouquets의 8개 섹션
- * (Navbar/Hero/About/Benefits/Contact/Service/Reviews/Footer) 구성·
- * 순서·스페이싱(80px/60px/24px)·타이포 스케일(50/38/28px 등)을 그대로
- * 반영했다. 원본의 흑백(#121212/#fff) 팔레트와 flower-shop 카피/이미지는
- * 옮기지 않고 jib.atlas 웜톤 teal+coral 토큰(globals.css)과 실제 도메인
- * (성격/라이프스타일 진단 → 집 구조 매칭 → 2D 에디터)에 맞춰 새로 썼다.
+ * 랜딩 페이지 — 예전에 참고했던 디자인 자료(kyiv-luxebouquets, 이미 반영
+ * 완료돼 repo에서 정리함)의 8개 섹션(Navbar/Hero/About/Benefits/Contact/
+ * Service/Reviews/Footer) 구성·순서·스페이싱(80px/60px/24px)·타이포
+ * 스케일(50/38/28px 등)을 그대로 반영했다. 원본의 흑백(#121212/#fff)
+ * 팔레트와 flower-shop 카피/이미지는 옮기지 않고 jib.atlas 웜톤
+ * teal+coral 토큰(globals.css)과 실제 도메인(성격/라이프스타일 진단 →
+ * 집 구조 매칭 → 2D 에디터)에 맞춰 새로 썼다.
  * 공유 유틸(.section-title 등)은 globals.css에 정의돼 있다.
  *
  * Navbar 섹션은 app/layout.tsx의 전역 헤더(jib.atlas 로고 + 로그인 상태)가
