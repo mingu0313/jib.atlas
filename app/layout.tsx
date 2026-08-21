@@ -62,34 +62,65 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         )}
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6">
-          <Link
-            href="/"
-            className="font-serif text-lg font-medium tracking-tight text-teal-700 italic"
-          >
-            jib.atlas
+        <div className="sticky top-0 z-50 flex items-center justify-between gap-6 border-b border-border bg-[rgba(250,249,245,0.92)] px-5 py-[18px] backdrop-blur-[10px] sm:px-10">
+          <Link href="/" className="flex items-baseline gap-2.5">
+            <span className="font-serif text-[21px] font-semibold tracking-[-0.01em]">
+              jib<span className="text-coral-600">.</span>atlas
+            </span>
+            <span className="hidden font-mono text-[9px] tracking-[0.4em] text-muted uppercase sm:inline">
+              house series 2026
+            </span>
           </Link>
-          <div className="flex items-center gap-4 font-mono text-xs tracking-wide text-muted uppercase">
+          <div className="flex items-center gap-5 sm:gap-8">
+            <nav className="hidden items-center gap-8 md:flex">
+              <Link
+                href="/"
+                className="text-[13px] text-muted transition hover:text-foreground"
+              >
+                홈
+              </Link>
+              <Link
+                href="/test"
+                className="text-[13px] text-muted transition hover:text-foreground"
+              >
+                성향 진단
+              </Link>
+              <Link
+                href="/result"
+                className="text-[13px] text-muted transition hover:text-foreground"
+              >
+                집 유형
+              </Link>
+              <Link
+                href="/editor"
+                className="text-[13px] text-muted transition hover:text-foreground"
+              >
+                룸 에디터
+              </Link>
+            </nav>
             {user ? (
-              <>
-                <span className="normal-case">{user.email}</span>
-                <form action={signOut}>
-                  <button
-                    type="submit"
-                    className="text-muted underline underline-offset-4 transition hover:text-foreground"
-                  >
-                    로그아웃
-                  </button>
-                </form>
-              </>
+              <form action={signOut}>
+                <button
+                  type="submit"
+                  className="text-[13px] text-muted transition hover:text-foreground"
+                >
+                  로그아웃
+                </button>
+              </form>
             ) : (
               <Link
                 href="/login"
-                className="underline underline-offset-4 transition hover:text-foreground"
+                className="hidden text-[13px] text-muted transition hover:text-foreground sm:inline"
               >
                 로그인
               </Link>
             )}
+            <Link
+              href="/test"
+              className="rounded-[2px] bg-teal-600 px-[22px] py-3 text-xs font-medium tracking-[0.02em] text-white transition hover:bg-coral-600"
+            >
+              진단 시작
+            </Link>
           </div>
         </div>
         {children}

@@ -48,6 +48,7 @@
   --coral-100: #f5cfc0;
   --coral-500: #d9613e;
   --coral-600: #c04f2f;
+  --coral-700: #a03f26;
 }
 
 @theme inline {
@@ -72,6 +73,7 @@
   --color-coral-100: var(--coral-100);
   --color-coral-500: var(--coral-500);
   --color-coral-600: var(--coral-600);
+  --color-coral-700: var(--coral-700);
 
   --font-sans: var(--font-dm-sans), var(--font-noto-kr);
   --font-serif: var(--font-fraunces), Georgia, serif;
@@ -112,6 +114,7 @@
     --coral-100: #3a2318;
     --coral-500: #e37a53;
     --coral-600: #ef906c;
+    --coral-700: #f5ab8f;
   }
 }
 
@@ -127,6 +130,18 @@ h3 {
   font-family: var(--font-serif);
   font-weight: 400;
   line-height: 1.15;
+}
+
+/* 랜딩 페이지 장식용 아이소메트릭 미니룸(components/IsoRoomArt.tsx)이 쓰는
+   위아래 둥실거리는 애니메이션. */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
 }
 
 /*

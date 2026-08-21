@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=DM+Sans:opsz,wght@9..40,300..700&family=DM+Mono:wght@400;500&family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+--background:#faf9f5;--foreground:#1c1c18;--card:#ffffff;--card-foreground:#1c1c18;
+--primary:#085041;--primary-foreground:#f0f7f4;--secondary:#ede8df;--secondary-foreground:#3d3d35;
+--muted:#f3efe6;--muted-foreground:#7a7a6a;--accent:#d9613e;--accent-foreground:#ffffff;
+--border:rgba(8,80,65,0.10);--input:#ede8df;--ring:#085041;
+--chart-1:#085041;--chart-2:#2a7a64;--chart-3:#d9613e;--chart-4:#e8b894;--chart-5:#f3efe6;
+--radius:0.25rem;
+}
+.dark{
+--background:#091a16;--foreground:#e0ede8;--card:#0f2420;--card-foreground:#e0ede8;
+--primary:#3aac8e;--primary-foreground:#091a16;--secondary:#142e28;--secondary-foreground:#c8ddd8;
+--muted:#102018;--muted-foreground:#5a8070;--accent:#d9613e;--accent-foreground:#ffffff;
+--border:rgba(58,172,142,0.12);--input:#142e28;--ring:#3aac8e;
+--sidebar:#0a1e18;--sidebar-border:rgba(58,172,142,0.10);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--background);color:var(--foreground);font-family:'DM Sans','Noto Sans KR',sans-serif;-webkit-font-smoothing:antialiased;}
+a{color:var(--primary);text-decoration:none;}
+a:hover{color:var(--accent);}
+button{font-family:'DM Sans','Noto Sans KR',sans-serif;cursor:pointer;}
+@keyframes floaty{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;background:var(--background);color:var(--foreground)">
+
+<sc-if value="{{ navVisible }}" hint-placeholder-val="{{ true }}">
+<div style="position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 40px;background:rgba(250,249,245,0.92);backdrop-filter:blur(10px);border-bottom:1px solid var(--border)">
+  <div style="display:flex;align-items:baseline;gap:10px">
+    <span style="font-family:'Fraunces',Georgia,serif;font-size:21px;font-weight:600;letter-spacing:-0.01em">jib<span style="color:var(--accent)">.</span>atlas</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--muted-foreground)">house series 2026</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:32px">
+    <button onClick="{{ goLanding }}" style="border:0;background:none;padding:0;font-size:13px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">홈</button>
+    <button onClick="{{ goQuiz }}" style="border:0;background:none;padding:0;font-size:13px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">성향 진단</button>
+    <button onClick="{{ goResult }}" style="border:0;background:none;padding:0;font-size:13px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">집 유형</button>
+    <button onClick="{{ goEditor }}" style="border:0;background:none;padding:0;font-size:13px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">룸 에디터</button>
+    <button onClick="{{ goQuiz }}" style="border:0;border-radius:2px;background:var(--primary);color:var(--primary-foreground);padding:12px 22px;font-size:12px;font-weight:500;letter-spacing:0.02em" style-hover="background:var(--accent)">진단 시작</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<div>
+
+  <section style="display:grid;grid-template-columns:55fr 45fr;min-height:calc(100vh - 63px);border-bottom:1px solid var(--border)">
+    <div style="display:flex;flex-direction:column;justify-content:center;gap:30px;padding:80px 64px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">jib.atlas — house series 2026</span>
+      <h1 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(50px,6vw,84px);line-height:1.02;letter-spacing:-0.02em">
+        <span style="display:block;font-weight:300">나는 어떤</span>
+        <span style="display:block;font-weight:700;color:var(--primary)">집에</span>
+        <span style="display:block;font-weight:300;font-style:italic">살아야 할까?</span>
+      </h1>
+      <p style="max-width:420px;margin:0;font-size:13px;line-height:1.8;color:var(--muted-foreground);text-wrap:pretty">사교성·미니멀리즘·활동성·개방성·자연친화도. 다섯 개의 축으로 취향을 읽고, 네 가지 집 유형 중 당신에게 맞는 하나를 찾아 직접 꾸며봅니다.</p>
+      <div style="display:flex;align-items:center;gap:22px">
+        <button onClick="{{ goQuiz }}" style="border:0;border-radius:2px;background:var(--primary);color:var(--primary-foreground);padding:18px 40px;font-size:13px;font-weight:500" style-hover="background:var(--accent)">성향 진단 시작하기</button>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">5문항 · 3분</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;margin-top:20px">
+        <span style="width:56px;height:1px;background:var(--primary);opacity:0.4"></span>
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--muted-foreground)">scroll</span>
+      </div>
+    </div>
+
+    <div style="position:relative;overflow:hidden;background:var(--muted);border-left:1px solid var(--border)">
+      <div style="position:absolute;inset:0;opacity:0.5;background-image:radial-gradient(rgba(8,80,65,0.22) 1px,transparent 1px);background-size:16px 16px"></div>
+      <div style="position:absolute;left:-90px;top:110px;width:420px;height:380px;background:var(--primary);opacity:0.07;border-radius:62% 38% 47% 53%/44% 58% 42% 56%"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;animation:floaty 7s ease-in-out infinite">
+        <svg viewBox="20 -24 240 214" width="86%" style="overflow:visible">
+          <sc-for list="{{ heroTiles }}" as="t" hint-placeholder-count="6"><polygon points="{{ t.points }}" fill="{{ t.fill }}" stroke="rgba(8,80,65,0.10)" stroke-width="0.5"></polygon></sc-for>
+          <sc-for list="{{ heroWalls }}" as="w" hint-placeholder-count="2"><polygon points="{{ w.points }}" fill="{{ w.fill }}"></polygon></sc-for>
+          <sc-for list="{{ heroBoxes }}" as="b" hint-placeholder-count="4"><g><polygon points="{{ b.left }}" fill="{{ b.leftFill }}"></polygon><polygon points="{{ b.right }}" fill="{{ b.rightFill }}"></polygon><polygon points="{{ b.top }}" fill="{{ b.topFill }}"></polygon></g></sc-for>
+        </svg>
+      </div>
+      <div style="position:absolute;left:40px;top:40px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--primary)">serene nest — 01</span>
+        <span style="font-size:11px;color:var(--muted-foreground)">고요한 은신처</span>
+      </div>
+      <div style="position:absolute;right:40px;bottom:40px;display:flex;gap:0;border:1px solid var(--border);background:var(--card)">
+        <div style="padding:14px 20px;border-right:1px solid var(--border)"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px">4</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">types</div></div>
+        <div style="padding:14px 20px;border-right:1px solid var(--border)"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px">9</div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">furniture</div></div>
+        <div style="padding:14px 20px"><div style="font-family:'Fraunces',Georgia,serif;font-size:22px">3<span style="font-size:13px">분</span></div><div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">to finish</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:110px 64px;background:var(--background);border-bottom:1px solid var(--border)">
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:64px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">how it works</span>
+      <h2 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,3.2vw,44px);font-weight:400">어떻게 진행되나요?</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:48px">
+      <div style="border-top:2px solid var(--primary);padding-top:26px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;color:var(--accent)">01</span>
+        <h3 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:400">성향 진단</h3>
+        <p style="margin:0;font-size:13px;line-height:1.8;color:var(--muted-foreground)">다섯 문항에 답하면 사교성·미니멀리즘·활동성·개방성·자연친화도 점수가 계산됩니다.</p>
+      </div>
+      <div style="border-top:2px solid var(--primary);padding-top:26px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;color:var(--accent)">02</span>
+        <h3 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:400">집 유형 발견</h3>
+        <p style="margin:0;font-size:13px;line-height:1.8;color:var(--muted-foreground)">네 가지 유형 중 가장 가까운 하나로 매칭되고, 레이더 차트로 다섯 축을 확인합니다.</p>
+      </div>
+      <div style="border-top:2px solid var(--primary);padding-top:26px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;color:var(--accent)">03</span>
+        <h3 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:400">직접 꾸미기</h3>
+        <p style="margin:0;font-size:13px;line-height:1.8;color:var(--muted-foreground)">아이소메트릭 룸 에디터에서 가구를 골라 타일에 놓으며 공간을 완성합니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:110px 64px;background:var(--muted);border-bottom:1px solid var(--border)">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:40px;margin-bottom:56px">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">house types</span>
+        <h2 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,3.2vw,44px);font-weight:400;line-height:1.15">당신의 공간은<br />어떤 성격인가요?</h2>
+      </div>
+      <button onClick="{{ goQuiz }}" style="border:1px solid var(--primary);border-radius:2px;background:none;color:var(--primary);padding:14px 26px;font-size:12px;white-space:nowrap" style-hover="background:var(--primary);color:var(--primary-foreground)">진단으로 찾아보기 →</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;border:1px solid var(--border)">
+      <div style="position:relative;min-height:290px;overflow:hidden;background:var(--secondary)">
+        <img src="https://images.unsplash.com/photo-1720706405494-e552f264dd8d?w=700&amp;h=800&amp;fit=crop&amp;auto=format" alt="Serene Nest" style="width:100%;height:100%;object-fit:cover;display:block" />
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.86),rgba(8,80,65,0.05))"></div>
+        <div style="position:absolute;left:32px;bottom:32px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;color:rgba(240,247,244,0.7)">01</span>
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:400;color:var(--primary-foreground)">Serene Nest</span>
+          <span style="font-size:12px;color:rgba(240,247,244,0.8)">고요한 은신처</span>
+        </div>
+      </div>
+      <div style="min-height:290px;background:var(--primary);padding:36px;display:flex;flex-direction:column;justify-content:space-between;border-left:1px solid rgba(240,247,244,0.12)">
+        <span style="font-family:'Fraunces',Georgia,serif;font-size:64px;font-weight:300;color:rgba(240,247,244,0.35);line-height:1">02</span>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;color:var(--primary-foreground)">Open Horizon</span>
+          <span style="font-size:12px;color:rgba(240,247,244,0.75);line-height:1.8">열린 수평선 — 벽을 줄이고 시야를 늘린 구조. 파노라마 창과 테라스가 중심이 됩니다.</span>
+        </div>
+      </div>
+      <div style="min-height:290px;background:var(--primary);padding:36px;display:flex;flex-direction:column;justify-content:space-between;border-top:1px solid rgba(240,247,244,0.12)">
+        <span style="font-family:'Fraunces',Georgia,serif;font-size:64px;font-weight:300;color:rgba(240,247,244,0.35);line-height:1">03</span>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;color:var(--primary-foreground)">Precision Loft</span>
+          <span style="font-size:12px;color:rgba(240,247,244,0.75);line-height:1.8">정밀한 공간 — 한 평도 남기지 않는 빌트인 수납과 홈 오피스 중심의 스튜디오형.</span>
+        </div>
+      </div>
+      <div style="position:relative;min-height:290px;overflow:hidden;background:var(--secondary);border-left:1px solid var(--border);border-top:1px solid var(--border)">
+        <img src="https://images.unsplash.com/photo-1554612292-c175942fb8c1?w=700&amp;h=800&amp;fit=crop&amp;auto=format" alt="Social Atrium" style="width:100%;height:100%;object-fit:cover;display:block" />
+        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.86),rgba(8,80,65,0.05))"></div>
+        <div style="position:absolute;left:32px;bottom:32px;display:flex;flex-direction:column;gap:6px">
+          <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;color:rgba(240,247,244,0.7)">04</span>
+          <span style="font-family:'Fraunces',Georgia,serif;font-size:30px;font-weight:400;color:var(--primary-foreground)">Social Atrium</span>
+          <span style="font-size:12px;color:rgba(240,247,244,0.8)">사교적 중정</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="position:relative;overflow:hidden;background:var(--primary);padding:110px 64px">
+    <div style="position:absolute;inset:0;opacity:0.12;background-image:radial-gradient(rgba(255,255,255,0.7) 1px,transparent 1px);background-size:16px 16px"></div>
+    <div style="position:relative;display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:26px">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:rgba(240,247,244,0.65)">the editor</span>
+        <h2 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,3.2vw,44px);font-weight:400;color:var(--primary-foreground);line-height:1.15">방을 직접<br />꾸며보세요</h2>
+        <p style="max-width:400px;margin:0;font-size:13px;line-height:1.8;color:rgba(240,247,244,0.75)">10 × 8 타일의 아이소메트릭 룸. 팔레트에서 가구를 고르고 타일을 클릭하면 그 자리에 놓입니다. 겹치는 자리에는 놓이지 않습니다.</p>
+        <button onClick="{{ goEditor }}" style="border:0;border-radius:2px;background:var(--accent);color:var(--accent-foreground);padding:16px 34px;font-size:13px;font-weight:500;width:fit-content" style-hover="background:#c1502f">에디터 열어보기</button>
+      </div>
+      <div style="display:flex;justify-content:center;animation:floaty 8s ease-in-out infinite">
+        <svg viewBox="20 -24 240 214" width="100%" style="overflow:visible;max-width:460px">
+          <sc-for list="{{ heroTiles }}" as="t" hint-placeholder-count="6"><polygon points="{{ t.points }}" fill="{{ t.fill }}" stroke="rgba(240,247,244,0.10)" stroke-width="0.5"></polygon></sc-for>
+          <sc-for list="{{ heroWalls }}" as="w" hint-placeholder-count="2"><polygon points="{{ w.points }}" fill="{{ w.fill }}"></polygon></sc-for>
+          <sc-for list="{{ heroBoxes }}" as="b" hint-placeholder-count="4"><g><polygon points="{{ b.left }}" fill="{{ b.leftFill }}"></polygon><polygon points="{{ b.right }}" fill="{{ b.rightFill }}"></polygon><polygon points="{{ b.top }}" fill="{{ b.topFill }}"></polygon></g></sc-for>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section style="position:relative;overflow:hidden;background:var(--secondary);padding:130px 64px;text-align:center">
+    <span style="position:absolute;left:6%;top:14%;font-family:'Fraunces',Georgia,serif;font-size:180px;font-weight:300;color:rgba(8,80,65,0.06);line-height:1">01</span>
+    <span style="position:absolute;right:6%;bottom:8%;font-family:'Fraunces',Georgia,serif;font-size:180px;font-weight:300;color:rgba(8,80,65,0.06);line-height:1">05</span>
+    <div style="position:relative;display:flex;flex-direction:column;align-items:center;gap:28px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">무료 · 회원가입 불필요</span>
+      <h2 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(34px,5vw,68px);font-weight:300;line-height:1.1">5가지 질문,<br /><span style="font-style:italic;font-weight:400;color:var(--primary)">3분</span></h2>
+      <button onClick="{{ goQuiz }}" style="border:0;border-radius:2px;background:var(--primary);color:var(--primary-foreground);padding:18px 60px;font-size:13px;font-weight:500" style-hover="background:var(--accent)">진단 시작하기</button>
+    </div>
+  </section>
+
+  <footer style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:32px 64px;border-top:1px solid var(--border)">
+    <span style="font-family:'Fraunces',Georgia,serif;font-size:16px">jib<span style="color:var(--accent)">.</span>atlas</span>
+    <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--muted-foreground)">jib-atlas.com — house series 2026</span>
+  </footer>
+</div>
+</sc-if>
+
+<sc-if value="{{ isQuiz }}">
+<div style="display:grid;grid-template-columns:38fr 62fr;min-height:calc(100vh - 63px)">
+  <div style="position:relative;overflow:hidden;background:var(--muted)">
+    <img src="https://images.unsplash.com/photo-1483095348487-53dbf97d8d5b?w=800&amp;h=1200&amp;fit=crop&amp;auto=format" alt="" style="width:100%;height:100%;object-fit:cover;display:block" />
+    <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(8,80,65,0.9),rgba(8,80,65,0.2))"></div>
+    <div style="position:absolute;left:44px;bottom:48px;display:flex;flex-direction:column;gap:14px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:rgba(240,247,244,0.65)">step {{ stepLabel }} / 05</span>
+      <span style="font-family:'Fraunces',Georgia,serif;font-size:34px;font-weight:300;font-style:italic;color:var(--primary-foreground)">{{ axisKo }}</span>
+      <span style="font-size:12px;line-height:1.8;color:rgba(240,247,244,0.7);max-width:240px">각 문항은 다섯 축 중 하나를 측정합니다. 정답은 없습니다.</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;justify-content:center;gap:44px;padding:80px 72px">
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.4em;text-transform:uppercase;color:var(--primary)">question {{ stepLabel }}</span>
+        <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;color:var(--muted-foreground)">{{ progressLabel }}</span>
+      </div>
+      <div style="height:2px;background:var(--border);position:relative">
+        <div style="position:absolute;left:0;top:0;height:2px;background:var(--primary);width:{{ progressPct }}"></div>
+      </div>
+    </div>
+
+    <h2 style="margin:0;max-width:660px;font-family:'Fraunces',Georgia,serif;font-size:clamp(26px,2.8vw,38px);font-weight:400;line-height:1.35;text-wrap:pretty">{{ questionText }}</h2>
+
+    <div style="display:flex;flex-direction:column;gap:10px;max-width:660px">
+      <sc-for list="{{ choices }}" as="c" hint-placeholder-count="5">
+        <button onClick="{{ c.onClick }}" style="display:flex;align-items:center;gap:20px;border:1px solid {{ c.border }};border-radius:2px;background:{{ c.bg }};color:{{ c.color }};padding:20px 24px;text-align:left;transition:all 0.15s" style-hover="border-color:var(--accent)">
+          <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.3em;opacity:0.55">{{ c.num }}</span>
+          <span style="font-size:14px">{{ c.label }}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:24px">
+      <button onClick="{{ back }}" style="border:0;background:none;padding:0;font-size:12px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">← 이전</button>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.35em;text-transform:uppercase;color:var(--muted-foreground)">{{ axisEn }}</span>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isResult }}">
+<div style="display:grid;grid-template-columns:52fr 48fr;min-height:calc(100vh - 63px)">
+  <div style="display:flex;flex-direction:column;justify-content:center;gap:30px;padding:90px 64px;border-right:1px solid var(--border)">
+    <div style="display:flex;align-items:center;gap:14px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">your house type — {{ type.num }}</span>
+      <span style="border:1px solid var(--accent);border-radius:2px;padding:4px 10px;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--accent)">{{ rarity }}</span>
+    </div>
+    <div>
+      <h1 style="margin:0;font-family:'Fraunces',Georgia,serif;font-size:clamp(40px,5.4vw,74px);font-weight:300;line-height:1.02;letter-spacing:-0.02em">{{ type.en1 }}<br /><span style="font-weight:700;color:var(--primary)">{{ type.en2 }}</span></h1>
+      <p style="margin:16px 0 0;font-family:'Fraunces',Georgia,serif;font-size:24px;font-style:italic;font-weight:300;color:var(--muted-foreground)">{{ type.ko }}</p>
+    </div>
+    <p style="max-width:460px;margin:0;font-size:13px;line-height:1.9;color:var(--muted-foreground);text-wrap:pretty">{{ type.desc }}</p>
+
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--muted-foreground)">캐릭터</span>
+      <span style="font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:400">{{ persona }}</span>
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <sc-for list="{{ type.tags }}" as="tag" hint-placeholder-count="4">
+        <span style="border:1px solid var(--border);background:var(--card);border-radius:2px;padding:9px 14px;font-size:11px;color:var(--secondary-foreground)">{{ tag }}</span>
+      </sc-for>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:20px;margin-top:8px">
+      <button onClick="{{ goEditor }}" style="border:0;border-radius:2px;background:var(--primary);color:var(--primary-foreground);padding:18px 40px;font-size:13px;font-weight:500" style-hover="background:var(--accent)">이 집 꾸미러 가기</button>
+      <button onClick="{{ retake }}" style="border:0;background:none;padding:0;font-size:12px;color:var(--muted-foreground)" style-hover="color:var(--foreground)">다시 진단하기</button>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;justify-content:center;gap:36px;padding:90px 64px;background:var(--muted)">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px">
+      <span style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:0.45em;text-transform:uppercase;color:var(--primary)">axis profile</span>
+      <div style="text-align:right">
+        <div style="font-family:'Fraunces',Georgia,serif;font-size:34px;line-height:1">{{ similarity }}<span style="font-size:18px">%</span></div>
+        <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">match</div>
+      </div>
+    </div>
+
+    <div style="background:var(--card);border:1px solid var(--border);padding:24px;display:flex;justify-content:center">
+      <svg viewBox="0 0 340 320" width="100%" style="max-width:380px">
+        <sc-for list="{{ radarRings }}" as="r" hint-placeholder-count="4"><polygon points="{{ r }}" fill="none" stroke="var(--border)" stroke-width="1"></polygon></sc-for>
+        <sc-for list="{{ radarAxes }}" as="a" hint-placeholder-count="5"><line x1="{{ a.x1 }}" y1="{{ a.y1 }}" x2="{{ a.x2 }}" y2="{{ a.y2 }}" stroke="var(--border)" stroke-width="1"></line></sc-for>
+        <polygon points="{{ radarShape }}" fill="rgba(8,80,65,0.14)" stroke="var(--primary)" stroke-width="2"></polygon>
+        <sc-for list="{{ radarDots }}" as="d" hint-placeholder-count="5"><circle cx="{{ d.x }}" cy="{{ d.y }}" r="3.5" fill="var(--accent)"></circle></sc-for>
+        <sc-for list="{{ radarLabels }}" as="l" hint-placeholder-count="5">
+          <text x="{{ l.x }}" y="{{ l.y }}" text-anchor="{{ l.anchor }}" fill="var(--muted-foreground)" style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.2em;text-transform:uppercase">{{ l.en }}</text>
+        </sc-for>
+      </svg>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)">
+      <sc-for list="{{ axisRows }}" as="r" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:96px 1fr 44px;align-items:center;gap:18px;padding:16px 0;border-bottom:1px solid var(--border)">
+          <span style="font-size:12px;color:var(--secondary-foreground)">{{ r.ko }}</span>
+          <span style="position:relative;height:3px;background:rgba(8,80,65,0.08)">
+            <span style="position:absolute;left:0;top:0;height:3px;background:{{ r.color }};width:{{ r.pct }}"></span>
+          </span>
+          <span style="font-family:'DM Mono',monospace;font-size:10px;text-align:right;color:var(--muted-foreground)">{{ r.val }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isEditor }}">
+<div class="dark" style="background:var(--background);color:var(--foreground);min-height:100vh;display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:24px;padding:18px 32px;border-bottom:1px solid var(--border);background:var(--sidebar)">
+    <div style="display:flex;align-items:center;gap:22px">
+      <span style="font-family:'Fraunces',Georgia,serif;font-size:19px;font-weight:600;color:var(--foreground)">jib<span style="color:var(--accent)">.</span>atlas</span>
+      <span style="width:1px;height:18px;background:var(--border)"></span>
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--primary)">room editor — {{ type.num }} {{ type.enFull }}</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:18px">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.3em;text-transform:uppercase;color:var(--muted-foreground)">{{ placedCount }} / 9 placed</span>
+      <button onClick="{{ reset }}" style="border:1px solid var(--border);border-radius:2px;background:none;color:var(--muted-foreground);padding:10px 18px;font-size:11px" style-hover="color:var(--foreground);border-color:var(--primary)">초기화</button>
+      <button onClick="{{ goResult }}" style="border:0;border-radius:2px;background:var(--accent);color:var(--accent-foreground);padding:11px 22px;font-size:11px;font-weight:500" style-hover="background:#c1502f">결과로 돌아가기</button>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:236px 1fr 264px;flex:1">
+    <div style="background:var(--sidebar);border-right:1px solid var(--border);padding:26px 20px;display:flex;flex-direction:column;gap:18px">
+      <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--muted-foreground)">palette</span>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <sc-for list="{{ palette }}" as="p" hint-placeholder-count="9">
+          <button onClick="{{ p.onClick }}" style="display:flex;align-items:center;gap:14px;border:1px solid {{ p.border }};border-radius:2px;background:{{ p.bg }};padding:12px 14px;text-align:left" style-hover="border-color:var(--primary)">
+            <span style="width:16px;height:16px;flex:none;background:{{ p.swatch }};border:1px solid rgba(255,255,255,0.14)"></span>
+            <span style="display:flex;flex-direction:column;gap:2px">
+              <span style="font-size:12px;color:var(--foreground)">{{ p.ko }}</span>
+              <span style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--muted-foreground)">{{ p.size }}</span>
+            </span>
+          </button>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="position:relative;display:flex;align-items:center;justify-content:center;padding:40px;background:var(--background);overflow:hidden">
+      <div style="position:absolute;inset:0;opacity:0.35;background-image:radial-gradient(rgba(58,172,142,0.20) 1px,transparent 1px);background-size:20px 20px"></div>
+      <svg viewBox="180 10 640 470" width="100%" style="position:relative;max-width:860px;overflow:visible">
+        <sc-for list="{{ walls }}" as="w" hint-placeholder-count="2"><polygon points="{{ w.points }}" fill="{{ w.fill }}"></polygon></sc-for>
+        <sc-for list="{{ tiles }}" as="t" hint-placeholder-count="80">
+          <polygon points="{{ t.points }}" fill="{{ t.fill }}" stroke="{{ t.stroke }}" stroke-width="0.75" onClick="{{ t.onClick }}" style="cursor:pointer"></polygon>
+        </sc-for>
+        <sc-for list="{{ boxes }}" as="b" hint-placeholder-count="6">
+          <g onClick="{{ b.onClick }}" style="cursor:pointer">
+            <polygon points="{{ b.left }}" fill="{{ b.leftFill }}"></polygon>
+            <polygon points="{{ b.right }}" fill="{{ b.rightFill }}"></polygon>
+            <polygon points="{{ b.top }}" fill="{{ b.topFill }}" stroke="{{ b.topStroke }}" stroke-width="1"></polygon>
+            <text x="{{ b.lx }}" y="{{ b.ly }}" text-anchor="middle" fill="rgba(224,237,232,0.55)" style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:0.25em">{{ b.en }}</text>
+          </g>
+        </sc-for>
+      </svg>
+      <div style="position:absolute;left:40px;bottom:32px;display:flex;flex-direction:column;gap:6px">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--primary)">{{ hintTitle }}</span>
+        <span style="font-size:11px;color:var(--muted-foreground)">{{ hintBody }}</span>
+      </div>
+    </div>
+
+    <div style="background:var(--sidebar);border-left:1px solid var(--border);padding:26px 22px;display:flex;flex-direction:column;gap:26px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:0.4em;text-transform:uppercase;color:var(--muted-foreground)">house type</span>
+        <span style="font-family:'Fraunces',Georgia,serif;font-size:26px;font-weight:400;line-height:1.2;color:var(--foreground)">{{ type.enFull }}</span>
+        <span style="font-size:12px;color:var(--muted-foreground)">{{ type.ko }} · {{ persona }}</span>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid var(--border)">
+        <sc-for list="{{ axisRows }}" as="r" hint-placeholder-count="5">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--secondary-foreground)">{{ r.ko }}</span>
+            <span style="display:flex;align-items:center;gap:10px">
+              <span style="position:relative;width:70px;height:3px;background:rgba(58,172,142,0.14)">
+                <span style="position:absolute;left:0;top:0;height:3px;background:var(--primary);width:{{ r.pct }}"></span>
+              </span>
+              <span style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted-foreground)">{{ r.val }}</span>
+            </span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <p style="margin:0;font-size:11px;line-height:1.9;color:var(--muted-foreground)">가구를 고른 뒤 바닥 타일을 클릭하면 그 자리에 놓입니다. 이미 놓인 가구를 클릭하면 치웁니다.</p>
+      </div>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;landing&quot;,&quot;quiz&quot;,&quot;result&quot;,&quot;editor&quot;],&quot;default&quot;:&quot;landing&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;화면&quot;},&quot;showTileGrid&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;에디터&quot;}}">
+const AX = ["sociability","minimalism","activity","openness","nature"];
+const AXKO = {sociability:"사교성",minimalism:"미니멀리즘",activity:"활동성",openness:"개방성",nature:"자연친화도"};
+
+const QS = [
+  {axis:"sociability", text:"친구나 가족을 집에 자주 초대해서 시간을 보내고 싶다.", reverse:false},
+  {axis:"minimalism", text:"물건을 최소한으로 두고 깔끔하게 비워진 공간을 선호한다.", reverse:false},
+  {axis:"activity", text:"다목적으로 쓸 수 있는 방(홈짐, 작업실 등)이 있으면 좋겠다.", reverse:false},
+  {axis:"openness", text:"벽으로 나뉜 아늑한 방보다 탁 트인 개방형 구조를 좋아한다.", reverse:false},
+  {axis:"nature", text:"넓은 창문과 채광이 인테리어에서 가장 중요한 요소다.", reverse:false},
+];
+
+const LIKERT = ["전혀 아니다","아니다","보통이다","그렇다","매우 그렇다"];
+
+const TYPES = {
+  serene: {key:"serene", num:"01", en1:"Serene", en2:"Nest", enFull:"Serene Nest", ko:"고요한 은신처",
+    desc:"혼자만의 시간이 회복의 방식인 사람에게 맞는 구조. 프라이빗 침실과 선룸을 중심에 두고, 공용 공간은 작게 유지합니다. 채광과 식물이 공간의 온도를 결정합니다.",
+    tags:["프라이빗 침실","선룸","아늑한 서재","작은 정원"], target:[20,60,25,30,75]},
+  open: {key:"open", num:"02", en1:"Open", en2:"Horizon", enFull:"Open Horizon", ko:"열린 수평선",
+    desc:"벽을 줄이고 시야를 늘린 구조. 거실과 주방이 하나로 이어지고, 파노라마 창과 테라스가 실내의 연장선이 됩니다. 새로운 배치를 자주 시도하는 사람에게 맞습니다.",
+    tags:["오픈 리빙","파노라마 창","테라스","일체형 주방"], target:[55,55,45,90,85]},
+  efficient: {key:"efficient", num:"03", en1:"Precision", en2:"Loft", enFull:"Precision Loft", ko:"정밀한 공간",
+    desc:"한 평도 남기지 않는 구조. 빌트인 수납으로 물건을 시야에서 지우고, 홈 오피스와 작업 공간을 한 방에 겹쳐 씁니다. 정돈된 상태가 기본값인 사람에게 맞습니다.",
+    tags:["스튜디오형","빌트인 수납","홈 오피스","미니멀 주방"], target:[30,90,70,55,35]},
+  social: {key:"social", num:"04", en1:"Social", en2:"Atrium", enFull:"Social Atrium", ko:"사교적 중정",
+    desc:"사람이 모이는 것을 전제로 설계된 구조. 대형 다이닝과 아일랜드 주방이 동선의 중심이 되고, 홈 바와 게스트룸이 손님의 자리를 미리 만들어 둡니다.",
+    tags:["대형 다이닝","아일랜드 주방","홈 바","게스트룸"], target:[90,45,60,75,50]},
+};
+
+const IDENTITY = {sociability:["소셜라이저","은둔가"],minimalism:["미니멀리스트","컬렉터"],activity:["무브메이커","리트리터"],openness:["탐험가","안정러"],nature:["가드너","시티러버"]};
+const MODIFIER = {sociability:["소셜한","고요한"],minimalism:["미니멀한","맥시멀한"],activity:["액티브한","느긋한"],openness:["오픈마인드","안정 지향"],nature:["그린한","실용적인"]};
+
+const FDEFS = [
+  {id:"sofa",ko:"소파",en:"SOFA",w:3,d:1,h:44,top:"#1e3830",left:"#162a24",right:"#0e1c18"},
+  {id:"lounge",ko:"라운지 체어",en:"LOUNGE",w:2,d:2,h:40,top:"#2a2820",left:"#1c1c14",right:"#12120c"},
+  {id:"ctable",ko:"다이닝 테이블",en:"TABLE",w:3,d:2,h:28,top:"#3a2a18",left:"#261c10",right:"#16100a"},
+  {id:"counter",ko:"카운터",en:"COUNTER",w:4,d:1,h:52,top:"#1c2c28",left:"#141e1c",right:"#0c1412"},
+  {id:"bar",ko:"바 카운터",en:"BAR",w:3,d:1,h:56,top:"#2e1e10",left:"#1e140a",right:"#120e06"},
+  {id:"desk",ko:"책상",en:"DESK",w:2,d:1,h:34,top:"#22301e",left:"#162014",right:"#0e140c"},
+  {id:"wardrobe",ko:"옷장",en:"WARDROBE",w:1,d:2,h:96,top:"#1a2c24",left:"#121e18",right:"#0c1410"},
+  {id:"plant",ko:"화분",en:"PLANT",w:1,d:1,h:68,top:"#1c3418",left:"#14240f",right:"#0c160a"},
+  {id:"bed",ko:"침대",en:"BED",w:3,d:2,h:42,top:"#1a2034",left:"#121628",right:"#0c1018"},
+];
+const F = id => FDEFS.find(f => f.id === id);
+
+const RW = 10, RD = 8;
+const DEFAULT_PLACED = [
+  {defId:"sofa",col:1,row:1},{defId:"ctable",col:4,row:2},{defId:"plant",col:9,row:0},
+  {defId:"wardrobe",col:0,row:6},{defId:"desk",col:7,row:6},{defId:"lounge",col:5,row:5},
+];
+
+const P = ps => ps.map(([x,y]) => x.toFixed(1)+","+y.toFixed(1)).join(" ");
+const up = ([x,y],h) => [x,y-h];
+
+function room(placed, o) {
+  const ixy = (c,r) => [(c-r)*o.tw/2 + o.ox, (c+r)*o.th/2 + o.oy];
+  const tiles = [], boxes = [];
+  for (let r = 0; r < o.rd; r++) for (let c = 0; c < o.rw; c++) {
+    tiles.push({col:c,row:r,points:P([ixy(c,r),ixy(c+1,r),ixy(c+1,r+1),ixy(c,r+1)])});
+  }
+  const sorted = placed.slice().sort((a,b) => (a.col+a.row)-(b.col+b.row));
+  for (const it of sorted) {
+    const d = F(it.defId); if (!d) continue;
+    const a = ixy(it.col,it.row), b = ixy(it.col+d.w,it.row), c2 = ixy(it.col+d.w,it.row+d.d), d2 = ixy(it.col,it.row+d.d);
+    const h = d.h * (o.th/32);
+    boxes.push({
+      id:it.defId+"-"+it.col+"-"+it.row, defId:it.defId, en:d.en,
+      top:P([up(a,h),up(b,h),up(c2,h),up(d2,h)]),
+      right:P([b,c2,up(c2,h),up(b,h)]),
+      left:P([c2,d2,up(d2,h),up(c2,h)]),
+      topFill:d.top, leftFill:d.left, rightFill:d.right,
+      lx:(a[0]+c2[0])/2, ly:(a[1]+c2[1])/2 - h - 6,
+    });
+  }
+  const wallA = P([ixy(0,0), ixy(o.rw,0), up(ixy(o.rw,0),o.wh), up(ixy(0,0),o.wh)]);
+  const wallB = P([ixy(0,0), ixy(0,o.rd), up(ixy(0,o.rd),o.wh), up(ixy(0,0),o.wh)]);
+  return {tiles, boxes, walls:[{points:wallB,fill:o.wallLeft},{points:wallA,fill:o.wallRight}]};
+}
+
+function canPlace(col,row,def,placed) {
+  if (col < 0 || row < 0 || col+def.w > RW || row+def.d > RD) return false;
+  for (const it of placed) {
+    const d = F(it.defId);
+    if (col < it.col+d.w && col+def.w > it.col && row < it.row+d.d && row+def.d > it.row) return false;
+  }
+  return true;
+}
+
+class Component extends DCLogic {
+  state = {
+    screen: this.props.startScreen || "landing",
+    step: 0,
+    answers: [],
+    placed: DEFAULT_PLACED,
+    selected: null,
+    warn: false,
+  };
+
+  scores() {
+    const a = this.state.answers;
+    const out = {};
+    AX.forEach((ax,i) => {
+      const v = a[i];
+      out[ax] = v == null ? 50 : Math.round(((QS[i].reverse ? 6-v : v) - 1) / 4 * 100);
+    });
+    return out;
+  }
+
+  matched() {
+    const s = this.scores();
+    const vec = AX.map(k => s[k]);
+    let best = null;
+    for (const k of Object.keys(TYPES)) {
+      const t = TYPES[k];
+      const dist = Math.sqrt(t.target.reduce((sum,v,i) => sum + Math.pow(v-vec[i],2), 0)) / Math.sqrt(5);
+      if (!best || dist < best.dist) best = {type:t, dist};
+    }
+    return {type:best.type, similarity:Math.max(52, Math.round(100 - best.dist * 0.72))};
+  }
+
+  persona() {
+    const s = this.scores();
+    const ranked = AX.slice().sort((a,b) => Math.abs(s[b]-50) - Math.abs(s[a]-50));
+    const [p, q] = ranked;
+    return MODIFIER[q][s[q] >= 50 ? 0 : 1] + " " + IDENTITY[p][s[p] >= 50 ? 0 : 1];
+  }
+
+  answer(v) {
+    const answers = this.state.answers.slice();
+    answers[this.state.step] = v;
+    const next = this.state.step + 1;
+    if (next >= QS.length) this.setState({answers, screen:"result", step:0});
+    else this.setState({answers, step:next});
+  }
+
+  place(col,row) {
+    const sel = this.state.selected;
+    if (!sel) { this.setState({warn:true}); return; }
+    const def = F(sel);
+    if (!canPlace(col,row,def,this.state.placed)) { this.setState({warn:true}); return; }
+    this.setState({placed:this.state.placed.concat([{defId:sel,col,row}]), selected:null, warn:false});
+  }
+
+  renderVals() {
+    const sc = this.state.screen;
+    const s = this.scores();
+    const m = this.matched();
+    const q = QS[this.state.step];
+    const showGrid = this.props.showTileGrid !== false;
+
+    const hero = room([{defId:"sofa",col:1,row:0},{defId:"plant",col:4,row:0},{defId:"ctable",col:1,row:2},{defId:"lounge",col:3,row:2}],
+      {tw:44,th:22,ox:130,oy:70,rw:5,rd:4,wh:74,wallLeft:"rgba(8,80,65,0.16)",wallRight:"rgba(8,80,65,0.10)"});
+    hero.tiles.forEach((t,i) => { t.fill = (t.col+t.row)%2 ? "rgba(8,80,65,0.07)" : "rgba(8,80,65,0.12)"; });
+
+    const ed = room(this.state.placed, {tw:64,th:32,ox:468,oy:140,rw:RW,rd:RD,wh:108,wallLeft:"#0d2620",wallRight:"#0a1f1a"});
+    ed.tiles.forEach(t => {
+      const free = canPlace(t.col,t.row,this.state.selected ? F(this.state.selected) : {w:1,d:1}, this.state.placed);
+      t.fill = this.state.selected ? (free ? "rgba(58,172,142,0.16)" : "rgba(9,26,22,0.9)") : ((t.col+t.row)%2 ? "#0c211c" : "#0e2620");
+      t.stroke = showGrid ? "rgba(58,172,142,0.14)" : "transparent";
+      t.onClick = () => this.place(t.col,t.row);
+    });
+    ed.boxes.forEach(b => {
+      b.topStroke = "rgba(58,172,142,0.18)";
+      b.onClick = (e) => { e.stopPropagation(); this.setState({placed:this.state.placed.filter(p => p.defId+"-"+p.col+"-"+p.row !== b.id)}); };
+    });
+
+    const R = 112, cx = 170, cy = 152;
+    const pt = (i,v) => {
+      const a = -Math.PI/2 + i*2*Math.PI/5;
+      return [cx + Math.cos(a)*R*v/100, cy + Math.sin(a)*R*v/100];
+    };
+    const ringPts = v => AX.map((_,i) => pt(i,v).map(n => n.toFixed(1)).join(",")).join(" ");
+
+    return {
+      isLanding: sc === "landing", isQuiz: sc === "quiz", isResult: sc === "result", isEditor: sc === "editor",
+      navVisible: sc !== "editor",
+      goLanding: () => this.setState({screen:"landing"}),
+      goQuiz: () => this.setState({screen:"quiz", step:0}),
+      goResult: () => this.setState({screen:"result"}),
+      goEditor: () => this.setState({screen:"editor"}),
+      retake: () => this.setState({screen:"quiz", step:0, answers:[]}),
+      back: () => this.setState({screen: this.state.step === 0 ? "landing" : "quiz", step: Math.max(0, this.state.step-1)}),
+      reset: () => this.setState({placed:DEFAULT_PLACED, selected:null, warn:false}),
+
+      stepLabel: String(this.state.step+1).padStart(2,"0"),
+      progressLabel: (this.state.step+1) + " of " + QS.length,
+      progressPct: Math.round((this.state.step+1)/QS.length*100) + "%",
+      questionText: q.text,
+      axisKo: AXKO[q.axis],
+      axisEn: q.axis,
+      choices: LIKERT.map((label,i) => {
+        const v = i+1, on = this.state.answers[this.state.step] === v;
+        return {label, num:String(v).padStart(2,"0"),
+          bg: on ? "var(--primary)" : "var(--card)",
+          color: on ? "var(--primary-foreground)" : "var(--foreground)",
+          border: on ? "var(--primary)" : "var(--border)",
+          onClick: () => this.answer(v)};
+      }),
+
+      type: m.type, similarity: m.similarity,
+      rarity: m.similarity >= 85 ? "레어" : m.similarity >= 70 ? "언커먼" : "커먼",
+      persona: this.persona(),
+      axisRows: AX.map((k,i) => ({ko:AXKO[k], val:s[k], pct:s[k]+"%", color: i%2 ? "var(--chart-2)" : "var(--primary)"})),
+
+      radarRings: [25,50,75,100].map(ringPts),
+      radarAxes: AX.map((_,i) => { const [x,y] = pt(i,100); return {x1:cx,y1:cy,x2:x.toFixed(1),y2:y.toFixed(1)}; }),
+      radarShape: AX.map((k,i) => pt(i,s[k]).map(n => n.toFixed(1)).join(",")).join(" "),
+      radarDots: AX.map((k,i) => { const [x,y] = pt(i,s[k]); return {x:x.toFixed(1), y:y.toFixed(1)}; }),
+      radarLabels: AX.map((k,i) => {
+        const [x,y] = pt(i,127);
+        return {en:k.slice(0,4).toUpperCase(), x:x.toFixed(1), y:(y + (i===0 ? -4 : 4)).toFixed(1),
+          anchor: Math.abs(x-cx) < 14 ? "middle" : (x > cx ? "start" : "end")};
+      }),
+
+      heroTiles: hero.tiles, heroWalls: hero.walls, heroBoxes: hero.boxes,
+      tiles: ed.tiles, walls: ed.walls, boxes: ed.boxes,
+      placedCount: this.state.placed.length,
+      palette: FDEFS.map(d => ({ko:d.ko, size:d.w+"×"+d.d, swatch:d.top,
+        bg: this.state.selected === d.id ? "var(--secondary)" : "transparent",
+        border: this.state.selected === d.id ? "var(--accent)" : "var(--border)",
+        onClick: () => this.setState({selected: this.state.selected === d.id ? null : d.id, warn:false})})),
+      hintTitle: this.state.warn ? "놓을 수 없는 자리" : this.state.selected ? "타일을 클릭하세요" : "가구를 선택하세요",
+      hintBody: this.state.warn ? "다른 가구와 겹치거나 방을 벗어납니다." : this.state.selected ? F(this.state.selected).ko + " · " + F(this.state.selected).w + "×" + F(this.state.selected).d + " 타일" : "왼쪽 팔레트에서 가구를 고르면 놓을 수 있는 자리가 밝아집니다.",
+    };
+  }
+}
+</script>
+</body>
+</html>
