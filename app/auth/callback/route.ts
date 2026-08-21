@@ -25,5 +25,13 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  redirect("/login?error=oauth-failed&message=no-code");
+  // code가 없는 경우 — Supabase가 실패 시 code 대신 error/error_description을
+  // 붙여 보내는 경우가 많다(예: redirect_to가 Supabase의 Redirect URLs
+  // 허용 목록에 없을 때). 뭐가 왔는지 그대로 넘겨서 화면에서 원인을 보게 한다.
+  const rawParams = searchParams.toString();
+  redirect(
+    `/login?error=oauth-failed&message=${encodeURIComponent(
+      rawParams ? `no-code, params=${rawParams}` : "no-code, no-params-at-all",
+    )}`,
+  );
 }
