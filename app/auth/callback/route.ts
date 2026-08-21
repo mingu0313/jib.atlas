@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
     if (!error) {
       redirect(next);
     }
+    redirect(
+      `/login?error=oauth-failed&message=${encodeURIComponent(error.message)}`,
+    );
   }
 
-  redirect("/login?error=oauth-failed");
+  redirect("/login?error=oauth-failed&message=no-code");
 }
