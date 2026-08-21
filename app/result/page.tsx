@@ -34,7 +34,7 @@ export default function ResultPage() {
         </p>
         <Link
           href="/test"
-          className="rounded-full bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
+          className="rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
         >
           진단 테스트 하러 가기
         </Link>
@@ -62,8 +62,10 @@ export default function ResultPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-4xl flex-col gap-8 p-6 sm:p-10">
       <header className="text-center">
-        <p className="text-sm text-muted">당신의 캐릭터는</p>
-        <p className="text-3xl font-bold tracking-tight">{persona.name}</p>
+        <p className="section-label mx-auto w-fit">당신의 캐릭터는</p>
+        <h1 className="font-serif text-4xl font-normal tracking-tight sm:text-5xl">
+          {persona.name}
+        </h1>
         <p className="mt-1 text-sm text-muted">MBTI 성향 {mbtiType}</p>
       </header>
 
@@ -72,11 +74,11 @@ export default function ResultPage() {
           <FloorPlan rooms={topMatch.template.rooms} />
         </div>
         <div className="flex flex-col justify-center gap-3">
-          <p className="text-sm text-muted">당신에게 어울리는 집 구조</p>
-          <h1 className="text-2xl font-bold sm:text-3xl">
+          <p className="section-label">당신에게 어울리는 집 구조</p>
+          <h2 className="font-serif text-2xl font-normal sm:text-3xl">
             {topMatch.template.name}
-          </h1>
-          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-coral-500 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+          </h2>
+          <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-coral-500 px-3 py-1 text-xs font-bold tracking-wide text-white uppercase">
             {rarity} · 유사도 {topMatch.similarity.toFixed(1)}%
           </span>
         </div>
@@ -143,7 +145,7 @@ export default function ResultPage() {
       <div className="flex flex-col items-center gap-3 pb-8 sm:flex-row sm:justify-center">
         <Link
           href="/result/share"
-          className="rounded-full bg-teal-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-teal-700"
+          className="rounded-sm bg-teal-600 px-6 py-3 text-sm font-medium text-white transition hover:bg-teal-700"
         >
           공유 카드 만들기
         </Link>

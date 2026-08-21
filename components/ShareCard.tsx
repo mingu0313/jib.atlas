@@ -56,7 +56,7 @@ export function ShareCard({
 
       <div className="flex flex-col items-center gap-1 text-center">
         <p className="text-sm text-muted">당신에게 어울리는 집 구조</p>
-        <p className="text-lg font-bold">{templateName}</p>
+        <p className="font-serif text-lg font-normal">{templateName}</p>
       </div>
     </div>
   );

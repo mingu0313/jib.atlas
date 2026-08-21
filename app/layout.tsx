@@ -1,19 +1,33 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { DM_Mono, DM_Sans, Fraunces, Noto_Sans_KR } from "next/font/google";
 import Link from "next/link";
 import { signOut } from "@/app/actions/auth";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { getUserSafe } from "@/lib/supabase/server";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// 헤딩용 세리프(Fraunces) — 본문은 계속 산세리프를 쓰되 h1~h3만 세리프로
+// 바꾸는 것만으로 "AI가 뽑아낸 제네릭 SaaS UI" 느낌에서 벗어나는 효과가 크다.
+const fraunces = Fraunces({
+  variable: "--font-fraunces",
+  subsets: ["latin"],
+  axes: ["opsz"],
+  style: ["normal", "italic"],
+});
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
   subsets: ["latin"],
 });
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+// 라벨/뱃지/태그처럼 자간을 넓게 쓰는 "eyebrow" 텍스트 전용.
+const dmMono = DM_Mono({
+  variable: "--font-dm-mono",
   subsets: ["latin"],
+  weight: ["400", "500"],
+});
+const notoSansKr = Noto_Sans_KR({
+  variable: "--font-noto-kr",
+  subsets: ["latin"],
+  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -34,7 +48,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="ko"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${fraunces.variable} ${dmSans.variable} ${dmMono.variable} ${notoSansKr.variable} h-full antialiased`}
     >
       <head>
         {supabaseEnv && (
@@ -48,21 +62,21 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         )}
       </head>
       <body className="flex min-h-full flex-col bg-background text-foreground">
-        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 text-sm">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6">
           <Link
             href="/"
-            className="font-semibold tracking-tight text-teal-700"
+            className="font-serif text-lg font-medium tracking-tight text-teal-700 italic"
           >
             jib.atlas
           </Link>
-          <div className="flex items-center gap-3 text-muted">
+          <div className="flex items-center gap-4 font-mono text-xs tracking-wide text-muted uppercase">
             {user ? (
               <>
-                <span>{user.email}</span>
+                <span className="normal-case">{user.email}</span>
                 <form action={signOut}>
                   <button
                     type="submit"
-                    className="text-muted underline underline-offset-2 transition hover:text-foreground"
+                    className="text-muted underline underline-offset-4 transition hover:text-foreground"
                   >
                     로그아웃
                   </button>
@@ -71,7 +85,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             ) : (
               <Link
                 href="/login"
-                className="underline underline-offset-2 transition hover:text-foreground"
+                className="underline underline-offset-4 transition hover:text-foreground"
               >
                 로그인
               </Link>

@@ -81,7 +81,7 @@ export default function EditorPage() {
         </p>
         <Link
           href="/test"
-          className="rounded-full bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
+          className="rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
         >
           진단 테스트 하러 가기
         </Link>
@@ -100,7 +100,7 @@ export default function EditorPage() {
         </p>
         <Link
           href={`/login?next=${encodeURIComponent("/editor")}`}
-          className="rounded-full bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
+          className="rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
         >
           로그인 / 회원가입
         </Link>
@@ -131,7 +131,7 @@ export default function EditorPage() {
               e.dataTransfer.setData("text/catalog-id", item.id);
               e.dataTransfer.effectAllowed = "copy";
             }}
-            className="flex cursor-grab items-center gap-2 rounded-full border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-teal-500/60 active:cursor-grabbing"
+            className="flex cursor-grab items-center gap-2 rounded-md border border-border bg-background px-3 py-1.5 text-sm transition-colors hover:border-teal-500/60 active:cursor-grabbing"
           >
             <span
               className="inline-block h-3 w-3 rounded-sm"
@@ -155,14 +155,14 @@ export default function EditorPage() {
               <button
                 type="button"
                 onClick={() => rotateItem(selectedItem.id, 15)}
-                className="rounded-full border border-border px-3 py-1 text-foreground transition-colors hover:border-teal-500/60 hover:text-teal-700"
+                className="rounded-md border border-border px-3 py-1 text-foreground transition-colors hover:border-teal-500/60 hover:text-teal-700"
               >
                 ↻ 회전
               </button>
               <button
                 type="button"
                 onClick={() => removeItem(selectedItem.id)}
-                className="rounded-full border border-coral-100 px-3 py-1 text-coral-600 transition-colors hover:bg-coral-50"
+                className="rounded-md border border-coral-100 px-3 py-1 text-coral-600 transition-colors hover:bg-coral-50"
               >
                 삭제
               </button>

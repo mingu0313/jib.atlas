@@ -23,7 +23,7 @@ export default function SharePage() {
         </p>
         <Link
           href="/test"
-          className="rounded-full bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
+          className="rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700"
         >
           진단 테스트 하러 가기
         </Link>

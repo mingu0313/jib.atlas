@@ -148,7 +148,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={pending}
-        className="mt-6 w-full rounded-full bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700 disabled:opacity-50"
+        className="mt-6 w-full rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700 disabled:opacity-50"
       >
         {pending ? "처리 중…" : mode === "login" ? "로그인" : "가입하기"}
       </button>

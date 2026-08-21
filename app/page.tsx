@@ -20,15 +20,15 @@ const STEPS = [
     desc: "라이프스타일 진단 시작",
     href: "/test",
     cta: "진단 시작",
-    bg: "bg-gradient-to-br from-teal-600 to-teal-700",
+    bg: "bg-teal-600",
   },
   {
     n: "02",
     title: "나에게 맞는 집 구조",
-    desc: "14가지 평면도 중 매칭 결과 보기",
+    desc: "22가지 평면도 중 매칭 결과 보기",
     href: "/result",
     cta: "결과 보기",
-    bg: "bg-gradient-to-br from-coral-500 to-coral-600",
+    bg: "bg-coral-600",
   },
   {
     n: "03",
@@ -36,7 +36,7 @@ const STEPS = [
     desc: "가구를 직접 배치해보기",
     href: "/editor",
     cta: "에디터 열기",
-    bg: "bg-gradient-to-br from-teal-700 to-coral-600",
+    bg: "bg-teal-700",
   },
 ];
 
@@ -46,7 +46,7 @@ const BENEFITS = [
     desc: "길고 지루한 설문 대신, 라이프스타일 15문항과 MBTI 8문항만으로 빠르게 끝나요.",
   },
   {
-    title: "14가지 집 구조 매칭",
+    title: "22가지 집 구조 매칭",
     desc: "사회성·미니멀리즘·활동성·개방성·자연친화 5개 축 점수로 가장 잘 맞는 평면도를 골라줘요.",
   },
   {
@@ -66,7 +66,7 @@ const HIGHLIGHTS = [
     sub: "라이프스타일 15문항 + MBTI 보조 8문항",
   },
   {
-    stat: "14가지",
+    stat: "22가지",
     title: "라이프스타일에 맞는 집 구조 매칭",
     sub: undefined,
   },
@@ -82,12 +82,21 @@ export default function Home() {
     <main>
       {/* Hero */}
       <section className="flex flex-col lg:min-h-[720px] lg:flex-row">
-        <div className="relative flex min-h-[400px] flex-1 overflow-hidden bg-gradient-to-br from-teal-600 to-teal-700 lg:min-h-0">
+        <div className="relative flex min-h-[400px] flex-1 overflow-hidden bg-teal-600 lg:min-h-0">
+          {/* 그라디언트 대신 옅은 도트 텍스처로 밋밋한 flat 컬러에 결을 준다. */}
+          <div
+            className="pointer-events-none absolute inset-0 opacity-[0.15]"
+            style={{
+              backgroundImage:
+                "radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px)",
+              backgroundSize: "16px 16px",
+            }}
+          />
           <div className="absolute bottom-6 left-6 flex max-w-md flex-col gap-4 md:bottom-10 md:left-10">
-            <span className="w-fit rounded-full bg-white/15 px-3 py-1 text-xs font-medium tracking-wide text-white">
+            <span className="font-mono w-fit text-xs font-medium tracking-[0.2em] text-white/80 uppercase">
               5분 라이프스타일 진단
             </span>
-            <h1 className="text-[36px] leading-[1.1] font-semibold text-white [text-shadow:0_2px_20px_rgba(0,0,0,0.3)] md:text-[48px] lg:text-[67px]">
+            <h1 className="font-serif text-[36px] leading-[1.1] font-normal text-white italic [text-shadow:0_2px_20px_rgba(0,0,0,0.3)] md:text-[48px] lg:text-[67px]">
               jib.atlas
             </h1>
             <p className="max-w-sm text-white/85">
@@ -216,7 +225,15 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="relative flex min-h-[500px] items-center justify-center overflow-hidden bg-gradient-to-br from-teal-700 via-teal-600 to-coral-600 text-center md:min-h-[720px]">
+      <section className="relative flex min-h-[500px] items-center justify-center overflow-hidden bg-teal-700 text-center md:min-h-[720px]">
+        <div
+          className="pointer-events-none absolute inset-0 opacity-[0.12]"
+          style={{
+            backgroundImage:
+              "radial-gradient(rgba(255,255,255,0.7) 1px, transparent 1px)",
+            backgroundSize: "16px 16px",
+          }}
+        />
         <div className="relative z-10 max-w-[600px] px-10">
           <p className="section-label !text-white">service</p>
           <h2 className="section-title mb-6 !text-white">

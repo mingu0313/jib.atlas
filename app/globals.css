@@ -1,31 +1,52 @@
 @import "tailwindcss";
 
 /*
- * jib.atlas 디자인 시스템 — 미니멀 웜톤 + teal/coral 액센트
- * - 배경/표면은 따뜻한 크림톤, 본문 텍스트는 웜 에스프레소 톤
- * - teal: 주요 액션(버튼, 진행바, 선택 상태)
- * - coral: 강조 요소(배지, 희귀도, 포인트 텍스트)
- * - 명도 차이로 위계를 표현하고 그라디언트/과한 그림자는 쓰지 않는다 (변주 낮게 유지)
+ * jib.atlas 디자인 시스템 v2 — "에디토리얼 딥틸" (lib/jib-atlas-design-spec.md 참고,
+ * 그대로 옮기지 않고 실제 앱 구조/기능에 맞게 다듬었다)
+ *
+ * v1(웜톤 flat teal+coral, Geist Sans 전용)은 어디서나 보이는 "제네릭 AI SaaS"
+ * 느낌이 강했다 — 큰 radius의 pill 버튼, 그라디언트 히어로, 헤딩까지 전부
+ * 산세리프. v2에서 바꾼 것:
+ * - 헤딩(h1~h3)만 세리프(Fraunces)로 — 그것만으로 "만들어 붙인 UI" 느낌이 확 준다
+ * - 라벨/뱃지는 자간 넓은 모노스페이스(DM Mono)로 인쇄물 같은 태그 느낌
+ * - radius를 전반적으로 압축(각짐 우선), CTA 버튼의 pill(rounded-full)은
+ *   진짜 원형이 필요한 곳(뱃지, 프로그레스바)만 남기고 각지게 바꿈
+ * - primary를 더 깊고 채도 낮은 forest teal로, secondary(웜 샌드) 토큰 추가로
+ *   섹션 배경에 변주를 줌 (예전엔 grad/surface 반복이라 밋밋했다)
+ * - 색 자체(teal/coral 토큰 이름)는 그대로 유지해서 기존 페이지의
+ *   `bg-teal-600` 같은 클래스는 안 건드리고 값만 갱신되게 했다.
+ *
+ * spec 원문에서 그대로 안 가져온 것(의도적으로 뺌):
+ * - 4가지 고정 집 유형(SERENE NEST 등)·Unsplash 이미지 hotlink: 실제 앱은
+ *   22개 템플릿 + 5축 매칭이라 안 맞고, 실사진도 안 쓰는 게 기존 원칙
+ * - "다크모드는 에디터에만" 같은 아키텍처 변경: 지금 시스템(prefers-color-scheme
+ *   자동 다크모드)과 범위가 달라 이번엔 손대지 않음
  */
 :root {
-  --background: #faf6f0;
-  --surface: #fffdfa;
-  --foreground: #2b241d;
-  --muted: #8a7d6d;
+  --font-size: 16px;
 
-  --border: #e7ddcd;
-  --border-strong: #d8cab2;
+  --background: #faf9f5;
+  --surface: #ffffff;
+  --foreground: #1c1c18;
+  --muted: #7a7a6a;
 
-  --teal-50: #eaf5f2;
-  --teal-100: #d3e9e3;
-  --teal-500: #16897c;
-  --teal-600: #0f6e63;
-  --teal-700: #0b544c;
+  /* 섹션 배경에 변주를 줄 때만 쓰는 웜 샌드 톤. surface보다 한 단 낮은 위계. */
+  --secondary: #ede8df;
+  --secondary-foreground: #3d3d35;
 
-  --coral-50: #fdece7;
-  --coral-100: #fbd7cb;
-  --coral-500: #ef6b4c;
-  --coral-600: #dd5537;
+  --border: rgba(8, 80, 65, 0.12);
+  --border-strong: rgba(8, 80, 65, 0.24);
+
+  --teal-50: #eaf2ee;
+  --teal-100: #d2e4dc;
+  --teal-500: #14735e;
+  --teal-600: #085041;
+  --teal-700: #06392e;
+
+  --coral-50: #fbe9e2;
+  --coral-100: #f5cfc0;
+  --coral-500: #d9613e;
+  --coral-600: #c04f2f;
 }
 
 @theme inline {
@@ -33,6 +54,9 @@
   --color-surface: var(--surface);
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
 
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
@@ -48,30 +72,45 @@
   --color-coral-500: var(--coral-500);
   --color-coral-600: var(--coral-600);
 
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-dm-sans), var(--font-noto-kr);
+  --font-serif: var(--font-fraunces), Georgia, serif;
+  --font-mono: var(--font-dm-mono), ui-monospace, monospace;
+
+  /* radius 스케일 압축 — Tailwind 기본(최대 24px)보다 전반적으로 각지게.
+     rounded-xl/2xl 같은 기존 클래스는 그대로 두고 값만 눌러서, 파일을
+     일일이 안 고쳐도 카드/패널이 전부 sharper하게 바뀌도록 했다. */
+  --radius-xs: 2px;
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 7px;
+  --radius-xl: 9px;
+  --radius-2xl: 12px;
+  --radius-3xl: 16px;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #211c17;
-    --surface: #2a231c;
-    --foreground: #f3ece2;
-    --muted: #a99c8a;
+    --background: #0b1815;
+    --surface: #10201c;
+    --foreground: #e5efeb;
+    --muted: #8fac9f;
 
-    --border: #3c3327;
-    --border-strong: #4c4132;
+    --secondary: #142e28;
+    --secondary-foreground: #c8ddd8;
 
-    --teal-50: #16302c;
-    --teal-100: #1c3f39;
-    --teal-500: #35b3a2;
-    --teal-600: #4bc4b3;
-    --teal-700: #7ad6c8;
+    --border: rgba(58, 172, 142, 0.16);
+    --border-strong: rgba(58, 172, 142, 0.3);
 
-    --coral-50: #3a241d;
-    --coral-100: #4a2c22;
-    --coral-500: #f5876a;
-    --coral-600: #f79c82;
+    --teal-50: #12302a;
+    --teal-100: #173d34;
+    --teal-500: #3aac8e;
+    --teal-600: #4bc4a5;
+    --teal-700: #7ad9c0;
+
+    --coral-50: #2c1a12;
+    --coral-100: #3a2318;
+    --coral-500: #e37a53;
+    --coral-600: #ef906c;
   }
 }
 
@@ -81,20 +120,28 @@ body {
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
 
+h1,
+h2,
+h3 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
 /*
  * 공유 유틸리티 클래스 — design-reference/kyiv-luxebouquets의
  * styles/global.css(.section-label/.section-title/.text-link/
  * .btn-primary/.btn-outline-light)와 같은 타이포 스케일·스페이싱을
- * 그대로 따르되 색은 jib.atlas 토큰으로 매핑했다. app/page.tsx의
+ * 그대로 따르되 색·폰트·radius는 v2 토큰으로 매핑했다. app/page.tsx의
  * 여러 섹션에서 재사용한다.
  */
 @layer components {
   .section-label {
-    @apply mb-4 text-sm font-medium tracking-[1px] text-coral-600 uppercase;
+    @apply mb-4 font-mono text-xs font-medium tracking-[0.2em] text-coral-600 uppercase;
   }
 
   .section-title {
-    @apply text-[26px] leading-[1.15] font-semibold sm:text-[30px] md:text-[36px] lg:text-[50px];
+    @apply font-serif text-[26px] leading-[1.15] font-normal sm:text-[30px] md:text-[36px] lg:text-[50px];
   }
 
   .text-link {
@@ -102,10 +149,10 @@ body {
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-teal-600 px-8 py-4 text-base font-medium text-white transition hover:bg-teal-700;
+    @apply inline-flex items-center justify-center rounded-sm bg-teal-600 px-8 py-4 text-base font-medium text-white transition hover:bg-teal-700;
   }
 
   .btn-outline-light {
-    @apply inline-flex items-center justify-center border border-white px-8 py-4 text-base font-medium text-white transition hover:bg-white hover:text-teal-700;
+    @apply inline-flex items-center justify-center rounded-sm border border-white px-8 py-4 text-base font-medium text-white transition hover:bg-white hover:text-teal-700;
   }
 }
