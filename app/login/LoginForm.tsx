@@ -15,10 +15,9 @@ export function LoginForm() {
   // 예전엔 이 파라미터를 아예 안 읽어서 로그인 화면에 그냥 멈춰있는 것처럼
   // 보였다 — 원인을 알 수 있게 화면에 표시한다.
   const errorParam = searchParams.get("error");
-  const messageParam = searchParams.get("message");
   const initialError =
     errorParam === "oauth-failed"
-      ? `구글 로그인에 실패했어요.${messageParam ? ` (${messageParam})` : ""}`
+      ? "구글 로그인에 실패했어요. 잠시 후 다시 시도해주세요."
       : errorParam === "confirm-failed"
         ? "이메일 인증 링크가 만료됐거나 이미 사용됐어요. 다시 시도해주세요."
         : null;
