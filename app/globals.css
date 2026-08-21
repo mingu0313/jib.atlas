@@ -80,3 +80,32 @@ body {
   color: var(--color-foreground);
   font-family: var(--font-sans), Arial, Helvetica, sans-serif;
 }
+
+/*
+ * 공유 유틸리티 클래스 — design-reference/kyiv-luxebouquets의
+ * styles/global.css(.section-label/.section-title/.text-link/
+ * .btn-primary/.btn-outline-light)와 같은 타이포 스케일·스페이싱을
+ * 그대로 따르되 색은 jib.atlas 토큰으로 매핑했다. app/page.tsx의
+ * 여러 섹션에서 재사용한다.
+ */
+@layer components {
+  .section-label {
+    @apply mb-4 text-sm font-medium tracking-[1px] text-coral-600 uppercase;
+  }
+
+  .section-title {
+    @apply text-[26px] leading-[1.15] font-semibold sm:text-[30px] md:text-[36px] lg:text-[50px];
+  }
+
+  .text-link {
+    @apply text-base font-medium text-teal-700 underline underline-offset-4;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center bg-teal-600 px-8 py-4 text-base font-medium text-white transition hover:bg-teal-700;
+  }
+
+  .btn-outline-light {
+    @apply inline-flex items-center justify-center border border-white px-8 py-4 text-base font-medium text-white transition hover:bg-white hover:text-teal-700;
+  }
+}
