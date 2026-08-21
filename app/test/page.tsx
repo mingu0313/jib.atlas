@@ -1,12 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import lifestyleQuestionsData from "@/data/lifestyle-questions.json";
 import mbtiQuestionsData from "@/data/mbti-questions.json";
 import { useTestStore } from "@/lib/store";
 import { AXIS_LABELS } from "@/lib/types";
-import type { MbtiIndicator, MbtiQuestion, Question } from "@/lib/types";
+import type { Axis, MbtiIndicator, MbtiQuestion, Question } from "@/lib/types";
 
 /**
  * 퀴즈 페이지 — app/result/jib-atlas.design/jib.atlas.dc.html의 "2. 퀴즈"
@@ -18,10 +19,19 @@ import type { MbtiIndicator, MbtiQuestion, Question } from "@/lib/types";
  *   스펙의 2×2 카드 그리드 대신 2×3(6칸 중 1칸 빈칸)으로 배치했다.
  * - **다크 배경은 안 씀**: app/globals.css에 "다크모드는 에디터 화면에만
  *   국한한다"고 이미 적혀 있어서(v2 코멘트 참고), 페이지 전체를 다크로
- *   바꾸지 않고 라이트 토큰을 유지한 채 좌측 패널만 teal-700 같은 진한
- *   톤으로 스펙의 "무게감"만 흉내냈다. 문항별 실사진도 이 프로젝트는
- *   안 쓰기로 해온 원칙이라, 사진 대신 그 진한 패널 위에 대형 고스트
- *   넘버 + 카테고리 라벨을 얹었다.
+ *   바꾸지 않고 라이트 토큰을 유지한 채 좌측 패널만 진한 톤으로 스펙의
+ *   "무게감"만 흉내냈다.
+ *
+ * 좌측 패널 사진은 handoff가 라이프스타일 5축 문항에 실제로 매칭해둔
+ * Unsplash URL을 그대로 쓴다(AXIS_PHOTOS). MBTI 8문항엔 대응하는 축
+ * 사진이 없어서(handoff에도 없음) 사진 없이 진한 톤 패널만 보여준다 —
+ * 억지로 아무 사진이나 끼워 맞추지 않았다.
+ *
+ * 패널 배경(#06392e)은 의도적으로 teal-700 *토큰*이 아니라 리터럴 값이다
+ * — 이 페이지는 시스템 다크모드를 따르는데, teal-700 토큰은 다크에서
+ * 밝은 민트(#7ad9c0)로 뒤집혀서 "진한 무드 패널"이 정반대로 밝아져
+ * 버린다. 항상 같은 톤이어야 하는 장식 요소라 리터럴로 고정했다
+ * (components/EditorCanvas.tsx의 타일/벽 색과 같은 이유).
  */
 
 const lifestyleQuestions = lifestyleQuestionsData as Question[];
@@ -35,7 +45,16 @@ const INDICATOR_LABELS: Record<MbtiIndicator, string> = {
   JP: "생활 양식",
 };
 
-type QuizItem = { id: string; text: string; category: string };
+/** handoff의 QS 배열이 축마다 실제로 매칭해둔 Unsplash 사진. */
+const AXIS_PHOTOS: Record<Axis, string> = {
+  nature: "https://images.unsplash.com/photo-1483095348487-53dbf97d8d5b?w=900&h=1300&fit=crop&auto=format",
+  sociability: "https://images.unsplash.com/photo-1554612292-c175942fb8c1?w=900&h=1300&fit=crop&auto=format",
+  minimalism: "https://images.unsplash.com/photo-1609081144289-eacc3108cd03?w=900&h=1300&fit=crop&auto=format",
+  activity: "https://images.unsplash.com/photo-1631510390389-c1e4fb20ff31?w=900&h=1300&fit=crop&auto=format",
+  openness: "https://images.unsplash.com/photo-1720706405494-e552f264dd8d?w=900&h=1300&fit=crop&auto=format",
+};
+
+type QuizItem = { id: string; text: string; category: string; photo?: string };
 
 /** 라이프스타일 15문항 다음에 MBTI 8문항이 이어지는 순서로 노출한다. */
 const allQuestions: QuizItem[] = [
@@ -43,6 +62,7 @@ const allQuestions: QuizItem[] = [
     id: q.id,
     text: q.text,
     category: AXIS_LABELS[q.axis],
+    photo: AXIS_PHOTOS[q.axis],
   })),
   ...mbtiQuestions.map((q) => ({
     id: q.id,
@@ -103,8 +123,21 @@ export default function TestPage() {
 
   return (
     <main className="grid grid-cols-1 lg:min-h-[calc(100vh_-_63px)] lg:grid-cols-[38fr_62fr]">
-      {/* 좌: 진한 톤 패널 — 실사진 대신 대형 고스트 넘버 + 카테고리 */}
-      <div className="relative hidden overflow-hidden bg-teal-700 lg:block">
+      {/* 좌: 진한 톤 패널 + (있으면) 축 사진 위에 대형 고스트 넘버 + 카테고리 */}
+      <div className="relative hidden overflow-hidden bg-[#06392e] lg:block">
+        {currentQuestion.photo && (
+          <Image
+            key={currentQuestion.id}
+            src={currentQuestion.photo}
+            alt=""
+            fill
+            sizes="34vw"
+            priority={index === 0}
+            className="object-cover"
+            style={{ filter: "grayscale(0.4) brightness(0.55)" }}
+          />
+        )}
+        <div className="pointer-events-none absolute inset-0 bg-[#06392e]/55" />
         <div
           className="pointer-events-none absolute inset-0 opacity-[0.12]"
           style={DOT_TEXTURE("rgba(240,247,244,0.6)")}

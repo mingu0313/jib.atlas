@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { IsoRoomArt } from "@/components/IsoRoomArt";
 import houseTemplatesData from "@/data/house-templates.json";
@@ -22,8 +23,11 @@ import type { HouseTemplate } from "@/lib/types";
  *   22개)에서 대표 4개를 뽑아 진짜 이름/설명으로 채움
  * - "5문항·3분", "4 types/9 furniture" 같은 프로토타입 전용 숫자 →
  *   실제 문항 수(23)·템플릿 수(22)·가구 수(furniture-catalog.json, 8)로 교체
- * - Unsplash 이미지 hotlink → 이 프로젝트는 실사진을 안 쓰기로 해왔어서
- *   같은 자리에 flat 컬러 + 도트 텍스처로 대체
+ * - Unsplash 이미지는 handoff가 실제로 쓰는 URL 그대로 재사용한다(House
+ *   Types 섹션의 사진 셀 2개, /test 좌측 패널) — next.config.ts에
+ *   images.unsplash.com을 remotePatterns로 허용해뒀다. Cloudflare Workers엔
+ *   Next 기본 이미지 최적화(sharp) API가 없어서 images.unoptimized:true로
+ *   리사이즈 없이 원본 그대로 서빙한다
  * - Editor Preview 섹션의 에디터 설명 문구는 실제 /editor 구현(아이소메트릭
  *   타일 클릭 배치, components/EditorCanvas.tsx)과 정확히 일치한다
  * - 아이소메트릭 미니룸 SVG는 순수 장식용으로 새로 만든 components/
@@ -41,12 +45,23 @@ function templateById(id: string) {
   return t;
 }
 
-/** House Types 섹션에 쓸 대표 4개 — 5축 공간에서 서로 뚜렷이 다른 성향을 고름. */
+/** House Types 섹션에 쓸 대표 4개 — 5축 공간에서 서로 뚜렷이 다른 성향을 고름.
+ * photo URL은 handoff의 House Types 사진 셀(01/04)이 실제로 쓰는 것 그대로. */
 const FEATURED = [
-  { num: "01", kind: "text" as const, template: templateById("t9") }, // 은둔형 프라이빗 스튜디오
+  {
+    num: "01",
+    kind: "photo" as const,
+    template: templateById("t9"), // 은둔형 프라이빗 스튜디오
+    photo: "https://images.unsplash.com/photo-1720706405494-e552f264dd8d?w=700&h=800&fit=crop&auto=format",
+  },
   { num: "02", kind: "flat" as const, template: templateById("t1") }, // 오픈형 로프트 스튜디오
   { num: "03", kind: "flat" as const, template: templateById("t11") }, // 스마트 미니멀 원룸
-  { num: "04", kind: "text" as const, template: templateById("t5") }, // 대가족형 커뮤널 하우스
+  {
+    num: "04",
+    kind: "photo" as const,
+    template: templateById("t5"), // 대가족형 커뮤널 하우스
+    photo: "https://images.unsplash.com/photo-1554612292-c175942fb8c1?w=700&h=800&fit=crop&auto=format",
+  },
 ];
 
 const DOT_TEXTURE = (rgba: string, size = 16) => ({
@@ -324,25 +339,35 @@ export default function Home() {
                 </div>
               );
             }
-            // secondary(웜 샌드) 배경 셀 — 일반 border-border로 충분히 보인다.
+            // 사진 셀 — 실사진 위에 딥틸 그라디언트를 얹어 텍스트를 흰 톤으로 얹는다.
             const border = i === 3 ? "border-t border-border sm:border-l" : "";
             return (
               <div
                 key={item.template.id}
-                className={`relative flex min-h-[290px] flex-col justify-end overflow-hidden bg-secondary p-8 ${border}`}
+                className={`relative flex min-h-[290px] flex-col justify-end overflow-hidden ${border}`}
               >
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-40"
-                  style={DOT_TEXTURE("rgba(8,80,65,0.18)", 14)}
+                <Image
+                  src={item.photo}
+                  alt={item.template.name}
+                  fill
+                  sizes="(min-width: 640px) 50vw, 100vw"
+                  className="object-cover"
                 />
-                <div className="relative flex flex-col gap-1.5">
-                  <span className="font-mono text-[9px] tracking-[0.4em] text-teal-600">
+                <div
+                  className="pointer-events-none absolute inset-0"
+                  style={{
+                    background:
+                      "linear-gradient(to top, rgba(8,80,65,0.86), rgba(8,80,65,0.05))",
+                  }}
+                />
+                <div className="relative flex flex-col gap-1.5 p-8">
+                  <span className="font-mono text-[9px] tracking-[0.4em] text-white/70">
                     {item.num}
                   </span>
-                  <span className="font-serif text-[30px] font-normal">
+                  <span className="font-serif text-[30px] font-normal text-white">
                     {item.template.name}
                   </span>
-                  <span className="text-xs leading-[1.8] text-muted">{feature}</span>
+                  <span className="text-xs leading-[1.8] text-white/80">{feature}</span>
                 </div>
               </div>
             );
