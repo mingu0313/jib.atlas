@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import { RADAR_CX, RADAR_CY, radarPoint, radarRing, radarShape } from "@/lib/radar";
 import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
 
 /**
@@ -54,23 +55,9 @@ const SAMPLE_SCORES: Record<Axis, number> = {
   nature: 86,
 };
 
-const R = 150;
-const CX = 170;
-const CY = 170;
-
-function polar(i: number, value: number): [number, number] {
-  const angle = -Math.PI / 2 + (i * 2 * Math.PI) / AXES.length;
-  const r = (R * value) / 100;
-  return [CX + Math.cos(angle) * r, CY + Math.sin(angle) * r];
-}
-
-function ringPoints(value: number): string {
-  return AXES.map((_, i) => polar(i, value).map((n) => n.toFixed(1)).join(",")).join(" ");
-}
-
-const SHAPE_POINTS = AXES.map((axis, i) => polar(i, SAMPLE_SCORES[axis]).map((n) => n.toFixed(1)).join(",")).join(
-  " ",
-);
+const CX = RADAR_CX;
+const CY = RADAR_CY;
+const SHAPE_POINTS = radarShape(SAMPLE_SCORES);
 
 export function FiveAxes() {
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -189,10 +176,10 @@ export function FiveAxes() {
             <div className="mt-5 flex justify-center">
               <svg viewBox="0 0 340 340" className="w-full max-w-[260px]">
                 {[33, 66, 100].map((v) => (
-                  <polygon key={v} points={ringPoints(v)} fill="none" stroke="var(--color-hair)" strokeWidth={1} />
+                  <polygon key={v} points={radarRing(v)} fill="none" stroke="var(--color-hair)" strokeWidth={1} />
                 ))}
                 {AXES.map((axis, i) => {
-                  const [x, y] = polar(i, 100);
+                  const [x, y] = radarPoint(i, 100);
                   const isActive = axis === activeAxis;
                   return (
                     <line
@@ -209,7 +196,7 @@ export function FiveAxes() {
                 })}
                 <polygon points={SHAPE_POINTS} fill="rgba(65,82,31,0.13)" stroke="var(--color-olive)" strokeWidth={1.6} />
                 {AXES.map((axis, i) => {
-                  const [x, y] = polar(i, SAMPLE_SCORES[axis]);
+                  const [x, y] = radarPoint(i, SAMPLE_SCORES[axis]);
                   const isActive = axis === activeAxis;
                   return (
                     <circle
