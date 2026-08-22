@@ -93,7 +93,7 @@ export function LoginForm() {
   if (signupDone) {
     return (
       <div className="text-center">
-        <h1 className="mb-4 text-xl font-semibold">가입 확인 이메일을 보냈어요</h1>
+        <h1 className="font-kr mb-4 text-xl">가입 확인 이메일을 보냈어요</h1>
         <p className="max-w-sm text-muted">
           {email}로 보낸 이메일의 링크를 눌러 인증을 마치면 로그인할 수 있어요.
         </p>
@@ -103,24 +103,22 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm">
-      <h1 className="mb-6 text-2xl font-bold">
-        {mode === "login" ? "로그인" : "회원가입"}
-      </h1>
+      <h1 className="font-kr mb-7 text-2xl">{mode === "login" ? "로그인" : "회원가입"}</h1>
 
       <button
         type="button"
         onClick={handleGoogleLogin}
         disabled={googlePending}
-        className="flex w-full items-center justify-center gap-3 rounded-xl border border-border px-4 py-3 font-medium transition hover:bg-surface disabled:opacity-50"
+        className="flex w-full items-center justify-center gap-3 rounded-full border border-hair px-4 py-3 text-[14px] font-medium text-fg transition hover:bg-panel disabled:opacity-50"
       >
         <GoogleIcon />
         {googlePending ? "이동 중…" : "Google로 계속하기"}
       </button>
 
       <div className="my-5 flex items-center gap-3 text-xs text-muted">
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-hair" />
         또는
-        <span className="h-px flex-1 bg-border" />
+        <span className="h-px flex-1 bg-hair" />
       </div>
 
       <div className="flex flex-col gap-3">
@@ -130,7 +128,7 @@ export function LoginForm() {
           placeholder="이메일"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-xl border border-border px-4 py-3 outline-none focus:border-teal-600"
+          className="rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
         />
         <input
           type="password"
@@ -139,16 +137,20 @@ export function LoginForm() {
           placeholder="비밀번호 (6자 이상)"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-xl border border-border px-4 py-3 outline-none focus:border-teal-600"
+          className="rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
         />
       </div>
 
-      {error && <p className="mt-3 text-sm text-coral-600">{error}</p>}
+      {error && (
+        <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
+          {error}
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={pending}
-        className="mt-6 w-full rounded-sm bg-teal-600 px-6 py-3 text-white transition hover:bg-teal-700 disabled:opacity-50"
+        className="mt-6 w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
       >
         {pending ? "처리 중…" : mode === "login" ? "로그인" : "가입하기"}
       </button>
@@ -159,7 +161,7 @@ export function LoginForm() {
           setMode((m) => (m === "login" ? "signup" : "login"));
           setError(null);
         }}
-        className="mt-4 w-full text-sm text-muted underline underline-offset-2"
+        className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
       >
         {mode === "login" ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
       </button>

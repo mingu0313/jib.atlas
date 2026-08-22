@@ -39,21 +39,38 @@ export function useMotion() {
 
 const STORAGE_KEY = "jib-atlas-motion-off";
 
+/** 서버 렌더에는 window/localStorage가 없어 항상 false(모션 켜짐)로 시작한다 —
+ * 클라이언트 마운트 후 아래 두 useState 지연 초기화가 실제 값으로 맞춘다. */
+function readSystemReduced(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  } catch {
+    return false;
+  }
+}
+
+function readUserOff(): boolean {
+  if (typeof window === "undefined") return false;
+  try {
+    return localStorage.getItem(STORAGE_KEY) === "1";
+  } catch {
+    // 프라이빗 모드 등으로 localStorage를 못 쓰면 기본값(켜짐)으로 둔다.
+    return false;
+  }
+}
+
 export function MotionProvider({ children }: { children: React.ReactNode }) {
-  const [userOff, setUserOff] = useState(false);
-  const [systemReduced, setSystemReduced] = useState(false);
+  const [userOff, setUserOff] = useState(readUserOff);
+  const [systemReduced, setSystemReduced] = useState(readSystemReduced);
   const pathname = usePathname();
 
+  // 초기값은 위 지연 초기화가 담당하고, 이 effect는 이후 변화를 구독만 한다
+  // (effect 안에서 곧장 setState를 호출하지 않도록 — 렌더 캐스케이드 방지).
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setSystemReduced(mq.matches);
     const onChange = (e: MediaQueryListEvent) => setSystemReduced(e.matches);
     mq.addEventListener("change", onChange);
-    try {
-      setUserOff(localStorage.getItem(STORAGE_KEY) === "1");
-    } catch {
-      // 프라이빗 모드 등으로 localStorage를 못 쓰면 기본값(켜짐)으로 둔다.
-    }
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
