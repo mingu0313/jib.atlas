@@ -156,7 +156,7 @@ export function FiveAxes() {
             sticky·top-0는 모든 화면 크기에서 켜져 있어야 한다(위 주석 참고). */}
         <div className="sticky top-20 order-1 z-10 lg:top-0 lg:order-2 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:gap-6">
           <div
-            className="relative aspect-[5/4] max-h-[38vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[42vh] lg:max-h-[46vh]"
+            className="relative aspect-[5/4] max-h-[26vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[36vh] lg:max-h-[46vh]"
           >
             {AXES.map((axis, i) => (
               <Image
@@ -176,10 +176,12 @@ export function FiveAxes() {
             <span className="font-kr absolute bottom-6 left-7 text-[26px] text-bg">{AXIS_LABELS[activeAxis]}</span>
           </div>
 
-          {/* 레이더+막대 패널은 데스크톱 전용 — 모바일에서 사진과 같이 sticky로 붙이면
-              화면 전체를 뒤덮어 정작 스크롤 중인 축 텍스트가 하나도 안 보이게 된다.
-              모바일에서는 사진(캡션에 이미 축 이름이 뜬다)만 고정해 둔다. */}
-          <div className="mt-6 hidden rounded-[26px] bg-panel p-7 sm:p-9 lg:mt-0 lg:block">
+          {/* 레이더+막대 패널 — 원본 프리뷰(jib-atlas-v2-preview.html)는 화면 크기와
+              무관하게 사진과 패널이 항상 같이 sticky로 붙어서 축이 바뀔 때마다 함께
+              전환된다. 예전엔 모바일에서만 이 패널을 숨겼는데(화면을 다 덮는다는
+              우려), 그러면 정작 "축마다 패널이 같이 바뀌는" 핵심 동작 자체가 안
+              보이니 원본과 똑같이 모든 화면에서 보이게 둔다. */}
+          <div className="mt-6 rounded-[26px] bg-panel p-6 sm:p-9 lg:mt-0">
             <div className="flex items-baseline justify-between gap-5">
               <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>
               <span className="font-display text-base tracking-[0.02em] text-faint">{AXIS_EN[activeAxis]}</span>
@@ -230,7 +232,7 @@ export function FiveAxes() {
                 return (
                   <div
                     key={axis}
-                    className="grid grid-cols-[104px_1fr_30px] items-center gap-4 border-b border-hair py-4 last:border-b-0"
+                    className="grid grid-cols-[76px_1fr_28px] items-center gap-3 border-b border-hair py-3.5 sm:grid-cols-[104px_1fr_30px] sm:gap-4 sm:py-4"
                   >
                     <span
                       className={`text-[13px] transition-colors duration-500 ${isActive ? "text-fg" : "text-faint"}`}
