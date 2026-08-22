@@ -3,9 +3,9 @@
 /*
  * jib.atlas 디자인 시스템 v4 — "올리브 + 세이지, 웜 오프화이트" (jib-atlas-v2-handoff/
  * DESIGN-HANDOFF-V2.md 팔레트를 그대로 반영). v3("그레이지+카퍼, 건축 도면")를
- * 대체한다 — 사용자가 "완전 교체"를 명시적으로 선택했다: v3의 --teal-*/--coral-*/
- * --background/--foreground 토큰과 그 토큰에 얹혀 있던 유틸리티 클래스
- * (.section-label/.section-title/.text-link/.btn-primary/.btn-outline-light),
+ * 대체한다 — 사용자가 "완전 교체"를 명시적으로 선택했다: v3의 --teal-*, --coral-*,
+ * --background, --foreground 토큰과 그 토큰에 얹혀 있던 유틸리티 클래스
+ * (.section-label, .section-title, .text-link, .btn-primary, .btn-outline-light),
  * 각진 radius 스케일 압축은 전부 제거하고 v2 문서의 새 토큰 이름
  * (--bg/--fg/--olive/--sage/--panel 등)으로 새로 시작한다.
  *
