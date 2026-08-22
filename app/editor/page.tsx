@@ -4,6 +4,7 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
+import { EditorRoomIntro } from "@/components/EditorRoomIntro";
 import { useEditorStore } from "@/lib/editorStore";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona } from "@/lib/persona";
@@ -142,121 +143,125 @@ export default function EditorPage() {
   }));
 
   return (
-    <main className="dark flex min-h-[calc(100vh_-_63px)] flex-col bg-background text-foreground">
-      {/* 상단바 */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface px-6 py-[18px] sm:px-8">
-        <div className="flex items-center gap-[18px] sm:gap-[22px]">
-          <span className="font-serif text-[19px] font-semibold">
-            jib<span className="text-coral-600">.</span>atlas
-          </span>
-          <span className="h-[18px] w-px bg-border" />
-          <span className="font-mono text-[9px] tracking-[0.4em] text-teal-600 uppercase">
-            room editor — {typeNum} {topMatch.template.name}
-          </span>
-        </div>
-        <div className="flex items-center gap-[14px] sm:gap-[18px]">
-          <span className="font-mono text-[9px] tracking-[0.3em] text-muted uppercase">
-            {items.length} / {furnitureCatalog.length} placed
-          </span>
-          <button
-            type="button"
-            onClick={resetPlacement}
-            className="rounded-[2px] border border-border px-[18px] py-2.5 text-[11px] text-muted transition hover:border-teal-600 hover:text-foreground"
-          >
-            초기화
-          </button>
-          <Link
-            href="/result"
-            className="rounded-[2px] bg-coral-600 px-[22px] py-[11px] text-[11px] font-medium text-white transition hover:bg-coral-700"
-          >
-            결과로 돌아가기
-          </Link>
-        </div>
-      </div>
+    <main className="dark flex flex-col bg-background text-foreground">
+      <EditorRoomIntro typeNum={typeNum} templateName={topMatch.template.name} />
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[236px_1fr_264px]">
-        {/* 팔레트 */}
-        <div className="flex flex-col gap-[18px] border-b border-border bg-surface px-5 py-[26px] lg:border-r lg:border-b-0">
-          <span className="font-mono text-[9px] tracking-[0.4em] text-muted uppercase">
-            palette
-          </span>
-          <div className="flex flex-col gap-1.5">
-            {furnitureCatalog.map((def) => {
-              const selected = selectedDefId === def.id;
-              return (
-                <button
-                  key={def.id}
-                  type="button"
-                  onClick={() => selectDef(def.id)}
-                  className={`flex items-center gap-3.5 rounded-[2px] border px-3.5 py-3 text-left transition hover:border-teal-600 ${
-                    selected ? "border-coral-500 bg-secondary" : "border-border"
-                  }`}
-                >
-                  <span
-                    className="h-4 w-4 shrink-0 border border-white/15"
-                    style={{ background: def.top }}
-                  />
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-xs">{def.label}</span>
-                    <span className="font-mono text-[8px] tracking-[0.25em] text-muted uppercase">
-                      {def.w}×{def.d}
-                    </span>
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* 캔버스 */}
-        <div className="relative flex items-center justify-center overflow-hidden bg-background p-6 sm:p-10">
-          <div
-            className="pointer-events-none absolute inset-0 opacity-[0.35]"
-            style={DOT_TEXTURE("rgba(58,172,142,0.20)", 20)}
-          />
-          <EditorCanvas catalog={furnitureCatalog} />
-          <div className="absolute bottom-6 left-6 flex flex-col gap-1.5 sm:bottom-8 sm:left-10">
+      <div className="flex min-h-[calc(100vh_-_63px)] flex-col">
+        {/* 상단바 */}
+        <div className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface px-6 py-[18px] sm:px-8">
+          <div className="flex items-center gap-[18px] sm:gap-[22px]">
+            <span className="font-serif text-[19px] font-semibold">
+              jib<span className="text-coral-600">.</span>atlas
+            </span>
+            <span className="h-[18px] w-px bg-border" />
             <span className="font-mono text-[9px] tracking-[0.4em] text-teal-600 uppercase">
-              {hintTitle}
+              room editor — {typeNum} {topMatch.template.name}
             </span>
-            <span className="text-[11px] text-muted">{hintBody}</span>
+          </div>
+          <div className="flex items-center gap-[14px] sm:gap-[18px]">
+            <span className="font-mono text-[9px] tracking-[0.3em] text-muted uppercase">
+              {items.length} / {furnitureCatalog.length} placed
+            </span>
+            <button
+              type="button"
+              onClick={resetPlacement}
+              className="rounded-[2px] border border-border px-[18px] py-2.5 text-[11px] text-muted transition hover:border-teal-600 hover:text-foreground"
+            >
+              초기화
+            </button>
+            <Link
+              href="/result"
+              className="rounded-[2px] bg-coral-600 px-[22px] py-[11px] text-[11px] font-medium text-white transition hover:bg-coral-700"
+            >
+              결과로 돌아가기
+            </Link>
           </div>
         </div>
 
-        {/* 인포 */}
-        <div className="flex flex-col gap-[26px] border-t border-border bg-surface px-[22px] py-[26px] lg:border-t-0 lg:border-l">
-          <div className="flex flex-col gap-3">
+        <div className="grid flex-1 grid-cols-1 lg:grid-cols-[236px_1fr_264px]">
+          {/* 팔레트 */}
+          <div className="flex flex-col gap-[18px] border-b border-border bg-surface px-5 py-[26px] lg:border-r lg:border-b-0">
             <span className="font-mono text-[9px] tracking-[0.4em] text-muted uppercase">
-              house type
+              palette
             </span>
-            <span className="font-serif text-[26px] leading-[1.2]">
-              {topMatch.template.name}
-            </span>
-            <span className="text-xs text-muted">{persona.name}</span>
-          </div>
-          <div className="flex flex-col border-t border-border">
-            {axisRows.map((row) => (
-              <div
-                key={row.axis}
-                className="flex items-center justify-between gap-3 border-b border-border py-3.5"
-              >
-                <span className="text-[11px] text-secondary-foreground">{row.ko}</span>
-                <span className="flex items-center gap-2.5">
-                  <span className="relative h-[3px] w-[70px] bg-[rgba(58,172,142,0.14)]">
+            <div className="flex flex-col gap-1.5">
+              {furnitureCatalog.map((def) => {
+                const selected = selectedDefId === def.id;
+                return (
+                  <button
+                    key={def.id}
+                    type="button"
+                    onClick={() => selectDef(def.id)}
+                    className={`flex items-center gap-3.5 rounded-[2px] border px-3.5 py-3 text-left transition hover:border-teal-600 ${
+                      selected ? "border-coral-500 bg-secondary" : "border-border"
+                    }`}
+                  >
                     <span
-                      className="absolute top-0 left-0 h-[3px] bg-teal-600"
-                      style={{ width: `${row.val}%` }}
+                      className="h-4 w-4 shrink-0 border border-white/15"
+                      style={{ background: def.top }}
                     />
-                  </span>
-                  <span className="font-mono text-[9px] text-muted">{row.val}</span>
-                </span>
-              </div>
-            ))}
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-xs">{def.label}</span>
+                      <span className="font-mono text-[8px] tracking-[0.25em] text-muted uppercase">
+                        {def.w}×{def.d}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <p className="text-[11px] leading-[1.9] text-muted">
-            가구를 고른 뒤 바닥 타일을 클릭하면 그 자리에 놓입니다. 이미 놓인
-            가구를 클릭하면 치웁니다.
-          </p>
+
+          {/* 캔버스 */}
+          <div className="relative flex items-center justify-center overflow-hidden bg-background p-6 sm:p-10">
+            <div
+              className="pointer-events-none absolute inset-0 opacity-[0.35]"
+              style={DOT_TEXTURE("rgba(58,172,142,0.20)", 20)}
+            />
+            <EditorCanvas catalog={furnitureCatalog} />
+            <div className="absolute bottom-6 left-6 flex flex-col gap-1.5 sm:bottom-8 sm:left-10">
+              <span className="font-mono text-[9px] tracking-[0.4em] text-teal-600 uppercase">
+                {hintTitle}
+              </span>
+              <span className="text-[11px] text-muted">{hintBody}</span>
+            </div>
+          </div>
+
+          {/* 인포 */}
+          <div className="flex flex-col gap-[26px] border-t border-border bg-surface px-[22px] py-[26px] lg:border-t-0 lg:border-l">
+            <div className="flex flex-col gap-3">
+              <span className="font-mono text-[9px] tracking-[0.4em] text-muted uppercase">
+                house type
+              </span>
+              <span className="font-serif text-[26px] leading-[1.2]">
+                {topMatch.template.name}
+              </span>
+              <span className="text-xs text-muted">{persona.name}</span>
+            </div>
+            <div className="flex flex-col border-t border-border">
+              {axisRows.map((row) => (
+                <div
+                  key={row.axis}
+                  className="flex items-center justify-between gap-3 border-b border-border py-3.5"
+                >
+                  <span className="text-[11px] text-secondary-foreground">{row.ko}</span>
+                  <span className="flex items-center gap-2.5">
+                    <span className="relative h-[3px] w-[70px] bg-[rgba(58,172,142,0.14)]">
+                      <span
+                        className="absolute top-0 left-0 h-[3px] bg-teal-600"
+                        style={{ width: `${row.val}%` }}
+                      />
+                    </span>
+                    <span className="font-mono text-[9px] text-muted">{row.val}</span>
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] leading-[1.9] text-muted">
+              가구를 고른 뒤 바닥 타일을 클릭하면 그 자리에 놓입니다. 이미 놓인
+              가구를 클릭하면 치웁니다.
+            </p>
+          </div>
         </div>
       </div>
     </main>

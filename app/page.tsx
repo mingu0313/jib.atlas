@@ -1,18 +1,23 @@
 import Image from "next/image";
 import Link from "next/link";
-import { HeroFloorPlan } from "@/components/HeroFloorPlan";
+import { HeroPhoneMockup } from "@/components/HeroPhoneMockup";
 import { IsoRoomArt } from "@/components/IsoRoomArt";
 import houseTemplatesData from "@/data/house-templates.json";
+import { AXIS_LABELS } from "@/lib/types";
 import type { HouseTemplate } from "@/lib/types";
 
 /**
  * 랜딩 페이지. 색·radius·폰트는 app/globals.css 토큰과 app/layout.tsx의
  * next/font 변수만 쓰고, 프로토타입의 하드코딩 값은 옮기지 않았다.
  *
- * 히어로는 사용자가 직접 준 새 디자인 브리프("그레이지+카퍼, 건축 도면"
- * — 좌 30%/우 70% 비대칭, 세리프 금지, 건축 도면 라인 드로잉, 스크롤
- * 조립 애니메이션 하나만)로 완전히 새로 만들었다. 아이폰 목업 등 이전
- * handoff 기반 버전은 걷어냈다 — components/HeroFloorPlan.tsx 참고.
+ * 히어로는 "그레이지+카퍼, 건축 도면" 브리프(좌 30%/우 70% 비대칭, 세리프
+ * 금지)로 다시 만든 뒤 좌 카피는 그대로 두고 있다. 우측은 두 버전을
+ * 오갔다: 브리프 직후엔 건축 도면 블루프린트(components/HeroFloorPlan.tsx)
+ * 하나만 스크롤에 맞춰 조립되는 연출이었는데, 이후 "스크롤 조립 기법은
+ * /editor로 옮기고 우측엔 v2 시절 있던 3D 아이폰 목업을 다시 넣어달라"는
+ * 요청으로 지금은 components/HeroPhoneMockup.tsx로 바뀌었다. 스크롤
+ * 조립 기법 자체는 components/EditorRoomIntro.tsx가 같은 방식(--progress
+ * CSS 변수 + calc/clamp)으로 이어받아 /editor 상단에서 쓴다.
  * 색·폰트 팔레트는 브리프 확인대로 사이트 전체 토큰(app/globals.css)에
  * 반영해서 아래 Process~Footer(아직 handoff 레이아웃 그대로)도 새
  * 팔레트를 자동으로 물려받는다.
@@ -76,10 +81,29 @@ const DOT_TEXTURE = (rgba: string, size = 16) => ({
   backgroundSize: `${size}px ${size}px`,
 });
 
+/** "은둔형 프라이빗 스튜디오" → { lead: "은둔형 프라이빗", tail: "스튜디오" } — 히어로 폰
+ * 목업/​/result 양쪽에서 쓰는 "수식어 + 명사" 2행 타이틀 분리 규칙(모든 템플릿명이 이 구조). */
+function splitTitle(name: string) {
+  const idx = name.lastIndexOf(" ");
+  if (idx === -1) return { lead: "", tail: name };
+  return { lead: name.slice(0, idx), tail: name.slice(idx + 1) };
+}
+
+/** 히어로 폰 목업 안 "결과 화면 축소판"용 — FEATURED[0](t9)의 실제 데이터로 채운다.
+ * 방문자 본인의 진단 결과가 아니라 순수 미리보기 예시라, 실제 similarity/rarity 대신
+ * scoreProfile 중 3축만 뽑아 보여준다. */
+const HERO_PREVIEW_TEMPLATE = FEATURED[0].template;
+const HERO_PREVIEW_TITLE = splitTitle(HERO_PREVIEW_TEMPLATE.name);
+const HERO_PREVIEW_TAGLINE = HERO_PREVIEW_TEMPLATE.features[0]?.text ?? "";
+const HERO_PREVIEW_AXES = (["nature", "minimalism", "sociability"] as const).map((axis) => ({
+  label: AXIS_LABELS[axis],
+  val: Math.round(HERO_PREVIEW_TEMPLATE.scoreProfile[axis]),
+}));
+
 export default function Home() {
   return (
     <main>
-      {/* ── Hero — 좌 30% 카피 / 우 70% 건축 도면 라인 드로잉 ── */}
+      {/* ── Hero — 좌 30% 카피 / 우 70% 3D 폰 목업 ── */}
       <section className="grid grid-cols-1 border-b border-border bg-background lg:min-h-[calc(100vh_-_63px)] lg:grid-cols-[30fr_70fr]">
         <div className="flex flex-col justify-center gap-7 border-b border-border px-6 py-16 sm:px-10 lg:border-r lg:border-b-0 lg:px-12 lg:py-0">
           <span className="font-mono text-[10px] tracking-[0.4em] text-muted uppercase">
@@ -105,9 +129,24 @@ export default function Home() {
           </span>
         </div>
 
-        <div className="relative min-h-[420px] overflow-hidden bg-surface lg:min-h-0">
-          <div className="absolute inset-0 p-8 sm:p-12 lg:p-16">
-            <HeroFloorPlan className="h-full w-full" />
+        <div className="relative min-h-[480px] overflow-hidden bg-surface lg:min-h-0">
+          <div
+            className="pointer-events-none absolute inset-0 opacity-50"
+            style={DOT_TEXTURE("rgba(35,40,58,0.22)")}
+          />
+          <div
+            className="pointer-events-none absolute top-[60px] -right-[120px] hidden h-[480px] w-[540px] bg-teal-600 opacity-[0.045] lg:block"
+            style={{ borderRadius: "62% 38% 47% 53% / 44% 58% 42% 56%" }}
+          />
+          <div className="absolute inset-0 flex items-center justify-center p-8 sm:p-12">
+            <HeroPhoneMockup
+              typeNum={FEATURED[0].num}
+              leadTitle={HERO_PREVIEW_TITLE.lead}
+              tailTitle={HERO_PREVIEW_TITLE.tail}
+              tagline={HERO_PREVIEW_TAGLINE}
+              axes={HERO_PREVIEW_AXES}
+              ctaLabel="이 집 꾸미러 가기"
+            />
           </div>
         </div>
       </section>
