@@ -118,7 +118,7 @@ export function FiveAxes() {
         패널을 맨 위에 sticky로 둬, 축 텍스트가 그 아래로 흘러가게 한다.
         데스크톱에서만 grid 2컬럼으로 전환(그때는 grid stretch가 같은 효과를 준다).
       */}
-      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[44fr_56fr] lg:gap-20">
+      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[44fr_56fr] lg:items-start lg:gap-20">
         {/* 좌: 축 5개 — 데스크톱에서는 왼쪽, 모바일에서는 사진/패널 아래(order로 순서만 뒤집는다). */}
         <div className="order-2 lg:order-1">
           {AXES.map((axis, i) => {
