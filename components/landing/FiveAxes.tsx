@@ -109,9 +109,18 @@ export function FiveAxes() {
         </h2>
       </header>
 
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-[44fr_56fr] lg:gap-20">
-        {/* 좌: 축 5개 */}
-        <div>
+      {/*
+        모바일(<lg)에서는 grid-cols-1로 두 컬럼이 "각자의 행"으로 쪼개지면서
+        sticky의 containing block이 사진/패널 자기 콘텐츠 높이(~60vh)로
+        줄어들어버려 — 축 5개(74vh×5=370vh)를 스크롤하는 동안 붙어있지 못하고
+        먼저 스크롤아웃돼 버렸다(버그 리포트: "스크롤 내리면 사진이 안 보여").
+        고쳐서 모바일에서도 flex(세로 스택, 형제 컨테이너 공유)로 두고 사진/
+        패널을 맨 위에 sticky로 둬, 축 텍스트가 그 아래로 흘러가게 한다.
+        데스크톱에서만 grid 2컬럼으로 전환(그때는 grid stretch가 같은 효과를 준다).
+      */}
+      <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[44fr_56fr] lg:gap-20">
+        {/* 좌: 축 5개 — 데스크톱에서는 왼쪽, 모바일에서는 사진/패널 아래(order로 순서만 뒤집는다). */}
+        <div className="order-2 lg:order-1">
           {AXES.map((axis, i) => {
             const isActive = i === active;
             return (
@@ -143,11 +152,11 @@ export function FiveAxes() {
           })}
         </div>
 
-        {/* 우: sticky — 위에서 아래로 사진 → AXIS PROFILE 패널(레이더+막대) */}
-        <div className="lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:gap-6">
+        {/* 우: sticky — 위에서 아래로 사진 → AXIS PROFILE 패널(레이더+막대).
+            sticky·top-0는 모든 화면 크기에서 켜져 있어야 한다(위 주석 참고). */}
+        <div className="sticky top-20 order-1 z-10 lg:top-0 lg:order-2 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:gap-6">
           <div
-            className="relative overflow-hidden rounded-[26px] bg-photo-bg"
-            style={{ aspectRatio: "5 / 4", maxHeight: "46vh" }}
+            className="relative aspect-[5/4] max-h-[38vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[42vh] lg:max-h-[46vh]"
           >
             {AXES.map((axis, i) => (
               <Image
@@ -167,7 +176,10 @@ export function FiveAxes() {
             <span className="font-kr absolute bottom-6 left-7 text-[26px] text-bg">{AXIS_LABELS[activeAxis]}</span>
           </div>
 
-          <div className="mt-6 rounded-[26px] bg-panel p-7 sm:p-9 lg:mt-0">
+          {/* 레이더+막대 패널은 데스크톱 전용 — 모바일에서 사진과 같이 sticky로 붙이면
+              화면 전체를 뒤덮어 정작 스크롤 중인 축 텍스트가 하나도 안 보이게 된다.
+              모바일에서는 사진(캡션에 이미 축 이름이 뜬다)만 고정해 둔다. */}
+          <div className="mt-6 hidden rounded-[26px] bg-panel p-7 sm:p-9 lg:mt-0 lg:block">
             <div className="flex items-baseline justify-between gap-5">
               <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>
               <span className="font-display text-base tracking-[0.02em] text-faint">{AXIS_EN[activeAxis]}</span>
