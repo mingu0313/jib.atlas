@@ -31,14 +31,14 @@ export function Cta() {
           <span className="label-mono text-[10px] text-cream/80">
             {QUESTION_COUNT}문항 · 5분
           </span>
-          <h2 className="font-kr text-[clamp(34px,5vw,68px)] leading-[1.1]" style={{ color: "#f7f6f2" }}>
-            지금 찾아보세요<span className="text-olive-mid">.</span>
+          <h2 className="font-kr text-[clamp(34px,6vw,96px)] leading-[1]" style={{ color: "#f7f6f2" }}>
+            지금 찾아보세요<span style={{ color: "#c9d3a8" }}>.</span>
           </h2>
           <Link
             href="/test"
             className="rounded-full bg-bg px-[52px] py-[18px] text-[13px] font-semibold text-fg transition hover:bg-cream"
           >
-            진단 시작하기
+            진단 시작하기 ↗
           </Link>
         </div>
       </div>

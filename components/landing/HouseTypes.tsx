@@ -57,7 +57,7 @@ export function HouseTypes() {
                 style={{ filter: "grayscale(0.18) contrast(0.96)" }}
               />
             </div>
-            <span className="label-mono mt-5 text-[10px] text-faint">{item.num}</span>
+            <span className="label-mono mt-5 text-[10px] text-olive-mid">{item.num}</span>
             <span className="font-display mt-2 text-[29px] leading-[1.1] text-fg">{item.tag}</span>
             <span className="font-kr mt-1 text-[15px] text-fg">{item.template.name}</span>
             <p className="mt-3 text-[14px] leading-[1.7] text-muted">{item.template.features[0]?.text}</p>

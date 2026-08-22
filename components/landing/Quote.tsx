@@ -19,14 +19,12 @@ export function Quote() {
         />
       </div>
       <div className="flex flex-col justify-center gap-8" data-reveal>
-        <p className="font-kr text-[clamp(24px,3.4vw,52px)] leading-[1.32] text-fg">
-          집은 취향의 결과가 아니라, 취향을 알아가는 과정이라고 생각합니다.
-          다섯 개의 축은 정답을 정해주지 않아요 — 지금 내가 어디쯤 서 있는지
-          보여줄 뿐입니다.
+        <p className="font-kr text-[clamp(26px,3.4vw,52px)] leading-[1.32] tracking-[-0.02em] text-fg">
+          “집은 취향의 결과가 아니라, 취향을 만드는 조건이다.”
         </p>
-        <div className="flex flex-col gap-1">
-          <span className="text-[15px] font-medium text-fg">jib.atlas 저널</span>
-          <span className="label-mono text-[10px] text-muted">House Series 2026</span>
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[14px] text-fg">jib.atlas</span>
+          <span className="label-mono text-[11px] text-olive-mid">House Series 2026</span>
         </div>
       </div>
     </section>

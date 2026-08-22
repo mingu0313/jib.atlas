@@ -1,11 +1,11 @@
 [
-  { "id": "sofa", "label": "소파", "en": "SOFA", "w": 3, "d": 1, "h": 44, "top": "#1e3830", "left": "#162a24", "right": "#0e1c18" },
-  { "id": "lounge", "label": "라운지 체어", "en": "LOUNGE", "w": 2, "d": 2, "h": 40, "top": "#2a2820", "left": "#1c1c14", "right": "#12120c" },
-  { "id": "ctable", "label": "다이닝 테이블", "en": "TABLE", "w": 3, "d": 2, "h": 28, "top": "#3a2a18", "left": "#261c10", "right": "#16100a" },
-  { "id": "counter", "label": "카운터", "en": "COUNTER", "w": 4, "d": 1, "h": 52, "top": "#1c2c28", "left": "#141e1c", "right": "#0c1412" },
-  { "id": "bar", "label": "바 카운터", "en": "BAR", "w": 3, "d": 1, "h": 56, "top": "#2e1e10", "left": "#1e140a", "right": "#120e06" },
-  { "id": "desk", "label": "책상", "en": "DESK", "w": 2, "d": 1, "h": 34, "top": "#22301e", "left": "#162014", "right": "#0e140c" },
-  { "id": "wardrobe", "label": "옷장", "en": "WARDROBE", "w": 1, "d": 2, "h": 96, "top": "#1a2c24", "left": "#121e18", "right": "#0c1410" },
-  { "id": "plant", "label": "화분", "en": "PLANT", "w": 1, "d": 1, "h": 68, "top": "#1c3418", "left": "#14240f", "right": "#0c160a" },
-  { "id": "bed", "label": "침대", "en": "BED", "w": 3, "d": 2, "h": 42, "top": "#1a2034", "left": "#121628", "right": "#0c1018" }
+  { "id": "sofa", "label": "소파", "en": "SOFA", "w": 3, "d": 1, "h": 40, "top": "#767e5c", "left": "#646b4c", "right": "#545a3f" },
+  { "id": "lounge", "label": "라운지 체어", "en": "LOUNGE", "w": 2, "d": 2, "h": 38, "top": "#a2947e", "left": "#8b7d69", "right": "#756957" },
+  { "id": "ctable", "label": "다이닝 테이블", "en": "TABLE", "w": 3, "d": 2, "h": 26, "top": "#b39c7c", "left": "#9b8567", "right": "#836f55" },
+  { "id": "counter", "label": "카운터", "en": "COUNTER", "w": 4, "d": 1, "h": 48, "top": "#868f72", "left": "#727a5f", "right": "#60674f" },
+  { "id": "bar", "label": "바 카운터", "en": "BAR", "w": 3, "d": 1, "h": 52, "top": "#9c8168", "left": "#856c55", "right": "#6f5a46" },
+  { "id": "desk", "label": "책상", "en": "DESK", "w": 2, "d": 1, "h": 32, "top": "#7f886a", "left": "#6b7358", "right": "#5a6149" },
+  { "id": "wardrobe", "label": "옷장", "en": "WARDROBE", "w": 1, "d": 2, "h": 88, "top": "#6a7455", "left": "#5a6246", "right": "#4b523a" },
+  { "id": "plant", "label": "화분", "en": "PLANT", "w": 1, "d": 1, "h": 60, "top": "#6d8055", "left": "#5c6d47", "right": "#4d5c3b" },
+  { "id": "bed", "label": "침대", "en": "BED", "w": 3, "d": 2, "h": 38, "top": "#8d97a0", "left": "#78828a", "right": "#666f76" }
 ]

@@ -6,6 +6,9 @@ import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
 
 /**
  * DESIGN-HANDOFF-V2.md "1. 랜딩 > 다섯 축" + "Motion > 3. 스크롤텔링".
+ * 카피(축 설명·영문 키)는 jib-atlas-v2-handoff/jib-atlas-v2-preview.html의
+ * AXIS_STEPS를 그대로 옮겼다 — 마크다운 문서엔 이 문장들이 없고 프리뷰
+ * 프로토타입에만 있는 정본 텍스트다.
  *
  * 활성 축 판정은 문서가 명시한 대로 IntersectionObserver가 아니라
  * **매 프레임 계산**이다: 뷰포트 중앙선(vh/2)을 포함하는 스텝을 찾고,
@@ -22,41 +25,24 @@ const AXIS_PHOTO: Record<Axis, string> = {
   nature: "/photos/axis-nature.jpg",
 };
 
-const AXIS_KEY: Record<Axis, string> = {
-  sociability: "Axis 01 · Sociability",
-  minimalism: "Axis 02 · Minimalism",
-  activity: "Axis 03 · Activity",
-  openness: "Axis 04 · Openness",
-  nature: "Axis 05 · Nature",
+const AXIS_EN: Record<Axis, string> = {
+  sociability: "SOCIABILITY",
+  minimalism: "MINIMALISM",
+  activity: "ACTIVITY",
+  openness: "OPENNESS",
+  nature: "NATURE",
 };
 
-const STEPS: { axis: Axis; title: string; desc: string }[] = [
-  {
-    axis: "sociability",
-    title: "누구와, 얼마나 자주 머무는가.",
-    desc: "사람들과 어울리는 시간을 즐기는지, 혼자만의 시간을 소중히 여기는지 — 손님을 위한 자리와 공용 공간의 크기가 여기서 갈립니다.",
-  },
-  {
-    axis: "minimalism",
-    title: "무엇을 남기고, 무엇을 비울 것인가.",
-    desc: "꼭 필요한 것만 남긴 정돈된 공간을 원하는지, 좋아하는 물건들로 채운 공간을 원하는지를 봅니다.",
-  },
-  {
-    axis: "activity",
-    title: "집에서도 몸을 움직이고 싶은가.",
-    desc: "홈짐이나 작업 공간처럼 활동적인 자리가 필요한지, 편안한 휴식이 먼저인지를 가늠합니다.",
-  },
-  {
-    axis: "openness",
-    title: "트인 구조인가, 나뉜 구조인가.",
-    desc: "벽 없이 길게 이어지는 개방형 구조를 좋아하는지, 방으로 나뉜 아늑한 구조를 좋아하는지를 봅니다.",
-  },
-  {
-    axis: "nature",
-    title: "채광과 초록이 얼마나 필요한가.",
-    desc: "큰 창, 식물, 작은 마당 같은 자연 요소가 일상에 얼마나 중요한지를 확인합니다.",
-  },
-];
+const AXIS_DESC: Record<Axis, string> = {
+  sociability:
+    "집이 사람을 부르는 곳인지, 사람에게서 물러나는 곳인지. 이 축이 다이닝의 크기와 게스트룸의 존재를 결정합니다.",
+  minimalism:
+    "물건을 남길 것인지 지울 것인지. 수납이 벽 안으로 들어갈지, 방 한가운데에 놓일지가 여기서 갈립니다.",
+  activity: "집에서 몸을 쓰는지, 몸을 놓는지. 다목적 방과 홈짐, 작업실의 필요가 이 축에 달려 있습니다.",
+  openness:
+    "벽을 줄일 것인지 남길 것인지. 시야가 길어질수록 아늑함은 줄고, 짧아질수록 세계는 좁고 안전해집니다.",
+  nature: "창과 초록의 몫. 채광이 인테리어의 기준선이 되는 사람과, 조명으로 충분한 사람이 나뉩니다.",
+};
 
 /** 실제 응답이 아닌 예시값 — 문서에 적힌 [70,62,44,58,86] 그대로
  * (사교성/미니멀/활동성/개방성/자연 순서, lib/types.ts의 AXES 순서와 같다). */
@@ -125,7 +111,7 @@ export function FiveAxes() {
     };
   }, []);
 
-  const activeAxis = STEPS[active].axis;
+  const activeAxis = AXES[active];
 
   return (
     <section className="px-6 pt-[150px] pb-[100px] sm:px-10 sm:pt-[220px] sm:pb-[150px]">
@@ -139,15 +125,15 @@ export function FiveAxes() {
       <div className="grid grid-cols-1 gap-16 lg:grid-cols-[44fr_56fr] lg:gap-20">
         {/* 좌: 축 5개 */}
         <div>
-          {STEPS.map((step, i) => {
+          {AXES.map((axis, i) => {
             const isActive = i === active;
             return (
               <div
-                key={step.axis}
+                key={axis}
                 ref={(el) => {
                   stepRefs.current[i] = el;
                 }}
-                className="flex min-h-[74vh] flex-col justify-center gap-4"
+                className="flex min-h-[74vh] flex-col justify-center gap-5"
               >
                 <span
                   className={`label-mono text-[11px] transition-colors duration-500 ${
@@ -157,30 +143,30 @@ export function FiveAxes() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3
-                  className={`font-kr text-[clamp(28px,3.6vw,56px)] leading-[1.1] transition-colors duration-500 ${
+                  className={`font-kr text-[clamp(30px,3.6vw,56px)] leading-[1.1] tracking-[-0.02em] transition-colors duration-500 ${
                     isActive ? "text-fg" : "text-dimmer"
                   }`}
                 >
-                  {step.title}
+                  {AXIS_LABELS[axis]}
                 </h3>
-                <p className="max-w-[420px] text-[15px] leading-[1.8] text-muted">{step.desc}</p>
-                <span className="label-mono text-[9px] text-faint">{AXIS_KEY[step.axis]}</span>
+                <p className="max-w-[400px] text-[15px] leading-[1.85] text-muted">{AXIS_DESC[axis]}</p>
+                <span className="label-mono text-[10px] text-dim">{AXIS_EN[axis]}</span>
               </div>
             );
           })}
         </div>
 
-        {/* 우: sticky — 사진 크로스페이드 → AXIS PROFILE 패널 */}
-        <div className="lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:flex-col lg:justify-center">
+        {/* 우: sticky — 위에서 아래로 사진 → AXIS PROFILE 패널(레이더+막대) */}
+        <div className="lg:sticky lg:top-0 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:gap-6">
           <div
             className="relative overflow-hidden rounded-[26px] bg-photo-bg"
             style={{ aspectRatio: "5 / 4", maxHeight: "46vh" }}
           >
-            {STEPS.map((step, i) => (
+            {AXES.map((axis, i) => (
               <Image
-                key={step.axis}
-                src={AXIS_PHOTO[step.axis]}
-                alt={AXIS_LABELS[step.axis]}
+                key={axis}
+                src={AXIS_PHOTO[axis]}
+                alt={AXIS_LABELS[axis]}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover transition-opacity duration-500"
@@ -189,18 +175,19 @@ export function FiveAxes() {
             ))}
             <div
               className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]"
-              style={{ background: "linear-gradient(to top, rgba(14,15,12,0.72), rgba(14,15,12,0))" }}
+              style={{ background: "linear-gradient(to top, rgba(18,18,15,0.46), rgba(18,18,15,0))" }}
             />
-            <span className="label-mono absolute bottom-5 left-6 text-[10px] text-cream">
-              {AXIS_LABELS[activeAxis]}
-            </span>
+            <span className="font-kr absolute bottom-6 left-7 text-[26px] text-bg">{AXIS_LABELS[activeAxis]}</span>
           </div>
 
-          <div className="mt-6 rounded-[26px] bg-panel p-7 sm:p-9">
-            <span className="label-mono text-[9px] text-muted">Axis Profile</span>
+          <div className="mt-6 rounded-[26px] bg-panel p-7 sm:p-9 lg:mt-0">
+            <div className="flex items-baseline justify-between gap-5">
+              <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>
+              <span className="font-display text-base tracking-[0.02em] text-faint">{AXIS_EN[activeAxis]}</span>
+            </div>
 
-            <div className="mt-4 flex justify-center">
-              <svg viewBox="0 0 340 340" className="w-full max-w-[280px]">
+            <div className="mt-5 flex justify-center">
+              <svg viewBox="0 0 340 340" className="w-full max-w-[260px]">
                 {[33, 66, 100].map((v) => (
                   <polygon key={v} points={ringPoints(v)} fill="none" stroke="var(--color-hair)" strokeWidth={1} />
                 ))}
@@ -242,15 +229,16 @@ export function FiveAxes() {
               {AXES.map((axis) => {
                 const isActive = axis === activeAxis;
                 return (
-                  <div key={axis} className="flex items-center gap-3 border-b border-hair py-3 last:border-b-0">
+                  <div
+                    key={axis}
+                    className="grid grid-cols-[104px_1fr_30px] items-center gap-4 border-b border-hair py-4 last:border-b-0"
+                  >
                     <span
-                      className={`w-16 shrink-0 text-[12px] transition-colors duration-500 ${
-                        isActive ? "text-fg" : "text-faint"
-                      }`}
+                      className={`text-[13px] transition-colors duration-500 ${isActive ? "text-fg" : "text-faint"}`}
                     >
                       {AXIS_LABELS[axis]}
                     </span>
-                    <span className="relative h-[3px] flex-1 bg-hair">
+                    <span className="relative h-[3px] bg-hair">
                       <span
                         className="absolute inset-y-0 left-0 transition-all duration-500"
                         style={{
@@ -259,6 +247,7 @@ export function FiveAxes() {
                         }}
                       />
                     </span>
+                    <span className="label-mono text-right text-[10px] text-faint">{SAMPLE_SCORES[axis]}</span>
                   </div>
                 );
               })}

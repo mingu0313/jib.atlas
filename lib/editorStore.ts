@@ -1,17 +1,18 @@
 import { create } from "zustand";
 import furnitureCatalogData from "../data/furniture-catalog.json";
+import { RD, RW } from "./iso";
 import type { IsoFurnitureDef, PlacedFurniture } from "./types";
+
+export { RD, RW };
 
 const catalog = furnitureCatalogData as IsoFurnitureDef[];
 const defById = new Map(catalog.map((d) => [d.id, d]));
 
-/** app/result/jib-atlas.design/jib.atlas.dc.html "4. 에디터"의 방 크기. */
-export const RW = 10;
-export const RD = 8;
-
-/** 프로토타입의 기본 배치(`sofa(1,1) ctable(4,2) plant(9,0) wardrobe(0,6)
- * desk(7,6) lounge(5,5)`) 그대로 — 진단 직후 빈 방 대신 예시 배치로 시작한다. */
-const DEFAULT_PLACED_DEFS: { defId: string; col: number; row: number }[] = [
+/** DESIGN-HANDOFF-V2.md "5. 룸 에디터 > 기본 배치" 그대로(`sofa(1,1) ctable(4,2)
+ * plant(9,0) wardrobe(0,6) desk(7,6) lounge(5,5)`) — 진단 직후 빈 방 대신
+ * 예시 배치로 시작한다. 랜딩 히어로 미니 창(components/landing/HeroEditorWindow.tsx)도
+ * 같은 배치를 재사용한다. */
+export const DEFAULT_PLACED_DEFS: { defId: string; col: number; row: number }[] = [
   { defId: "sofa", col: 1, row: 1 },
   { defId: "ctable", col: 4, row: 2 },
   { defId: "plant", col: 9, row: 0 },

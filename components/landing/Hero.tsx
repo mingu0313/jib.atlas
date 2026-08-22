@@ -19,9 +19,9 @@ export function Hero() {
         나는 어떤 집에 살아야 할까<span className="heading-dot">.</span>
       </h1>
       <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-        <p className="max-w-[420px] text-[15px] leading-[1.8] text-muted">
-          사교성·미니멀리즘·활동성·개방성·자연친화도. 다섯 개의 축으로 취향을
-          읽고, 22가지 집 구조 중 당신에게 맞는 곳을 찾아 직접 꾸며봅니다.
+        <p className="max-w-[420px] text-[15px] leading-[1.75] text-muted">
+          다섯 개의 축으로 취향을 읽고, 22가지 집 구조 중 하나로 안내합니다.
+          그다음은 직접 꾸며보는 일입니다.
         </p>
         <span className="label-mono text-[10px] text-muted">
           {QUESTION_COUNT}문항 · 5분 · 회원가입 없음
