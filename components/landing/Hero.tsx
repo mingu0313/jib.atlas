@@ -1,5 +1,5 @@
-import Image from "next/image";
 import { HeroEditorWindow } from "@/components/landing/HeroEditorWindow";
+import { HeroPhotoStage } from "@/components/landing/HeroPhotoStage";
 
 const QUESTION_COUNT = 23;
 
@@ -8,6 +8,10 @@ const QUESTION_COUNT = 23;
  * 문항 수(라이프스타일 15 + MBTI 8 = 23)로 바꿔 썼다 — 이 저장소가 v1 때부터
  * 지켜온 관례("프로토타입 전용 숫자 대신 실제 데이터/문항 수 사용", 예전
  * app/page.tsx 주석 참고)와 같은 이유다.
+ *
+ * 사진 스테이지(자동 순환 크로스페이드)는 클라이언트 상태가 필요해
+ * HeroPhotoStage로 분리했다 — 그 컴포넌트 주석에 문서 "히어로 자동 순환"
+ * 섹션과의 대응이 적혀 있다.
  */
 export function Hero() {
   return (
@@ -29,36 +33,7 @@ export function Hero() {
       </div>
 
       <div className="relative mt-[60px] h-[70vh] min-h-[420px] sm:mt-[88px] sm:min-h-[480px]">
-        <div
-          data-px="0.07"
-          className="absolute inset-x-0 top-0 bottom-[-70px] overflow-hidden rounded-[34px] shadow-[0_50px_110px_-56px_rgba(18,18,15,0.34)] sm:bottom-[-130px]"
-        >
-          <div
-            data-px="-0.05"
-            className="absolute inset-x-0 bg-photo-bg"
-            style={{ top: "-9%", bottom: "-9%" }}
-          >
-            <Image
-              src="/photos/hero-court.jpg"
-              alt="집 안뜰을 내려다본 사진"
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover"
-            />
-          </div>
-          <div
-            className="pointer-events-none absolute inset-x-0 top-0 h-[45%]"
-            style={{
-              background:
-                "linear-gradient(to bottom, rgba(14,15,12,0.5), rgba(14,15,12,0))",
-            }}
-          />
-          <span className="label-mono absolute bottom-7 left-7 text-[9px] text-cream/85 sm:bottom-9 sm:left-9">
-            House Court — Seoul
-          </span>
-        </div>
-
+        <HeroPhotoStage />
         <HeroEditorWindow />
       </div>
     </section>
