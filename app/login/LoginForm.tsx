@@ -1,17 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type Mode = "login" | "signup";
+type Mode = "login" | "signup" | "forgot";
+// signup 결과 상태. "already": Supabase가 보안상 에러 없이 성공처럼
+// 응답하지만 실제로는 새 메일을 안 보낸 경우(이미 가입된 이메일) —
+// data.user.identities가 빈 배열이면 이 케이스다.
+type SignupResult = "idle" | "sent" | "already";
+
+const RESEND_COOLDOWN_SECONDS = 30;
 
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "/editor";
 
-  // /auth/callback, /auth/confirm이 실패하면 /login?error=...로 되돌려보낸다.
+  // /auth/confirm, /auth/callback이 실패하면 /login?error=...로 되돌려보낸다.
   // 예전엔 이 파라미터를 아예 안 읽어서 로그인 화면에 그냥 멈춰있는 것처럼
   // 보였다 — 원인을 알 수 있게 화면에 표시한다.
   const errorParam = searchParams.get("error");
@@ -27,8 +33,24 @@ export function LoginForm() {
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(initialError);
-  const [signupDone, setSignupDone] = useState(false);
+  const [signupResult, setSignupResult] = useState<SignupResult>("idle");
+  const [forgotSent, setForgotSent] = useState(false);
   const [googlePending, setGooglePending] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  function resetToMode(nextMode: Mode) {
+    setMode(nextMode);
+    setSignupResult("idle");
+    setForgotSent(false);
+    setError(null);
+    setResendCooldown(0);
+  }
 
   async function handleGoogleLogin() {
     setError(null);
@@ -70,7 +92,7 @@ export function LoginForm() {
         router.push(next);
         router.refresh();
       } else {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=${next}` },
@@ -79,7 +101,16 @@ export function LoginForm() {
           setError(error.message);
           return;
         }
-        setSignupDone(true);
+        // Supabase는 이메일 열거(enumeration) 방지를 위해 이미 가입된
+        // 이메일로 다시 signUp을 호출해도 에러를 안 준다 — 새 계정이 아니라
+        // identities가 빈 배열로 온다. 이 경우엔 메일이 안 갔으니 "보냈어요"
+        // 라고 하면 안 된다.
+        if (data.user && data.user.identities && data.user.identities.length === 0) {
+          setSignupResult("already");
+        } else {
+          setSignupResult("sent");
+          setResendCooldown(RESEND_COOLDOWN_SECONDS);
+        }
       }
     } catch (err) {
       // createClient()가 던지는 경우(예: env var 누락으로 supabaseUrl이 비어있음)를
@@ -90,14 +121,183 @@ export function LoginForm() {
     }
   }
 
-  if (signupDone) {
+  async function handleForgotSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+
+    try {
+      const supabase = createClient();
+      // recovery 타입은 app/auth/confirm/route.ts가 항상 /reset-password로
+      // 보내도록 처리해서, 여기서 넘기는 next 값과 무관하게 새 비밀번호
+      // 설정 화면에 도착한다.
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent("/reset-password")}`,
+      });
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      setForgotSent(true);
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  async function handleResend(kind: "signup" | "recovery") {
+    if (resendCooldown > 0) return;
+    setError(null);
+
+    try {
+      const supabase = createClient();
+      const { error } =
+        kind === "signup"
+          ? await supabase.auth.resend({
+              type: "signup",
+              email,
+              options: { emailRedirectTo: `${window.location.origin}/auth/confirm?next=${next}` },
+            })
+          : await supabase.auth.resetPasswordForEmail(email, {
+              redirectTo: `${window.location.origin}/auth/confirm?next=${encodeURIComponent("/reset-password")}`,
+            });
+      if (error) {
+        setError(error.message);
+        return;
+      }
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+    }
+  }
+
+  if (signupResult === "already") {
     return (
-      <div className="text-center">
+      <div className="w-full max-w-sm text-center">
+        <h1 className="font-kr mb-4 text-xl">이미 가입된 이메일이에요</h1>
+        <p className="text-muted">
+          {email}로는 이미 계정이 있어서 새 확인 메일을 보내지 않았어요. 로그인하거나 비밀번호를
+          재설정해보세요.
+        </p>
+        <div className="mt-7 flex flex-col gap-3">
+          <button
+            type="button"
+            onClick={() => resetToMode("login")}
+            className="w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg"
+          >
+            로그인하기
+          </button>
+          <button
+            type="button"
+            onClick={() => resetToMode("forgot")}
+            className="w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
+          >
+            비밀번호 재설정
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (signupResult === "sent") {
+    return (
+      <div className="w-full max-w-sm text-center">
         <h1 className="font-kr mb-4 text-xl">가입 확인 이메일을 보냈어요</h1>
-        <p className="max-w-sm text-muted">
+        <p className="text-muted">
           {email}로 보낸 이메일의 링크를 눌러 인증을 마치면 로그인할 수 있어요.
         </p>
+        <p className="mt-2 text-xs text-muted">메일이 안 보이면 스팸함도 확인해주세요.</p>
+        {error && (
+          <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => handleResend("signup")}
+          disabled={resendCooldown > 0}
+          className="mt-6 w-full rounded-full border border-hair px-6 py-3 text-[14px] font-semibold text-fg transition hover:border-olive hover:text-olive disabled:opacity-50"
+        >
+          {resendCooldown > 0 ? `확인 메일 재전송 (${resendCooldown}초 후 가능)` : "확인 메일 재전송"}
+        </button>
+        <button
+          type="button"
+          onClick={() => resetToMode("login")}
+          className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
+        >
+          로그인으로 돌아가기
+        </button>
       </div>
+    );
+  }
+
+  if (mode === "forgot" && forgotSent) {
+    return (
+      <div className="w-full max-w-sm text-center">
+        <h1 className="font-kr mb-4 text-xl">재설정 링크를 보냈어요</h1>
+        <p className="text-muted">
+          {email}로 보낸 이메일의 링크를 눌러 새 비밀번호를 설정해주세요.
+        </p>
+        <p className="mt-2 text-xs text-muted">메일이 안 보이면 스팸함도 확인해주세요.</p>
+        {error && (
+          <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
+            {error}
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => handleResend("recovery")}
+          disabled={resendCooldown > 0}
+          className="mt-6 w-full rounded-full border border-hair px-6 py-3 text-[14px] font-semibold text-fg transition hover:border-olive hover:text-olive disabled:opacity-50"
+        >
+          {resendCooldown > 0 ? `재설정 링크 재전송 (${resendCooldown}초 후 가능)` : "재설정 링크 재전송"}
+        </button>
+        <button
+          type="button"
+          onClick={() => resetToMode("login")}
+          className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
+        >
+          로그인으로 돌아가기
+        </button>
+      </div>
+    );
+  }
+
+  if (mode === "forgot") {
+    return (
+      <form onSubmit={handleForgotSubmit} className="w-full max-w-sm">
+        <h1 className="font-kr mb-3 text-2xl">비밀번호 재설정</h1>
+        <p className="mb-6 text-sm text-muted">가입한 이메일을 입력하면 재설정 링크를 보내드려요.</p>
+        <input
+          type="email"
+          required
+          placeholder="이메일"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="w-full rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
+        />
+        {error && (
+          <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
+            {error}
+          </p>
+        )}
+        <button
+          type="submit"
+          disabled={pending}
+          className="mt-6 w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
+        >
+          {pending ? "처리 중…" : "재설정 링크 보내기"}
+        </button>
+        <button
+          type="button"
+          onClick={() => resetToMode("login")}
+          className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
+        >
+          로그인으로 돌아가기
+        </button>
+      </form>
     );
   }
 
@@ -141,6 +341,16 @@ export function LoginForm() {
         />
       </div>
 
+      {mode === "login" && (
+        <button
+          type="button"
+          onClick={() => resetToMode("forgot")}
+          className="mt-3 text-right text-xs text-muted underline underline-offset-2 transition hover:text-fg"
+        >
+          비밀번호를 잊으셨나요?
+        </button>
+      )}
+
       {error && (
         <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
           {error}
@@ -157,10 +367,7 @@ export function LoginForm() {
 
       <button
         type="button"
-        onClick={() => {
-          setMode((m) => (m === "login" ? "signup" : "login"));
-          setError(null);
-        }}
+        onClick={() => resetToMode(mode === "login" ? "signup" : "login")}
         className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
       >
         {mode === "login" ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
