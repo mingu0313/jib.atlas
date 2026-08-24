@@ -1,0 +1,92 @@
+[
+  {
+    "id": "q1",
+    "axis": "sociability",
+    "text": "I'd love to have friends or family over often and spend time together at home.",
+    "reverseScored": false
+  },
+  {
+    "id": "q2",
+    "axis": "sociability",
+    "text": "I'd rather the kitchen and living room flow into one space where people can hang out, instead of being separated.",
+    "reverseScored": false
+  },
+  {
+    "id": "q3",
+    "axis": "sociability",
+    "text": "A big shared space we all use together matters more to me than a quiet space just for myself.",
+    "reverseScored": false
+  },
+  {
+    "id": "q4",
+    "axis": "minimalism",
+    "text": "I prefer a clean, empty space with as few things around as possible.",
+    "reverseScored": false
+  },
+  {
+    "id": "q5",
+    "axis": "minimalism",
+    "text": "I'd love generous storage so I can keep things out of sight and tidy.",
+    "reverseScored": false
+  },
+  {
+    "id": "q6",
+    "axis": "minimalism",
+    "text": "I enjoy filling and decorating a space with objects and furniture I love.",
+    "reverseScored": true
+  },
+  {
+    "id": "q7",
+    "axis": "activity",
+    "text": "I need a space at home for active hobbies like exercise, DIY, or hands-on projects.",
+    "reverseScored": false
+  },
+  {
+    "id": "q8",
+    "axis": "activity",
+    "text": "Home is a place to rest and recover, not a place to do things.",
+    "reverseScored": true
+  },
+  {
+    "id": "q9",
+    "axis": "activity",
+    "text": "I'd love a multi-purpose room I can use for different things (a home gym, a workshop, etc.).",
+    "reverseScored": false
+  },
+  {
+    "id": "q10",
+    "axis": "openness",
+    "text": "I prefer a wide-open layout over a cozy space divided by walls.",
+    "reverseScored": false
+  },
+  {
+    "id": "q11",
+    "axis": "openness",
+    "text": "I'm drawn to new styles or unconventional layouts.",
+    "reverseScored": false
+  },
+  {
+    "id": "q12",
+    "axis": "openness",
+    "text": "A familiar, traditional layout feels more comfortable to me.",
+    "reverseScored": true
+  },
+  {
+    "id": "q13",
+    "axis": "nature",
+    "text": "Big windows and natural light are the most important part of a space for me.",
+    "reverseScored": false
+  },
+  {
+    "id": "q14",
+    "axis": "nature",
+    "text": "I love spending time on a balcony or terrace.",
+    "reverseScored": false
+  },
+  {
+    "id": "q15",
+    "axis": "nature",
+    "text": "I want to fill my space with houseplants or natural materials like wood and stone.",
+    "reverseScored": false
+  }
+]

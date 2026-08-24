@@ -65,6 +65,15 @@ export const AXIS_LABELS: Record<Axis, string> = {
   nature: "자연친화",
 };
 
+/** 축의 영문 표시명 — /en 라우트용(STEP 11). */
+export const AXIS_LABELS_EN: Record<Axis, string> = {
+  sociability: "Sociability",
+  minimalism: "Minimalism",
+  activity: "Activity",
+  openness: "Openness",
+  nature: "Nature",
+};
+
 /** 방 종류의 한글 표시명. */
 export const ROOM_TYPE_LABELS: Record<RoomType, string> = {
   entrance: "현관",
@@ -82,6 +91,25 @@ export const ROOM_TYPE_LABELS: Record<RoomType, string> = {
   gym: "홈짐",
   workshop: "작업실",
   storage: "수납",
+};
+
+/** 방 종류의 영문 표시명 — /en 라우트용(STEP 11). */
+export const ROOM_TYPE_LABELS_EN: Record<RoomType, string> = {
+  entrance: "Entrance",
+  livingRoom: "Living Room",
+  kitchen: "Kitchen",
+  diningRoom: "Dining Room",
+  bedroom: "Bedroom",
+  masterBedroom: "Primary Bedroom",
+  kidsRoom: "Kids' Room",
+  bathroom: "Bathroom",
+  balcony: "Balcony",
+  terrace: "Terrace",
+  garden: "Garden",
+  study: "Study",
+  gym: "Home Gym",
+  workshop: "Workshop",
+  storage: "Storage",
 };
 
 /** calculateScores()의 반환값. */

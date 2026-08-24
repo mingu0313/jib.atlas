@@ -1,0 +1,27 @@
+{
+  "sociability": {
+    "high": "loves spending time with people",
+    "mid": "keeps a fair balance of time alone and time with others",
+    "low": "treasures quiet time alone"
+  },
+  "minimalism": {
+    "high": "prefers a clean space with nothing unnecessary in it",
+    "mid": "keeps things tidy while still holding onto favorite pieces",
+    "low": "loves filling a space with favorite things and objects"
+  },
+  "activity": {
+    "high": "likes staying physically active even at home",
+    "mid": "stays active while still valuing rest",
+    "low": "values comfortable rest at home above all else"
+  },
+  "openness": {
+    "high": "loves a new, wide-open layout",
+    "mid": "likes a layout that's open but still keeps some coziness",
+    "low": "feels most at ease in a familiar, stable layout"
+  },
+  "nature": {
+    "high": "values natural light and greenery above all in a space",
+    "mid": "likes a moderate touch of nature woven in",
+    "low": "values practicality and function over natural elements"
+  }
+}

@@ -336,6 +336,50 @@ STEP 9로 만든 갤러리는 "실사진을 올려야만" 채워지는데, 그�
 
 ---
 
+## STEP 11. 다국어 — 영문(/en) 진단·결과·공유 카드
+
+중국어·일본어·영어 다국어 요청 중 영어를 먼저 완역했다. 문항 23개, 집
+유형 22개(이름+features), 축 설명, 페르소나 이름 생성기까지 전부 한국어
+문법(조사·어미 활용)에 묶여 있어서 UI 문구만 바꾸는 수준이 아니라
+데이터·로직 양쪽을 손대야 했다. 일본어·중국어, 그리고 에디터·아틀라스·
+로그인 페이지 번역은 이 STEP 밖 — 별도 STEP으로 이어간다.
+
+# 한 일
+1. 데이터: `data/*.en.json`(lifestyle-questions, mbti-questions,
+   house-templates, trait-descriptions) — id·axis·scoreProfile 등
+   구조는 한국어판과 동일하게 두고 표시 텍스트만 번역. 채점(calculateScores)
+   은 id 기반이라 언어 무관 — 수정 없이 그대로 재사용.
+2. `lib/matching.ts`: `matchHouseTemplate`이 templates를 선택 인자로
+   받게 확장(기본값 한국어) — 영문 템플릿을 넘겨도 매칭 알고리즘·결과
+   순위는 완전히 동일, 표시 텍스트만 바뀐다.
+3. `lib/persona.ts`: `generatePersonaEn` / `getRarityTierEn` 추가(기존
+   한국어 함수·타입은 그대로 — house_posts.rarity_tier 등 이미 저장된
+   한국어 값과 안 섞이게).
+4. `lib/explainEn.ts`: 한국어판(`lib/explain.ts`)은 조사(이/가)·어미
+   (-는→-고) 변환이 필요한 한국어 전용 문법이라 재사용 불가 — 콤마+and로
+   접속하는 영어 문장 조립을 새로 짰다.
+5. `lib/types.ts`: `AXIS_LABELS_EN`, `ROOM_TYPE_LABELS_EN` 추가.
+6. `components/landing/FloatingNav.tsx`: `locale` prop(ko/en)으로 라벨·
+   경로·언어 전환 링크(EN ↔ 한국어) 스위칭.
+7. `app/en/{page,test,result,share}.tsx` + `app/en/layout.tsx`
+   (`<html lang>` 전환용 `SetHtmlLang`). 랜딩은 한국어판의 5개 스크롤텔링
+   섹션을 그대로 옮기지 않고 히어로+3단계 설명으로 축약(프로즈가 너무
+   길어서 이번 STEP엔 제외 — STEP 12 이후 과제). 진단→결과→공유 루프는
+   완역.
+8. (곁다리로 발견) `components/FloorPlan.tsx`가 v3 팔레트 시절 색 토큰
+   (teal·coral·surface·border·foreground)을 그대로 참조하고 있어서 방
+   배경·테두리 색이 하나도 안 먹고 있었다 — v4 올리브+세이지 토큰으로
+   고치면서 `roomLabels` 인자도 추가.
+
+Playwright로 `/en` → `/en/test`(23문항 전부 답변) → `/en/result` →
+`/en/share`까지 실제로 클릭해 스크린샷/콘솔 에러 확인(에러 0개). 한국어와
+같은 답변으로 같은 템플릿(t18)이 나오는 것도 확인 — 매칭 로직이 언어와
+무관하게 동일하게 동작함을 검증.
+
+npx tsc --noEmit / npx vitest run(11 passed) / eslint 통과.
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.

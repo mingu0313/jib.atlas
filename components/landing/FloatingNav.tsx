@@ -6,7 +6,40 @@ import { signOut } from "@/app/actions/auth";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { useUser } from "@/lib/supabase/useUser";
 
-const COLLAB_MAILTO = `mailto:hyo5418@gmail.com?subject=${encodeURIComponent("[jib.atlas] 협업 문의")}`;
+type Locale = "ko" | "en";
+
+const TEXT: Record<Locale, Record<string, string>> = {
+  ko: {
+    diagnosis: "진단",
+    houseTypes: "집 유형",
+    editor: "룸 에디터",
+    atlas: "집 지도",
+    share: "공유 카드",
+    collab: "협업 문의",
+    login: "로그인",
+    logout: "로그아웃",
+    start: "진단 시작 ↗",
+    motionOn: "모션 켜기",
+    motionOff: "모션 끄기",
+    otherLocaleLabel: "EN",
+    collabSubject: "[jib.atlas] 협업 문의",
+  },
+  en: {
+    diagnosis: "Quiz",
+    houseTypes: "House Types",
+    editor: "Room Editor",
+    atlas: "House Atlas",
+    share: "Share Card",
+    collab: "Contact",
+    login: "Log in",
+    logout: "Log out",
+    start: "Start Quiz ↗",
+    motionOn: "Motion on",
+    motionOff: "Motion off",
+    otherLocaleLabel: "한국어",
+    collabSubject: "[jib.atlas] Collaboration Inquiry",
+  },
+};
 
 /**
  * 부유형 필 내비 — DESIGN-HANDOFF-V2.md "1. 랜딩 > 부유형 필 내비".
@@ -27,16 +60,26 @@ const COLLAB_MAILTO = `mailto:hyo5418@gmail.com?subject=${encodeURIComponent("[j
  * 제목·버튼 글자가 로고/링크 글자와 그대로 겹쳐 보이는 문제가 있었다
  * (예: "House Types" 섹션 영문 타이틀이 로고를 뚫고 지나감). fixed nav
  * 아래로 뭐가 지나가든 항상 읽히도록 각 클러스터를 옅은 필로 감쌌다.
+ *
+ * locale — STEP 11(다국어). 이 컴포넌트는 지금 한국어 랜딩(`/`)과 영문
+ * 랜딩(`/en`) 딱 두 군데에서만 쓰이기 때문에(다른 라우트는 각자 자기
+ * 헤더를 그림), 언어 전환 링크는 그냥 "/" ↔ "/en"만 오가면 충분하다 —
+ * 깊은 경로별 매핑 테이블은 필요 없다. 에디터·집 지도는 아직 영문화
+ * 전이라(STEP 12 이후) en 모드에서도 그대로 한국어 페이지로 링크한다.
  */
-export function FloatingNav() {
+export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
   const { reduced, toggle } = useMotion();
   const { user, loading: userLoading } = useUser();
   const pathname = usePathname();
+  const t = TEXT[locale];
+  const prefix = locale === "en" ? "/en" : "";
+  const otherLocaleHref = locale === "ko" ? "/en" : "/";
+  const collabMailto = `mailto:hyo5418@gmail.com?subject=${encodeURIComponent(t.collabSubject)}`;
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 px-6 py-[22px] sm:px-10 sm:py-[28px]">
       <Link
-        href="/"
+        href={locale === "en" ? "/en" : "/"}
         className="pointer-events-auto rounded-full px-4 py-2 font-display text-[22px] tracking-[-0.01em] text-fg backdrop-blur-[16px] sm:text-[26px]"
         style={{ background: "rgba(247,246,242,0.74)" }}
       >
@@ -47,29 +90,39 @@ export function FloatingNav() {
         className="pill-mask pointer-events-auto hidden items-center gap-8 rounded-full px-[34px] py-[15px] backdrop-blur-[16px] lg:flex"
         style={{ background: "rgba(247,246,242,0.74)" }}
       >
-        <Link href="/test" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-          진단
+        <Link href={`${prefix}/test`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+          {t.diagnosis}
         </Link>
-        <Link href="/#house-types" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-          집 유형
-        </Link>
+        {locale === "ko" && (
+          <Link href="/#house-types" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+            {t.houseTypes}
+          </Link>
+        )}
         <Link href="/editor" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-          룸 에디터
+          {t.editor}
         </Link>
         <Link href="/atlas" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-          집 지도
+          {t.atlas}
         </Link>
-        <Link href="/share" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-          공유 카드
+        <Link href={`${prefix}/share`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+          {t.share}
         </Link>
       </nav>
 
       <div className="pointer-events-auto flex items-center gap-3">
+        <Link
+          href={otherLocaleHref}
+          className="hidden h-9 shrink-0 items-center rounded-full border border-hair px-3.5 text-[11px] font-semibold text-muted backdrop-blur-[16px] transition hover:border-olive hover:text-olive sm:flex"
+          style={{ background: "rgba(247,246,242,0.74)" }}
+        >
+          {t.otherLocaleLabel}
+        </Link>
+
         <button
           type="button"
           onClick={toggle}
           aria-pressed={reduced}
-          title={reduced ? "모션 켜기" : "모션 끄기"}
+          title={reduced ? t.motionOn : t.motionOff}
           className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hair text-[10px] text-muted backdrop-blur-[16px] transition hover:border-olive hover:text-olive sm:flex"
           style={{ background: "rgba(247,246,242,0.74)" }}
         >
@@ -84,10 +137,10 @@ export function FloatingNav() {
           style={{ background: "rgba(247,246,242,0.74)" }}
         >
           <a
-            href={COLLAB_MAILTO}
+            href={collabMailto}
             className="text-sm font-semibold text-fg transition hover:text-olive-mid"
           >
-            협업 문의
+            {t.collab}
           </a>
           {!userLoading &&
             (user ? (
@@ -96,7 +149,7 @@ export function FloatingNav() {
                   type="submit"
                   className="text-sm font-semibold text-fg transition hover:text-olive-mid"
                 >
-                  로그아웃
+                  {t.logout}
                 </button>
               </form>
             ) : (
@@ -104,16 +157,16 @@ export function FloatingNav() {
                 href={`/login?next=${encodeURIComponent(pathname)}`}
                 className="text-sm font-semibold text-fg transition hover:text-olive-mid"
               >
-                로그인
+                {t.login}
               </Link>
             ))}
         </div>
 
         <Link
-          href="/test"
+          href={`${prefix}/test`}
           className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg sm:px-[26px]"
         >
-          진단 시작 ↗
+          {t.start}
         </Link>
       </div>
     </div>

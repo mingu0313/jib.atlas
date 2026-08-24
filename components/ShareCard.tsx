@@ -27,11 +27,14 @@ export function ShareCard({
   templateName,
   personaName,
   axisScores,
+  axisLabels = AXIS_LABELS,
 }: {
   typeNum: string;
   templateName: string;
   personaName: string;
   axisScores: AxisScores;
+  /** /en 라우트에서 영문 라벨(AXIS_LABELS_EN)을 넘긴다. 기본은 한국어. STEP 11. */
+  axisLabels?: Record<(typeof AXES)[number], string>;
 }) {
   return (
     <div
@@ -92,7 +95,7 @@ export function ShareCard({
             style={{ borderBottom: "1px solid rgba(18,18,15,0.10)" }}
           >
             <span className="text-[11px]" style={{ color: "#5f5f57" }}>
-              {AXIS_LABELS[axis]}
+              {axisLabels[axis]}
             </span>
             <span className="relative block h-[3px]" style={{ background: "rgba(18,18,15,0.10)" }}>
               <span

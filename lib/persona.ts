@@ -53,3 +53,41 @@ export function getRarityTier(similarity: number): RarityTier {
   if (similarity >= 70) return "언커먼";
   return "커먼";
 }
+
+// ── 영문(en) 버전 — /en 라우트 전용. 기존 한국어 함수/타입은 그대로 두고
+// 별도로 추가한다(house_posts.rarity_tier 등 이미 저장된 한국어 값과 섞이지
+// 않도록, 리네이밍이나 매개변수화 대신 새 함수로 분리). STEP 11 참고. ──
+
+const IDENTITY_EN: Record<Axis, Record<Band, string>> = {
+  sociability: { high: "Socializer", low: "Recluse" },
+  minimalism: { high: "Minimalist", low: "Collector" },
+  activity: { high: "Mover", low: "Retreater" },
+  openness: { high: "Explorer", low: "Homebody" },
+  nature: { high: "Gardener", low: "City Lover" },
+};
+
+const MODIFIER_EN: Record<Axis, Record<Band, string>> = {
+  sociability: { high: "Social", low: "Quiet" },
+  minimalism: { high: "Minimal", low: "Maximal" },
+  activity: { high: "Active", low: "Easygoing" },
+  openness: { high: "Open-Minded", low: "Grounded" },
+  nature: { high: "Green", low: "Practical" },
+};
+
+export function generatePersonaEn(axisScores: AxisScores): Persona {
+  const [primary, secondary] = pickTopAxesByExtremity(axisScores, 2) as [
+    Axis,
+    Axis,
+  ];
+  const identity = IDENTITY_EN[primary][simpleBand(axisScores[primary])];
+  const modifier = MODIFIER_EN[secondary][simpleBand(axisScores[secondary])];
+  return { name: `The ${modifier} ${identity}`, topAxes: [primary, secondary] };
+}
+
+export type RarityTierEn = "Rare" | "Uncommon" | "Common";
+
+export function getRarityTierEn(similarity: number): RarityTierEn {
+  if (similarity >= 85) return "Rare";
+  if (similarity >= 70) return "Uncommon";
+  return "Common";
+}

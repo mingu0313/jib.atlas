@@ -1,0 +1,1932 @@
+[
+  {
+    "id": "t1",
+    "name": "Open Loft Studio",
+    "scoreProfile": {
+      "sociability": 85,
+      "minimalism": 40,
+      "activity": 50,
+      "openness": 90,
+      "nature": 40
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 50,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 200,
+          "height": 140
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 190,
+          "width": 120,
+          "height": 90
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 30,
+          "width": 70,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 310,
+          "y": 160,
+          "width": 70,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "Kitchen, living room, and dining flow into one fully open layout — great for hosting guests.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "A loft structure open all the way to the ceiling, full of airy openness.",
+        "linkedTrait": "openness",
+        "band": "high"
+      },
+      {
+        "text": "High ceilings and big windows bring in plenty of light.",
+        "linkedTrait": "nature",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t2",
+    "name": "Minimal White Box",
+    "scoreProfile": {
+      "sociability": 30,
+      "minimalism": 95,
+      "activity": 20,
+      "openness": 60,
+      "nature": 30
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 150,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 90,
+          "y": 160,
+          "width": 100,
+          "height": 70
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 110,
+          "height": 110
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 200,
+          "y": 160,
+          "width": 60,
+          "height": 70
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 270,
+          "y": 160,
+          "width": 90,
+          "height": 70
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A white-toned space with nothing but the essentials — no clutter, no extra furniture.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Built-in storage keeps everything tucked out of sight.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A simple, unfussy flow that keeps the sense of openness intact.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t3",
+    "name": "Cozy Cottage House",
+    "scoreProfile": {
+      "sociability": 50,
+      "minimalism": 25,
+      "activity": 30,
+      "openness": 20,
+      "nature": 80
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 140,
+          "height": 120
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 150,
+          "width": 100,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "study",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 30,
+          "width": 100,
+          "height": 90
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 340,
+          "y": 30,
+          "width": 50,
+          "height": 240
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A traditional room layout, cozily divided by walls, that feels grounded and stable.",
+        "linkedTrait": "openness",
+        "band": "low"
+      },
+      {
+        "text": "Right up against a small garden, so nature always feels close.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "A small study makes it easy to enjoy quiet time alone.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t4",
+    "name": "Home Office Compact House",
+    "scoreProfile": {
+      "sociability": 20,
+      "minimalism": 70,
+      "activity": 60,
+      "openness": 40,
+      "nature": 30
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 130,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 150,
+          "width": 90,
+          "height": 70
+        }
+      },
+      {
+        "type": "study",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 150,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 230,
+          "width": 70,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A spacious home office where you can focus and get work done.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "Tidy built-in storage keeps everything neat.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A private workspace of your own, good for quiet, deep focus.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t5",
+    "name": "Multigenerational Communal House",
+    "scoreProfile": {
+      "sociability": 95,
+      "minimalism": 30,
+      "activity": 60,
+      "openness": 70,
+      "nature": 50
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 30,
+          "width": 180,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 110,
+          "y": 170,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 250,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 30,
+          "width": 80,
+          "height": 100
+        }
+      },
+      {
+        "type": "kidsRoom",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 80,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "Living room, kitchen, and dining stretch out together — great for family and guests to gather.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Multiple bedrooms make it comfortable for a big family to live together.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Open shared space and private bedrooms are balanced side by side.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t6",
+    "name": "Home Gym Active House",
+    "scoreProfile": {
+      "sociability": 40,
+      "minimalism": 50,
+      "activity": 95,
+      "openness": 55,
+      "nature": 35
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 170,
+          "width": 130,
+          "height": 100
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 170,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "gym",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 160,
+          "height": 120
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 100,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A dedicated home gym makes it easy to work out every day.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "A multi-purpose space for DIY projects and hands-on hobbies.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "An airy layout that makes it easy to move your body.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t7",
+    "name": "Garden Greenhouse",
+    "scoreProfile": {
+      "sociability": 45,
+      "minimalism": 35,
+      "activity": 40,
+      "openness": 65,
+      "nature": 95
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 140,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 150,
+          "width": 100,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "terrace",
+        "size": "L",
+        "position": {
+          "x": 230,
+          "y": 30,
+          "width": 150,
+          "height": 100
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 60,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A wide terrace and garden let you enjoy nature every single day.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "Big windows bring in great light and airflow.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "An open layout where the living room flows straight out into the garden.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t8",
+    "name": "Maximalist Vintage Apartment",
+    "scoreProfile": {
+      "sociability": 25,
+      "minimalism": 8,
+      "activity": 15,
+      "openness": 30,
+      "nature": 35
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 60,
+          "width": 160,
+          "height": 150
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 270,
+          "y": 60,
+          "width": 100,
+          "height": 90
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 270,
+          "y": 170,
+          "width": 100,
+          "height": 100
+        }
+      },
+      {
+        "type": "storage",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 230,
+          "width": 100,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A space packed with your favorite objects and vintage furniture, full of personality.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      },
+      {
+        "text": "A cozy space where you can lose yourself in your own collection, no one else to mind.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      },
+      {
+        "text": "Display cases and cabinets everywhere, so you can fill it with as many pieces as you like.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t9",
+    "name": "Private Recluse Studio",
+    "scoreProfile": {
+      "sociability": 10,
+      "minimalism": 65,
+      "activity": 25,
+      "openness": 30,
+      "nature": 45
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 80,
+          "width": 150,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 250,
+          "y": 80,
+          "width": 90,
+          "height": 90
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 250,
+          "y": 180,
+          "width": 90,
+          "height": 90
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 90,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "An independent layout where your alone time is never interrupted.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      },
+      {
+        "text": "A simple, clutter-free space kept neatly in order.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A quiet space that's great for calm hobbies like reading or bingeing a show.",
+        "linkedTrait": "activity",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t10",
+    "name": "Traditional Hanok-Style House",
+    "scoreProfile": {
+      "sociability": 55,
+      "minimalism": 50,
+      "activity": 35,
+      "openness": 15,
+      "nature": 85
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 130,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 150,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 30,
+          "width": 100,
+          "height": 100
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 250
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A cozy, stable traditional layout with each room divided by its own walls.",
+        "linkedTrait": "openness",
+        "band": "low"
+      },
+      {
+        "text": "A courtyard lets you feel nature up close.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "A living room where the family can gather and spend time together.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t11",
+    "name": "Smart Minimal Studio",
+    "scoreProfile": {
+      "sociability": 25,
+      "minimalism": 90,
+      "activity": 45,
+      "openness": 50,
+      "nature": 20
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 60,
+          "width": 180,
+          "height": 170
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 290,
+          "y": 60,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 290,
+          "y": 160,
+          "width": 90,
+          "height": 70
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 290,
+          "y": 240,
+          "width": 90,
+          "height": 40
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A no-frills studio layout that's easy to keep up with.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Built-in storage keeps your things neatly out of sight.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Small but efficiently laid out for smooth everyday flow.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t12",
+    "name": "Active Life Duplex",
+    "scoreProfile": {
+      "sociability": 70,
+      "minimalism": 45,
+      "activity": 85,
+      "openness": 60,
+      "nature": 55
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 150,
+          "width": 160,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 280,
+          "y": 150,
+          "width": 100,
+          "height": 100
+        }
+      },
+      {
+        "type": "workshop",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 30,
+          "width": 150,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 270,
+          "y": 30,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "balcony",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 70,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A separate workshop space that doubles as a home gym and a studio.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "A wide-open living room that's great for having friends over.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "A balcony where you can easily catch some fresh air.",
+        "linkedTrait": "nature",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t13",
+    "name": "City View Penthouse",
+    "scoreProfile": {
+      "sociability": 75,
+      "minimalism": 60,
+      "activity": 30,
+      "openness": 80,
+      "nature": 10
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 220,
+          "height": 150
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 200,
+          "width": 130,
+          "height": 80
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "M",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "Floor-to-ceiling windows open onto city views in a fully open layout.",
+        "linkedTrait": "openness",
+        "band": "high"
+      },
+      {
+        "text": "A spacious living room that's great for parties and get-togethers.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "A clean, urban interior with nothing extra to clutter it up.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t14",
+    "name": "Relax Retreat House",
+    "scoreProfile": {
+      "sociability": 20,
+      "minimalism": 55,
+      "activity": 5,
+      "openness": 40,
+      "nature": 75
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 140,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 150,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 160,
+          "height": 100
+        }
+      },
+      {
+        "type": "terrace",
+        "size": "M",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 120,
+          "height": 100
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A spacious bedroom and lounge built entirely around rest.",
+        "linkedTrait": "activity",
+        "band": "low"
+      },
+      {
+        "text": "A terrace where you can quietly enjoy nature.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "A calm layout, great for unhurried time on your own.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t15",
+    "name": "Rooftop Social Penthouse",
+    "scoreProfile": {
+      "sociability": 90,
+      "minimalism": 40,
+      "activity": 55,
+      "openness": 85,
+      "nature": 60
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 50,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 190,
+          "height": 130
+        }
+      },
+      {
+        "type": "terrace",
+        "size": "M",
+        "position": {
+          "x": 290,
+          "y": 30,
+          "width": 90,
+          "height": 130
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 210,
+          "y": 170,
+          "width": 90,
+          "height": 100
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "S",
+        "position": {
+          "x": 310,
+          "y": 170,
+          "width": 70,
+          "height": 100
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A rooftop terrace built for hosting parties and get-togethers often.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Floor-to-ceiling glass living room that opens straight onto the terrace — fully open.",
+        "linkedTrait": "openness",
+        "band": "high"
+      },
+      {
+        "text": "Enjoy the city skyline and the breeze up close from the rooftop.",
+        "linkedTrait": "nature",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t16",
+    "name": "Off-Grid Wood Cabin",
+    "scoreProfile": {
+      "sociability": 15,
+      "minimalism": 45,
+      "activity": 40,
+      "openness": 25,
+      "nature": 98
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 140,
+          "height": 100
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 30,
+          "width": 80,
+          "height": 100
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 140,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 150,
+          "width": 80,
+          "height": 70
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 250
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A cozy, enclosed log-cabin layout built around a wood stove.",
+        "linkedTrait": "openness",
+        "band": "low"
+      },
+      {
+        "text": "Set deep in the forest, so you can take in nature fully through every season.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "No neighbors around — quiet time alone (or with just one other person).",
+        "linkedTrait": "sociability",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t17",
+    "name": "Minimal Family House",
+    "scoreProfile": {
+      "sociability": 72,
+      "minimalism": 62,
+      "activity": 48,
+      "openness": 52,
+      "nature": 45
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 70,
+          "height": 170
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 30,
+          "width": 160,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 270,
+          "y": 30,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 110,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 170,
+          "width": 90,
+          "height": 100
+        }
+      },
+      {
+        "type": "kidsRoom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 150,
+          "width": 70,
+          "height": 120
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A generous family room and dining area, great for the whole family to eat and gather together.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Ample built-in storage keeps even the kids' things neatly organized.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Kids' room and primary bedroom are separated, so everyone keeps their own space while staying close.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t18",
+    "name": "Artist Atelier Loft",
+    "scoreProfile": {
+      "sociability": 35,
+      "minimalism": 15,
+      "activity": 50,
+      "openness": 75,
+      "nature": 30
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 220,
+          "height": 160
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 70
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 110,
+          "width": 60,
+          "height": 80
+        }
+      },
+      {
+        "type": "storage",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 200,
+          "width": 120,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 200,
+          "width": 100,
+          "height": 80
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A free-flowing creative space where you can spread out your tools and supplies without limits.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      },
+      {
+        "text": "A fully open loft with high ceilings and almost no interior walls.",
+        "linkedTrait": "openness",
+        "band": "high"
+      },
+      {
+        "text": "Great for quietly showing your work to just the people close to you.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t19",
+    "name": "Active Outdoor Resort",
+    "scoreProfile": {
+      "sociability": 60,
+      "minimalism": 50,
+      "activity": 90,
+      "openness": 70,
+      "nature": 85
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "type": "gym",
+        "size": "L",
+        "position": {
+          "x": 100,
+          "y": 30,
+          "width": 150,
+          "height": 130
+        }
+      },
+      {
+        "type": "terrace",
+        "size": "L",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 120,
+          "height": 130
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 100,
+          "y": 170,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 170,
+          "width": 80,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 170,
+          "width": 80,
+          "height": 100
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A terrace that leads straight into a home gym and trail, great for moving your body every day.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "A big terrace that brings the mountains and sky up close.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "A spacious living room, great for hanging out with friends after a workout.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t20",
+    "name": "Co-op Share House",
+    "scoreProfile": {
+      "sociability": 80,
+      "minimalism": 70,
+      "activity": 50,
+      "openness": 65,
+      "nature": 35
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 60,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 100,
+          "y": 30,
+          "width": 160,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 270,
+          "y": 30,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 100,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 170,
+          "width": 100,
+          "height": 100
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 170,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 240,
+          "width": 70,
+          "height": 40
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A generous shared living room and kitchen make it easy to naturally hang out with roommates.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Everyone keeps their own things in their own space, so the shared areas stay tidy.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Even while living together, everyone has their own private room and time.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t21",
+    "name": "Zero-Waste Eco House",
+    "scoreProfile": {
+      "sociability": 40,
+      "minimalism": 75,
+      "activity": 55,
+      "openness": 50,
+      "nature": 90
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 130,
+          "height": 100
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 30,
+          "width": 90,
+          "height": 100
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 130,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 150,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 250
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A vegetable patch and compost bin let you practice nature's cycle in everyday life.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "A minimal, sustainable household built around only what you truly need.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "Small daily tasks like tending the garden fill your day with purpose.",
+        "linkedTrait": "activity",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t22",
+    "name": "Downtown Micro Studio",
+    "scoreProfile": {
+      "sociability": 35,
+      "minimalism": 85,
+      "activity": 20,
+      "openness": 45,
+      "nature": 15
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 200,
+          "height": 200
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 300,
+          "y": 30,
+          "width": 80,
+          "height": 90
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 300,
+          "y": 130,
+          "width": 80,
+          "height": 70
+        }
+      },
+      {
+        "type": "storage",
+        "size": "S",
+        "position": {
+          "x": 300,
+          "y": 210,
+          "width": 80,
+          "height": 70
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A small but well-packed downtown studio with nothing wasted.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A compact layout focused on sleep and rest, with no room for elaborate hobbies.",
+        "linkedTrait": "activity",
+        "band": "low"
+      },
+      {
+        "text": "Small windows, but close to downtown conveniences — practical above all.",
+        "linkedTrait": "nature",
+        "band": "low"
+      }
+    ]
+  }
+]

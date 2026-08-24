@@ -1,0 +1,50 @@
+[
+  {
+    "id": "m1",
+    "indicator": "EI",
+    "text": "Meeting new people actually energizes me.",
+    "direction": "E"
+  },
+  {
+    "id": "m2",
+    "indicator": "EI",
+    "text": "After a day full of people, I need time alone to recharge.",
+    "direction": "I"
+  },
+  {
+    "id": "m3",
+    "indicator": "SN",
+    "text": "I'm drawn to new possibilities and ideas more than familiar ways of doing things.",
+    "direction": "N"
+  },
+  {
+    "id": "m4",
+    "indicator": "SN",
+    "text": "I trust concrete, practical information more than abstract ideas.",
+    "direction": "S"
+  },
+  {
+    "id": "m5",
+    "indicator": "TF",
+    "text": "When deciding whether to keep or toss something, I lead with logic — efficiency and function.",
+    "direction": "T"
+  },
+  {
+    "id": "m6",
+    "indicator": "TF",
+    "text": "I have a hard time letting go of things because of the memories or feelings attached to them.",
+    "direction": "F"
+  },
+  {
+    "id": "m7",
+    "indicator": "JP",
+    "text": "I like making plans and keeping things organized in a set, predictable way.",
+    "direction": "J"
+  },
+  {
+    "id": "m8",
+    "indicator": "JP",
+    "text": "I like moving spontaneously and adapting flexibly as things come up.",
+    "direction": "P"
+  }
+]

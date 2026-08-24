@@ -26,9 +26,18 @@ function distanceToSimilarity(distance: number): number {
  * 유저의 5축 스코어와 가장 가까운(유클리드 거리가 가장 짧은) 집 구조 템플릿을 찾는다.
  * 반환값은 유사도(%) 내림차순으로 정렬된 상위 3개이며, [0]이 1순위 추천이다.
  * 순수 함수: 입력→출력만, 부작용 없음.
+ *
+ * templates를 생략하면 한국어 데이터(data/house-templates.json)를 쓴다.
+ * scoreProfile은 언어와 무관한 숫자라 /en(data/house-templates.en.json —
+ * 같은 id·scoreProfile, name/features만 번역)을 넘겨도 매칭 결과(어떤 id가
+ * 1순위인지)는 완전히 동일하고, 반환되는 template 객체의 표시 텍스트만
+ * 영문으로 바뀐다. STEP 11 참고.
  */
-export function matchHouseTemplate(userAxisScores: AxisScores): TemplateMatch[] {
-  return houseTemplates
+export function matchHouseTemplate(
+  userAxisScores: AxisScores,
+  templates: HouseTemplate[] = houseTemplates,
+): TemplateMatch[] {
+  return templates
     .map((template) => ({
       template,
       similarity: distanceToSimilarity(
