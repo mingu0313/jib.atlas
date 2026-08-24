@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AtlasPostActions } from "@/components/atlas/AtlasPostActions";
 import { AtlasPostOwnerActions } from "@/components/atlas/AtlasPostOwnerActions";
+import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
@@ -60,24 +61,35 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
       </div>
 
       <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-8 px-6 py-10 sm:px-8 sm:py-14">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          {photos.map((photo, i) => (
-            // eslint-disable-next-line @next/next/no-img-element -- Storage 공개 URL(유저 업로드).
-            <img
-              key={photo.id}
-              src={getHousePhotoUrl(supabase, photo.storage_path)}
-              alt={`${typedPost.title} 사진 ${i + 1}`}
-              loading={i === 0 ? "eager" : "lazy"}
-              className={`w-full rounded-[16px] bg-photo-bg object-cover ${
-                i === 0 ? "sm:col-span-2 aspect-[16/10]" : "aspect-square"
-              }`}
-            />
-          ))}
-        </div>
+        {typedPost.room_items ? (
+          <div className="flex items-center justify-center rounded-[16px] bg-panel py-8">
+            <RoomIsoCard items={typedPost.room_items} className="h-[420px] max-w-full" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {photos.map((photo, i) => (
+              // eslint-disable-next-line @next/next/no-img-element -- Storage 공개 URL(유저 업로드).
+              <img
+                key={photo.id}
+                src={getHousePhotoUrl(supabase, photo.storage_path)}
+                alt={`${typedPost.title} 사진 ${i + 1}`}
+                loading={i === 0 ? "eager" : "lazy"}
+                className={`w-full rounded-[16px] bg-photo-bg object-cover ${
+                  i === 0 ? "sm:col-span-2 aspect-[16/10]" : "aspect-square"
+                }`}
+              />
+            ))}
+          </div>
+        )}
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap items-center gap-2">
+              {typedPost.room_items && (
+                <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
+                  방 미리보기
+                </span>
+              )}
               {typedPost.rarity_tier && (
                 <span
                   className="label-mono rounded-full px-3 py-1.5 text-[9px]"

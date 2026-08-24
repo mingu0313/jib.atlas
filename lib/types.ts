@@ -201,6 +201,10 @@ export interface HousePost {
   template_name: string | null;
   persona_name: string | null;
   rarity_tier: string | null;
+  /** 채워져 있으면 실사진 대신 이 가구 배치를 아이소메트릭 SVG로 렌더링하는
+   * "방 미리보기" 게시물(0004_house_atlas_room_posts.sql). /editor에서
+   * 한 번의 클릭으로 올린다 — 사진 업로드 없이 아틀라스에 콘텐츠를 채우는 경로. */
+  room_items: PlacedFurniture[] | null;
   like_count: number;
   comment_count: number;
   created_at: string;

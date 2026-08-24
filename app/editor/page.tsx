@@ -2,13 +2,14 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { useEditorStore } from "@/lib/editorStore";
 import { matchHouseTemplate } from "@/lib/matching";
-import { generatePersona } from "@/lib/persona";
+import { generatePersona, getRarityTier } from "@/lib/persona";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
+import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/supabase/useUser";
 import { AXES, AXIS_LABELS } from "@/lib/types";
 import type { Answer, IsoFurnitureDef } from "@/lib/types";
@@ -56,6 +57,12 @@ export default function EditorPage() {
   const resetPlacement = useEditorStore((s) => s.reset);
   const syncTemplate = useEditorStore((s) => s.syncTemplate);
 
+  // 집 아틀라스 "지도에 공유하기" — 사진 업로드 없이, 지금 배치를 그대로
+  // 아이소메트릭 미리보기로 올린다(app/atlas/page.tsx의 RoomIsoCard 참고).
+  // 콜드스타트 해결용: 진단만 마치면 클릭 한 번으로 갤러리에 콘텐츠가 생긴다.
+  const [roomShareStatus, setRoomShareStatus] = useState<"idle" | "pending" | "done" | "error">("idle");
+  const [sharedPostId, setSharedPostId] = useState<string | null>(null);
+
   // 로그인이 확인되면 서버에 저장된 배치를 불러온다.
   useEffect(() => {
     if (user) loadFromServer();
@@ -68,6 +75,34 @@ export default function EditorPage() {
   const { axisScores } = calculateScores(answerList);
   const [topMatch] = matchHouseTemplate(axisScores);
   const persona = generatePersona(axisScores);
+
+  async function handleShareRoom() {
+    if (!user || roomShareStatus === "pending") return;
+    setRoomShareStatus("pending");
+
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("house_posts")
+      .insert({
+        user_id: user.id,
+        title: `${persona.name}의 ${topMatch.template.name}`,
+        caption: "",
+        template_id: topMatch.template.id,
+        template_name: topMatch.template.name,
+        persona_name: persona.name,
+        rarity_tier: getRarityTier(topMatch.similarity),
+        room_items: items,
+      })
+      .select()
+      .single();
+
+    if (error || !data) {
+      setRoomShareStatus("error");
+      return;
+    }
+    setSharedPostId(data.id);
+    setRoomShareStatus("done");
+  }
 
   // 저장된 배치가 지금 매칭된 템플릿과 다르면(재진단으로 집 유형이 바뀐
   // 경우) 기본 배치로 새로 시작한다. 서버에서 다 불러온 뒤에만 실행해야
@@ -150,6 +185,24 @@ export default function EditorPage() {
           >
             초기화
           </button>
+          {roomShareStatus === "done" && sharedPostId ? (
+            <Link
+              href={`/atlas/${sharedPostId}`}
+              className="rounded-full px-[22px] py-[11px] text-[12px] font-semibold text-olive-mid transition hover:text-fg"
+              style={{ background: "var(--color-sage)", color: "var(--color-sage-ink)" }}
+            >
+              지도에 공유됨 · 보러가기
+            </Link>
+          ) : (
+            <button
+              type="button"
+              onClick={handleShareRoom}
+              disabled={roomShareStatus === "pending"}
+              className="rounded-full border border-hair px-[22px] py-[11px] text-[12px] text-[#5f5f57] transition hover:border-olive hover:text-fg disabled:opacity-50"
+            >
+              {roomShareStatus === "pending" ? "공유 중…" : "지도에 공유하기"}
+            </button>
+          )}
           <Link
             href="/result"
             className="rounded-full bg-olive px-6 py-3 text-[12px] font-semibold text-cream transition hover:bg-fg"
@@ -158,6 +211,11 @@ export default function EditorPage() {
           </Link>
         </div>
       </div>
+      {roomShareStatus === "error" && (
+        <p className="px-6 pt-3 text-[12px] sm:px-8" style={{ color: "#a3402a" }}>
+          지도 공유에 실패했어요. 다시 시도해주세요.
+        </p>
+      )}
 
       <div className="grid flex-1 grid-cols-1 lg:grid-cols-[250px_1fr_280px]">
         {/* 좌: 팔레트 */}
