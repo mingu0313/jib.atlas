@@ -186,3 +186,38 @@ export type TraitBand = "high" | "mid" | "low";
 
 /** 축 x 구간별 사람이 읽기 자연스러운 설명 문구. 모든 문구는 관형사형 어미 "-는"으로 끝난다. */
 export type TraitDescriptions = Record<Axis, Record<TraitBand, string>>;
+
+/**
+ * 집 아틀라스 — 실제 내 집 사진을 올려 공유하는 공개 갤러리
+ * (supabase/migrations/0002_house_atlas.sql 참고).
+ */
+export interface HousePost {
+  id: string;
+  user_id: string;
+  title: string;
+  caption: string;
+  /** 작성 시점 진단 결과 스냅샷 — 진단 없이 올렸으면 전부 null. */
+  template_id: string | null;
+  template_name: string | null;
+  persona_name: string | null;
+  rarity_tier: string | null;
+  like_count: number;
+  comment_count: number;
+  created_at: string;
+}
+
+/** house-photos 버킷에 올라간 사진 하나. storage_path는 "{user_id}/{uuid}.jpg" 형태. */
+export interface HousePhoto {
+  id: string;
+  post_id: string;
+  storage_path: string;
+  sort_order: number;
+}
+
+export interface HouseComment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  body: string;
+  created_at: string;
+}

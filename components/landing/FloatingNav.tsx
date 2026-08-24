@@ -49,6 +49,9 @@ export function FloatingNav() {
         <Link href="/editor" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           룸 에디터
         </Link>
+        <Link href="/atlas" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+          집 지도
+        </Link>
         <Link href="/share" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           공유 카드
         </Link>

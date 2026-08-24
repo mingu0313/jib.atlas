@@ -275,6 +275,37 @@ jib.atlas 프로젝트의 UI를 STEP 1~6에서 만든 로직과 연결한다.
 
 ---
 
+## STEP 9. 집 아틀라스 — 실제 내 집 사진 공유 갤러리
+
+진단 결과가 아니라 **진짜 내가 사는 집 사진**을 올려 다른 유저와 공유하는
+공개 갤러리. 사이트 이름(atlas)에 맞춰 "여러 집을 모아 만든 지도"라는
+톤으로 잡았다 — 라우트도 `/atlas`, 게시물은 "지도 위 한 페이지"로 부른다.
+
+# 요구사항
+1. `supabase/migrations/0002_house_atlas.sql`: `house_posts`(제목·소개·작성
+   시점 진단 스냅샷·좋아요/댓글 캐시 카운트) / `house_photos` / `house_likes` /
+   `house_comments` 4개 테이블 + RLS(읽기는 공개, 쓰기는 본인만) + 좋아요·댓글
+   카운트를 자동 반영하는 트리거 + `house-photos` 공개 Storage 버킷과 그
+   RLS(첫 폴더 세그먼트 = 본인 uid).
+2. `lib/houseAtlas.ts`: 업로드 전 브라우저 `<canvas>`로 사진을 다시 인코딩해
+   EXIF(GPS 등 촬영 정보)를 제거하고 리사이즈하는 `stripExifAndResize()`.
+   Cloudflare Workers 런타임엔 sharp 같은 서버 이미지 처리가 없어서
+   (`next.config.ts`의 `images.unoptimized` 참고) 클라이언트에서 처리한다.
+3. `/atlas`: 갤러리 그리드(서버 컴포넌트, 로그인 무관 공개 read).
+4. `/atlas/[id]`: 상세 — 사진, 제목/소개, 작성 시점 유형·페르소나·희귀도
+   배지(선택), 좋아요·댓글은 `components/atlas/AtlasPostActions.tsx`
+   클라이언트 컴포넌트로 분리.
+5. `/atlas/new`: 등록 폼(로그인 게이트는 `/editor` 패턴과 동일). 사진 최대
+   6장, 진단을 마친 유저는 `lib/persona.ts`의 페르소나·희귀도가 게시물에
+   스냅샷으로 함께 저장됨(재진단해도 게시물 배지는 등록 당시 값 유지).
+6. `FloatingNav`에 "집 지도" 링크 추가.
+
+완료 후 `supabase/migrations/0002_house_atlas.sql`을 Supabase 대시보드
+SQL Editor에서 직접 실행해야 실제로 동작한다(0001과 동일 — 마이그레이션은
+자동 적용되지 않음).
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.
