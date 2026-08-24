@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { signOut } from "@/app/actions/auth";
 import { useMotion } from "@/components/motion/MotionProvider";
 import { useUser } from "@/lib/supabase/useUser";
+
+const COLLAB_EMAIL = "hyo5418@gmail.com";
 
 type Locale = "ko" | "en";
 
@@ -23,6 +26,7 @@ const TEXT: Record<Locale, Record<string, string>> = {
     motionOff: "모션 끄기",
     otherLocaleLabel: "EN",
     collabSubject: "[jib.atlas] 협업 문의",
+    collabCopied: "이메일 복사됨 ✓",
   },
   en: {
     diagnosis: "Quiz",
@@ -38,6 +42,7 @@ const TEXT: Record<Locale, Record<string, string>> = {
     motionOff: "Motion off",
     otherLocaleLabel: "한국어",
     collabSubject: "[jib.atlas] Collaboration Inquiry",
+    collabCopied: "Email copied ✓",
   },
 };
 
@@ -66,15 +71,36 @@ const TEXT: Record<Locale, Record<string, string>> = {
  * 헤더를 그림), 언어 전환 링크는 그냥 "/" ↔ "/en"만 오가면 충분하다 —
  * 깊은 경로별 매핑 테이블은 필요 없다. 에디터·집 지도는 아직 영문화
  * 전이라(STEP 12 이후) en 모드에서도 그대로 한국어 페이지로 링크한다.
+ *
+ * 협업 문의 — "눌러도 안 된다"는 피드백. `mailto:` 링크는 기기에 기본
+ * 메일 앱이 설정돼 있어야만 동작하는데, 브라우저로만 지메일 등을 쓰는
+ * 사람(맥·아이맥·모바일 다 포함)은 기본 메일 앱이 없어서 클릭해도 아무
+ * 반응이 없다 — mailto만으로는 기기·환경을 다 커버할 수 없는 구조적 한계다.
+ * 그래서 클릭하면 이메일 주소를 클립보드로도 복사해서(navigator.clipboard,
+ * HTTPS 필요 — 배포 환경은 항상 HTTPS라 문제없다) "복사됨" 문구로 확인해준다.
+ * href는 mailto:를 그대로 둬서, 메일 앱이 있는 사람은 그것도 같이 뜬다 —
+ * 안 되는 사람만 복사로 폴백되는 게 아니라 항상 복사가 같이 일어나는 것.
  */
 export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
   const { reduced, toggle } = useMotion();
   const { user, loading: userLoading } = useUser();
   const pathname = usePathname();
+  const [collabCopied, setCollabCopied] = useState(false);
   const t = TEXT[locale];
   const prefix = locale === "en" ? "/en" : "";
   const otherLocaleHref = locale === "ko" ? "/en" : "/";
-  const collabMailto = `mailto:hyo5418@gmail.com?subject=${encodeURIComponent(t.collabSubject)}`;
+  const collabMailto = `mailto:${COLLAB_EMAIL}?subject=${encodeURIComponent(t.collabSubject)}`;
+
+  async function handleCollabClick() {
+    try {
+      await navigator.clipboard.writeText(COLLAB_EMAIL);
+      setCollabCopied(true);
+      setTimeout(() => setCollabCopied(false), 2500);
+    } catch {
+      // 클립보드 API를 못 쓰는 환경(권한 거부 등) — mailto: 시도는 그대로
+      // 이어지니 조용히 넘어간다.
+    }
+  }
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 px-6 py-[22px] sm:px-10 sm:py-[28px]">
@@ -138,9 +164,11 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
         >
           <a
             href={collabMailto}
-            className="text-sm font-semibold text-fg transition hover:text-olive-mid"
+            onClick={handleCollabClick}
+            title={COLLAB_EMAIL}
+            className="text-sm font-semibold whitespace-nowrap text-fg transition hover:text-olive-mid"
           >
-            {t.collab}
+            {collabCopied ? t.collabCopied : t.collab}
           </a>
           {!userLoading &&
             (user ? (
