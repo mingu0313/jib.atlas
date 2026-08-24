@@ -35,6 +35,7 @@ export function AtlasPostActions({
   const [comments, setComments] = useState(initialComments);
   const [commentBody, setCommentBody] = useState("");
   const [commentPending, setCommentPending] = useState(false);
+  const [deletingCommentIds, setDeletingCommentIds] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
 
   function requireLogin() {
@@ -90,6 +91,28 @@ export function AtlasPostActions({
     setCommentPending(false);
   }
 
+  async function deleteComment(commentId: string) {
+    if (!user || deletingCommentIds.has(commentId)) return;
+    setDeletingCommentIds((prev) => new Set(prev).add(commentId));
+    setError(null);
+
+    const prevComments = comments;
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
+
+    const supabase = createClient();
+    const { error: err } = await supabase.from("house_comments").delete().eq("id", commentId);
+
+    if (err) {
+      setComments(prevComments);
+      setError("댓글 삭제에 실패했어요. 다시 시도해주세요.");
+    }
+    setDeletingCommentIds((prev) => {
+      const next = new Set(prev);
+      next.delete(commentId);
+      return next;
+    });
+  }
+
   return (
     <div className="flex flex-col gap-8 border-t border-hair pt-8">
       <div className="flex items-center gap-3">
@@ -122,24 +145,44 @@ export function AtlasPostActions({
           <p className="text-[13px] text-faint">아직 댓글이 없어요. 첫 댓글을 남겨보세요.</p>
         ) : (
           <ul className="flex flex-col gap-4">
-            {comments.map((comment) => (
-              <li key={comment.id} className="flex flex-col gap-1 border-b border-hair pb-4">
-                <div className="flex items-center gap-2">
-                  {comment.user_id === ownerId && (
-                    <span className="label-mono rounded-full bg-sage px-2.5 py-1 text-[8px]" style={{ color: "var(--color-sage-ink)" }}>
-                      집주인
-                    </span>
-                  )}
-                  <span className="label-mono text-[9px] text-faint">
-                    {new Date(comment.created_at).toLocaleDateString("ko-KR", {
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </span>
-                </div>
-                <p className="text-[14px] whitespace-pre-wrap text-fg">{comment.body}</p>
-              </li>
-            ))}
+            {comments.map((comment) => {
+              // 댓글은 작성자 본인 또는 이 게시물 주인이 지울 수 있다
+              // (0003_house_atlas_comment_moderation.sql의 RLS와 짝을 맞춘 조건).
+              const canDelete = user && (user.id === comment.user_id || user.id === ownerId);
+              return (
+                <li key={comment.id} className="flex flex-col gap-1 border-b border-hair pb-4">
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      {comment.user_id === ownerId && (
+                        <span
+                          className="label-mono rounded-full bg-sage px-2.5 py-1 text-[8px]"
+                          style={{ color: "var(--color-sage-ink)" }}
+                        >
+                          집주인
+                        </span>
+                      )}
+                      <span className="label-mono text-[9px] text-faint">
+                        {new Date(comment.created_at).toLocaleDateString("ko-KR", {
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </span>
+                    </div>
+                    {canDelete && (
+                      <button
+                        type="button"
+                        onClick={() => deleteComment(comment.id)}
+                        disabled={deletingCommentIds.has(comment.id)}
+                        className="text-[11px] text-faint underline underline-offset-2 transition hover:text-fg disabled:opacity-50"
+                      >
+                        삭제
+                      </button>
+                    )}
+                  </div>
+                  <p className="text-[14px] whitespace-pre-wrap text-fg">{comment.body}</p>
+                </li>
+              );
+            })}
           </ul>
         )}
 

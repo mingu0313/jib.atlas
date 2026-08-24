@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AtlasPostActions } from "@/components/atlas/AtlasPostActions";
+import { AtlasPostOwnerActions } from "@/components/atlas/AtlasPostOwnerActions";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
@@ -75,20 +76,27 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
         </div>
 
         <div className="flex flex-col gap-3">
-          <div className="flex flex-wrap items-center gap-2">
-            {typedPost.rarity_tier && (
-              <span
-                className="label-mono rounded-full px-3 py-1.5 text-[9px]"
-                style={{ background: "var(--color-sage)", color: "var(--color-sage-ink)" }}
-              >
-                {typedPost.rarity_tier}
-              </span>
-            )}
-            {typedPost.template_name && (
-              <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
-                {typedPost.template_name}
-              </span>
-            )}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              {typedPost.rarity_tier && (
+                <span
+                  className="label-mono rounded-full px-3 py-1.5 text-[9px]"
+                  style={{ background: "var(--color-sage)", color: "var(--color-sage-ink)" }}
+                >
+                  {typedPost.rarity_tier}
+                </span>
+              )}
+              {typedPost.template_name && (
+                <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
+                  {typedPost.template_name}
+                </span>
+              )}
+            </div>
+            <AtlasPostOwnerActions
+              postId={typedPost.id}
+              ownerId={typedPost.user_id}
+              photoStoragePaths={photos.map((photo) => photo.storage_path)}
+            />
           </div>
           <h1 className="font-kr text-[30px] leading-tight sm:text-[36px]">{typedPost.title}</h1>
           {typedPost.persona_name && <p className="text-[14px] text-muted">{typedPost.persona_name}</p>}
