@@ -153,10 +153,21 @@ export function FiveAxes() {
         </div>
 
         {/* 우: sticky — 위에서 아래로 사진 → AXIS PROFILE 패널(레이더+막대).
-            sticky·top-0는 모든 화면 크기에서 켜져 있어야 한다(위 주석 참고). */}
-        <div className="sticky top-20 order-1 z-10 lg:top-0 lg:order-2 lg:flex lg:min-h-screen lg:flex-col lg:justify-center lg:gap-6">
+            sticky·top-0는 모든 화면 크기에서 켜져 있어야 한다(위 주석 참고).
+
+            예전엔 lg:min-h-screen + justify-center로 뷰포트 안에서 수직
+            중앙 정렬했는데, 노트북처럼 높이가 낮은 화면(대략 900px 미만)
+            에서는 사진+패널 합친 실제 높이가 뷰포트보다 커져서 위아래가
+            똑같이 잘려나갔다 — 게다가 flex justify-center로 넘친 콘텐츠는
+            스크롤로도 못 끌어올 수 있는 잘 알려진 CSS 함정이라(가운데
+            정렬 시 넘친 앞부분이 스크롤 영역 밖에 생김), 축 막대 뒤쪽
+            (미니멀·활동성·개방성·자연친화)이 아예 안 보이는 버그가 났다
+            (피드백: "사교성 밑에 있는 나머지가 안 보여"). justify-center를
+            버리고 위 정렬 + max-h-screen + overflow-y-auto로 바꿔서, 내용이
+            넘치면 이 패널 안에서 스크롤해 전부 볼 수 있게 했다. */}
+        <div className="sticky top-20 order-1 z-10 max-h-[calc(100vh-5rem)] overflow-y-auto lg:top-0 lg:order-2 lg:flex lg:max-h-screen lg:flex-col lg:gap-6 lg:overflow-y-auto lg:py-10">
           <div
-            className="relative aspect-[5/4] max-h-[26vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[36vh] lg:max-h-[46vh]"
+            className="relative aspect-[5/4] max-h-[26vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[36vh] lg:max-h-[38vh]"
           >
             {AXES.map((axis, i) => (
               <Image
