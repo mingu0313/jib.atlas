@@ -380,6 +380,28 @@ npx tsc --noEmit / npx vitest run(11 passed) / eslint 통과.
 
 ---
 
+## STEP 11-A. 협업 문의를 사이트 안 인라인 폼으로
+
+"협업 문의" 클릭이 mailto: → 클립보드 복사로 이어졌는데, "사이트에서 바로
+문의할 수 있게" 해달라는 요청으로 아예 인라인 폼(모달)으로 바꿨다.
+
+- `supabase/migrations/0005_collab_inquiries.sql`: `collab_inquiries`
+  테이블 — 로그인 없이 누구나 insert만 가능(읽기는 대시보드 서비스
+  role에서만). 대시보드에서 직접 실행 필요.
+- `app/actions/collabInquiry.ts`: 서버 액션. 허니팟 필드로 기본적인 봇
+  방지.
+- `components/landing/CollabInquiryModal.tsx`: 이름/이메일/문의 내용
+  폼. 그래도 메일이 편한 사람을 위해 mailto: + 클립보드 복사 보조 옵션도
+  하단에 남겨둠. `FloatingNav`(ko/en 둘 다)에서 연다.
+
+Playwright로 모달 열기 → 폼 작성 → 제출(테이블 없으면 에러 문구 정상
+표시) → X 버튼/Escape 닫기까지 확인. 처음 구현에서 모달이
+`FloatingNav`의 `pointer-events-none` 컨테이너 안에 있어서 클릭이 전부
+씹히는 버그가 있었는데(자식에 `pointer-events-auto`를 안 줌), 실제로
+Playwright 클릭 테스트를 해보면서 잡았다.
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.
