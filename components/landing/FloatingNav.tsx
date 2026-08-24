@@ -21,6 +21,12 @@ const COLLAB_MAILTO = `mailto:hyo5418@gmail.com?subject=${encodeURIComponent("[j
  * 로그인/협업 문의는 "진단 시작 옆"이라는 요청대로 우측 CTA 클러스터에
  * 둔다 — 모션 스위치와 같은 이유로 sm 이상에서만 텍스트 링크로 보이고,
  * 로그인 상태는 useUser로 구독해 로그인/로그아웃을 스위칭한다.
+ *
+ * 로고와 우측 텍스트 링크 클러스터에도 중앙 필과 같은 블러 배경을 준다 —
+ * 원래 이 둘은 배경이 완전 투명해서, 랜딩을 스크롤하면 그 아래로 지나가는
+ * 제목·버튼 글자가 로고/링크 글자와 그대로 겹쳐 보이는 문제가 있었다
+ * (예: "House Types" 섹션 영문 타이틀이 로고를 뚫고 지나감). fixed nav
+ * 아래로 뭐가 지나가든 항상 읽히도록 각 클러스터를 옅은 필로 감쌌다.
  */
 export function FloatingNav() {
   const { reduced, toggle } = useMotion();
@@ -31,7 +37,8 @@ export function FloatingNav() {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 px-6 py-[22px] sm:px-10 sm:py-[28px]">
       <Link
         href="/"
-        className="pointer-events-auto font-display text-[22px] tracking-[-0.01em] text-fg sm:text-[26px]"
+        className="pointer-events-auto rounded-full px-4 py-2 font-display text-[22px] tracking-[-0.01em] text-fg backdrop-blur-[16px] sm:text-[26px]"
+        style={{ background: "rgba(247,246,242,0.74)" }}
       >
         jib<span className="text-olive-mid">.</span>atlas
       </Link>
@@ -63,7 +70,8 @@ export function FloatingNav() {
           onClick={toggle}
           aria-pressed={reduced}
           title={reduced ? "모션 켜기" : "모션 끄기"}
-          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hair text-[10px] text-muted transition hover:border-olive hover:text-olive sm:flex"
+          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hair text-[10px] text-muted backdrop-blur-[16px] transition hover:border-olive hover:text-olive sm:flex"
+          style={{ background: "rgba(247,246,242,0.74)" }}
         >
           <span
             className="h-2 w-2 rounded-full"
@@ -71,7 +79,10 @@ export function FloatingNav() {
           />
         </button>
 
-        <div className="hidden items-center gap-5 sm:flex">
+        <div
+          className="hidden items-center gap-5 rounded-full px-5 py-2.5 backdrop-blur-[16px] sm:flex"
+          style={{ background: "rgba(247,246,242,0.74)" }}
+        >
           <a
             href={COLLAB_MAILTO}
             className="text-sm font-semibold text-fg transition hover:text-olive-mid"

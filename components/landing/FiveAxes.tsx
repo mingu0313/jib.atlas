@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { RADAR_CX, RADAR_CY, radarPoint, radarRing, radarShape } from "@/lib/radar";
+import { RADAR_CX, RADAR_CY, radarLabelPoint, radarPoint, radarRing, radarShape } from "@/lib/radar";
 import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
 
 /**
@@ -188,7 +188,7 @@ export function FiveAxes() {
             </div>
 
             <div className="mt-5 flex justify-center">
-              <svg viewBox="0 0 340 340" className="w-full max-w-[260px]">
+              <svg viewBox="0 0 340 340" className="w-full max-w-[260px]" style={{ overflow: "visible" }}>
                 {[33, 66, 100].map((v) => (
                   <polygon key={v} points={radarRing(v)} fill="none" stroke="var(--color-hair)" strokeWidth={1} />
                 ))}
@@ -221,6 +221,25 @@ export function FiveAxes() {
                       fill={isActive ? "var(--color-olive)" : "var(--color-dim)"}
                       style={{ transition: "r 0.5s, fill 0.5s" }}
                     />
+                  );
+                })}
+                {/* 정점에 축 이름을 붙인다 — 없으면 육각형만 봐선 어떤 축인지 알 수 없다. */}
+                {AXES.map((axis, i) => {
+                  const { x, y, anchor } = radarLabelPoint(i);
+                  const isActive = axis === activeAxis;
+                  return (
+                    <text
+                      key={axis}
+                      x={x}
+                      y={y}
+                      textAnchor={anchor}
+                      dominantBaseline="middle"
+                      fontSize={12}
+                      fill={isActive ? "var(--color-fg)" : "var(--color-faint)"}
+                      style={{ fontFamily: "var(--font-sans)", transition: "fill 0.5s" }}
+                    >
+                      {AXIS_LABELS[axis]}
+                    </text>
                   );
                 })}
               </svg>

@@ -37,3 +37,20 @@ export function radarDots(scores: AxisScores): { axis: Axis; x: number; y: numbe
     return { axis, x, y };
   });
 }
+
+/**
+ * 축 이름 라벨 위치 — 정점(100%)보다 살짝 바깥(기본 124%)에 두고, 정점이
+ * 중심의 좌/우/정중앙 어느 쪽에 있는지에 따라 text-anchor를 자동으로
+ * 고른다(오각형이라 위쪽 정점 1개만 middle, 나머지 4개는 좌우로 갈린다) —
+ * 그래야 라벨이 도형과 안 겹치고 방향에 맞게 눕는다.
+ */
+export function radarLabelPoint(
+  i: number,
+  radiusPercent = 124,
+): { x: number; y: number; anchor: "start" | "middle" | "end" } {
+  const angle = -Math.PI / 2 + (i * 2 * Math.PI) / AXES.length;
+  const cos = Math.cos(angle);
+  const [x, y] = radarPoint(i, radiusPercent);
+  const anchor = cos > 0.2 ? "start" : cos < -0.2 ? "end" : "middle";
+  return { x, y, anchor };
+}

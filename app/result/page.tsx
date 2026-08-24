@@ -6,7 +6,7 @@ import { FloorPlan } from "@/components/FloorPlan";
 import { generateExplanation } from "@/lib/explain";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona, getRarityTier } from "@/lib/persona";
-import { radarDots, radarRing, radarShape } from "@/lib/radar";
+import { radarDots, radarLabelPoint, radarRing, radarShape } from "@/lib/radar";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { AXES, AXIS_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
@@ -148,7 +148,7 @@ export default function ResultPage() {
           <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>
 
           <div className="flex justify-center">
-            <svg viewBox="0 0 340 340" className="w-full max-w-[360px]">
+            <svg viewBox="0 0 340 340" className="w-full max-w-[360px]" style={{ overflow: "visible" }}>
               {[33, 66, 100].map((v) => (
                 <polygon key={v} points={radarRing(v)} fill="none" stroke="rgba(18,18,15,0.10)" strokeWidth={1} />
               ))}
@@ -170,6 +170,25 @@ export default function ResultPage() {
               {dots.map((d) => (
                 <circle key={d.axis} cx={d.x} cy={d.y} r={4} fill="#6f8036" />
               ))}
+              {/* 정점에 어떤 축인지 이름을 안 붙여놔서 육각형만 봐선 뭐가 뭔지 알 수
+                  없다는 피드백 — 각 정점 바깥에 축 이름을 붙인다. */}
+              {AXES.map((axis, i) => {
+                const { x, y, anchor } = radarLabelPoint(i);
+                return (
+                  <text
+                    key={axis}
+                    x={x}
+                    y={y}
+                    textAnchor={anchor}
+                    dominantBaseline="middle"
+                    fontSize={13}
+                    fill="#5f5f57"
+                    style={{ fontFamily: "var(--font-sans)" }}
+                  >
+                    {AXIS_LABELS[axis]}
+                  </text>
+                );
+              })}
             </svg>
           </div>
 
