@@ -1,38 +1,52 @@
+import traitDescriptionsData from "../data/trait-descriptions.json";
+import traitDescriptionsEnData from "../data/trait-descriptions.en.json";
 import { pickTopAxesByExtremity, simpleBand } from "./axisUtils";
-import { type Axis, type AxisScores } from "./types";
+import { type Axis, type AxisScores, type TraitDescriptions } from "./types";
+
+const traitDescriptions = traitDescriptionsData as TraitDescriptions;
+const traitDescriptionsEn = traitDescriptionsEnData as TraitDescriptions;
 
 /**
  * 결과 페이지의 "캐릭터 네이밍" — 5축 스코어에서 가장 두드러진(중립에서 가장
  * 먼) 축 2개를 뽑아 수식어(2순위 축) + 정체성 명사(1순위 축)를 조합한 짧은
  * 별명을 만든다. 순수 함수. trait-descriptions.json과 톤은 맞추되 문장이
  * 아닌 짧은 라벨을 생성한다.
+ *
+ * "오픈마인드 시티러버"처럼 실제로 안 쓰는 영단어 조어를 한국어 어미에
+ * 그대로 붙인 이름들이 "처음 들어온 사람은 무슨 소린지 모르겠다"는
+ * 피드백을 받아서, 실제로 쓰이는 단어(인싸/아싸, 미니멀리스트/맥시멀리스트
+ * 같은 이미 자리잡은 말)나 순우리말 조합(활동파/여유파 같은 "-파" 계열)
+ * 으로 다시 골랐다. description은 왜 이 이름이 붙었는지 한 줄로 풀어주는
+ * 문장 — trait-descriptions.json의 1순위 축 설명을 그대로 재사용한다.
  */
 
 type Band = "high" | "low";
 
 /** 정체성 명사 — 1순위 축을 대표하는 캐릭터 유형. */
 const IDENTITY: Record<Axis, Record<Band, string>> = {
-  sociability: { high: "소셜라이저", low: "은둔가" },
-  minimalism: { high: "미니멀리스트", low: "컬렉터" },
-  activity: { high: "무브메이커", low: "리트리터" },
-  openness: { high: "탐험가", low: "안정러" },
-  nature: { high: "가드너", low: "시티러버" },
+  sociability: { high: "인싸", low: "아싸" },
+  minimalism: { high: "미니멀리스트", low: "맥시멀리스트" },
+  activity: { high: "활동파", low: "여유파" },
+  openness: { high: "모험파", low: "안정파" },
+  nature: { high: "자연파", low: "도시파" },
 };
 
 /** 수식어 — 2순위 축의 색을 입히는 접두어. */
 const MODIFIER: Record<Axis, Record<Band, string>> = {
-  sociability: { high: "소셜한", low: "고요한" },
+  sociability: { high: "사교적인", low: "조용한" },
   minimalism: { high: "미니멀한", low: "맥시멀한" },
-  activity: { high: "액티브한", low: "느긋한" },
-  openness: { high: "오픈마인드", low: "안정 지향" },
-  nature: { high: "그린한", low: "실용적인" },
+  activity: { high: "활동적인", low: "여유로운" },
+  openness: { high: "개방적인", low: "안정적인" },
+  nature: { high: "자연친화적인", low: "실용적인" },
 };
 
 export interface Persona {
-  /** "그린한 미니멀리스트" 형태의 짧은 캐릭터 이름. */
+  /** "자연친화적인 인싸" 형태의 짧은 캐릭터 이름. */
   name: string;
   /** 이름을 만드는 데 쓰인 상위 축 2개 (1순위, 2순위 순서). */
   topAxes: [Axis, Axis];
+  /** 이름 아래 보여줄 한 줄 설명 — 1순위 축 기준. */
+  description: string;
 }
 
 export function generatePersona(axisScores: AxisScores): Persona {
@@ -40,9 +54,14 @@ export function generatePersona(axisScores: AxisScores): Persona {
     Axis,
     Axis,
   ];
-  const identity = IDENTITY[primary][simpleBand(axisScores[primary])];
+  const primaryBand = simpleBand(axisScores[primary]);
+  const identity = IDENTITY[primary][primaryBand];
   const modifier = MODIFIER[secondary][simpleBand(axisScores[secondary])];
-  return { name: `${modifier} ${identity}`, topAxes: [primary, secondary] };
+  return {
+    name: `${modifier} ${identity}`,
+    topAxes: [primary, secondary],
+    description: `${traitDescriptions[primary][primaryBand]} 타입이에요.`,
+  };
 }
 
 export type RarityTier = "레어" | "언커먼" | "커먼";
@@ -79,9 +98,14 @@ export function generatePersonaEn(axisScores: AxisScores): Persona {
     Axis,
     Axis,
   ];
-  const identity = IDENTITY_EN[primary][simpleBand(axisScores[primary])];
+  const primaryBand = simpleBand(axisScores[primary]);
+  const identity = IDENTITY_EN[primary][primaryBand];
   const modifier = MODIFIER_EN[secondary][simpleBand(axisScores[secondary])];
-  return { name: `The ${modifier} ${identity}`, topAxes: [primary, secondary] };
+  return {
+    name: `The ${modifier} ${identity}`,
+    topAxes: [primary, secondary],
+    description: `You're someone who ${traitDescriptionsEn[primary][primaryBand]}.`,
+  };
 }
 
 export type RarityTierEn = "Rare" | "Uncommon" | "Common";

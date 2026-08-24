@@ -1,7 +1,9 @@
+import houseTemplatesData from "@/data/house-templates.json";
 import { HeroEditorWindow } from "@/components/landing/HeroEditorWindow";
 import { HeroPhotoStage } from "@/components/landing/HeroPhotoStage";
 
 const QUESTION_COUNT = 23;
+const TEMPLATE_COUNT = houseTemplatesData.length;
 
 /**
  * DESIGN-HANDOFF-V2.md "1. 랜딩 > Hero". 프로토타입의 "5문항·3분"은 실제
@@ -24,7 +26,7 @@ export function Hero() {
       </h1>
       <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <p className="max-w-[420px] text-[15px] leading-[1.75] text-muted">
-          다섯 개의 축으로 취향을 읽고, 22가지 집 구조 중 하나로 안내합니다.
+          다섯 개의 축으로 취향을 읽고, {TEMPLATE_COUNT}가지 집 구조 중 하나로 안내합니다.
           그다음은 직접 꾸며보는 일입니다.
         </p>
         <span className="label-mono text-[10px] text-muted">

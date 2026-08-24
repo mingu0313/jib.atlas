@@ -23,7 +23,7 @@ describe("generateExplanation", () => {
       openness: 52,
       nature: 48,
     };
-    const template = findTemplate("은둔형 프라이빗 스튜디오");
+    const template = findTemplate("혼자만의 조용한 스튜디오");
 
     const explanation = generateExplanation(scores, template);
     const traitSentence = explanation.split("\n")[0];
@@ -41,7 +41,7 @@ describe("generateExplanation", () => {
       openness: 35,
       nature: 40,
     };
-    const template = findTemplate("맥시멀 빈티지 아파트");
+    const template = findTemplate("소품 가득한 빈티지 아파트");
 
     const explanation = generateExplanation(scores, template);
 
@@ -60,7 +60,7 @@ describe("generateExplanation", () => {
       openness: 50,
       nature: 50,
     };
-    const template = findTemplate("오픈형 로프트 스튜디오");
+    const template = findTemplate("탁 트인 원룸");
 
     const explanation = generateExplanation(scores, template);
     const traitSentence = explanation.split("\n")[0];

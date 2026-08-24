@@ -109,14 +109,18 @@ export default function EnglishResultPage() {
               <span className="font-display text-[clamp(22px,2.4vw,34px)] tracking-[-0.01em]">{persona.name}</span>
               <span className="text-xs text-muted">MBTI type {mbtiType}</span>
             </div>
+            <p className="text-[14px] text-muted">{persona.description}</p>
           </div>
 
-          <div className="flex flex-wrap gap-[9px]">
-            {roomTags.map((tag) => (
-              <span key={tag} className="rounded-full border border-hair px-[18px] py-2.5 text-[13px] text-[#5f5f57]">
-                {tag}
-              </span>
-            ))}
+          <div className="flex flex-col gap-2.5">
+            <span className="label-mono text-[10px] text-faint">Spaces in this house</span>
+            <div className="flex flex-wrap gap-[9px]">
+              {roomTags.map((tag) => (
+                <span key={tag} className="rounded-full border border-hair px-[18px] py-2.5 text-[13px] text-[#5f5f57]">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-[22px]">

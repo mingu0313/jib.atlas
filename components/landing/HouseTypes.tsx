@@ -4,7 +4,7 @@ import houseTemplatesData from "@/data/house-templates.json";
 import type { HouseTemplate } from "@/lib/types";
 
 const houseTemplates = houseTemplatesData as HouseTemplate[];
-const TEMPLATE_COUNT = houseTemplates.length; // 22
+const TEMPLATE_COUNT = houseTemplates.length; // 30 (STEP 11-B에서 22 → 30으로 확장)
 
 function byId(id: string) {
   const t = houseTemplates.find((h) => h.id === id);
@@ -12,7 +12,7 @@ function byId(id: string) {
   return t;
 }
 
-/** 22개 템플릿 중 성향이 뚜렷하게 갈리는 4개를 대표로 뽑는다 — DESIGN-HANDOFF-V2.md
+/** 전체 템플릿 중 성향이 뚜렷하게 갈리는 4개를 대표로 뽑는다 — DESIGN-HANDOFF-V2.md
  * "집 유형 4칸"의 사진 4장(type-serene/open/precision/social)과 실제 결이 맞는 템플릿으로
  * 짝지었다. "영문명"은 실제 데이터에 없는 필드라, 지어낸 고유명 대신 무드를 요약하는
  * 짧은 영문 태그로 대체했다(진짜 유형명은 그 아래 한글로 그대로 보여준다). */

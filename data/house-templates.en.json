@@ -1928,5 +1928,705 @@
         "band": "low"
       }
     ]
+  },
+  {
+    "id": "t23",
+    "name": "Party House",
+    "scoreProfile": {
+      "sociability": 95,
+      "minimalism": 15,
+      "activity": 45,
+      "openness": 85,
+      "nature": 10
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 30,
+          "width": 180,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 110,
+          "y": 170,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 250,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 30,
+          "width": 80,
+          "height": 100
+        }
+      },
+      {
+        "type": "balcony",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 80,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "The living room and dining area flow together, spacious enough to invite a big crowd of friends.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "Keeping things tidy takes a back seat to having fun with people — a relaxed space you can mess up a little.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      },
+      {
+        "text": "Opens right onto the balcony, so the party naturally spills outside.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t24",
+    "name": "Quiet Meditation Retreat",
+    "scoreProfile": {
+      "sociability": 10,
+      "minimalism": 85,
+      "activity": 10,
+      "openness": 20,
+      "nature": 65
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 220,
+          "height": 160
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 70
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 110,
+          "width": 60,
+          "height": 80
+        }
+      },
+      {
+        "type": "garden",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 200,
+          "width": 120,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 200,
+          "width": 100,
+          "height": 80
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "No one to interrupt you — full, uninterrupted focus on your own time.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      },
+      {
+        "text": "A calm space with nothing but the essentials, nothing extra.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A small garden to look at and let your mind settle.",
+        "linkedTrait": "nature",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t25",
+    "name": "Private Workout Bunker",
+    "scoreProfile": {
+      "sociability": 15,
+      "minimalism": 70,
+      "activity": 92,
+      "openness": 20,
+      "nature": 10
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 170,
+          "width": 130,
+          "height": 100
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 230,
+          "y": 170,
+          "width": 90,
+          "height": 80
+        }
+      },
+      {
+        "type": "gym",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 160,
+          "height": 120
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 260,
+          "y": 30,
+          "width": 100,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A big home gym means you can work out as much as you want, every day.",
+        "linkedTrait": "activity",
+        "band": "high"
+      },
+      {
+        "text": "A clean space with nothing but exercise equipment in it.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A cozy, wall-divided layout that keeps you focused purely on training.",
+        "linkedTrait": "openness",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t26",
+    "name": "Maximalist Collector's Loft",
+    "scoreProfile": {
+      "sociability": 70,
+      "minimalism": 8,
+      "activity": 40,
+      "openness": 75,
+      "nature": 20
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 220,
+          "height": 160
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 70
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 110,
+          "width": 60,
+          "height": 80
+        }
+      },
+      {
+        "type": "storage",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 200,
+          "width": 120,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 220,
+          "y": 200,
+          "width": 100,
+          "height": 80
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A spacious room where you can fill every corner with your favorite things.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      },
+      {
+        "text": "High ceilings and few interior walls keep this open loft from ever feeling cramped.",
+        "linkedTrait": "openness",
+        "band": "high"
+      },
+      {
+        "text": "A wide living room, great for showing your collection off to guests.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t27",
+    "name": "Big Family Countryside House",
+    "scoreProfile": {
+      "sociability": 82,
+      "minimalism": 18,
+      "activity": 32,
+      "openness": 18,
+      "nature": 78
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 110,
+          "y": 30,
+          "width": 180,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 110,
+          "y": 170,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 250,
+          "y": 170,
+          "width": 110,
+          "height": 100
+        }
+      },
+      {
+        "type": "masterBedroom",
+        "size": "M",
+        "position": {
+          "x": 310,
+          "y": 30,
+          "width": 80,
+          "height": 100
+        }
+      },
+      {
+        "type": "kidsRoom",
+        "size": "M",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 80,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A living room and dining area generous enough for the whole extended family to gather.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "A relaxed space where kids' things and household stuff can all stay out in the open.",
+        "linkedTrait": "minimalism",
+        "band": "low"
+      },
+      {
+        "text": "Right up against the yard, so kids have room to run around.",
+        "linkedTrait": "nature",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t28",
+    "name": "Solo Minimal Training Loft",
+    "scoreProfile": {
+      "sociability": 12,
+      "minimalism": 80,
+      "activity": 85,
+      "openness": 72,
+      "nature": 15
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 80,
+          "width": 150,
+          "height": 130
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 250,
+          "y": 80,
+          "width": 90,
+          "height": 90
+        }
+      },
+      {
+        "type": "gym",
+        "size": "M",
+        "position": {
+          "x": 250,
+          "y": 180,
+          "width": 90,
+          "height": 90
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 90,
+          "y": 220,
+          "width": 70,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A space all your own, where you can focus purely on working out alone.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      },
+      {
+        "text": "A minimal home gym with nothing but your equipment, neatly kept.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A wide-open layout with fewer walls, so you have room to move and train freely.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
+  },
+  {
+    "id": "t29",
+    "name": "Simple Home Dining House",
+    "scoreProfile": {
+      "sociability": 75,
+      "minimalism": 78,
+      "activity": 18,
+      "openness": 32,
+      "nature": 12
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "L",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 220,
+          "height": 150
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 200,
+          "width": 130,
+          "height": 80
+        }
+      },
+      {
+        "type": "diningRoom",
+        "size": "M",
+        "position": {
+          "x": 330,
+          "y": 30,
+          "width": 60,
+          "height": 110
+        }
+      },
+      {
+        "type": "bathroom",
+        "size": "S",
+        "position": {
+          "x": 330,
+          "y": 150,
+          "width": 60,
+          "height": 60
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "A neatly kept dining room, great for hosting guests.",
+        "linkedTrait": "sociability",
+        "band": "high"
+      },
+      {
+        "text": "A simply arranged space with no unnecessary decoration.",
+        "linkedTrait": "minimalism",
+        "band": "high"
+      },
+      {
+        "text": "A moderately cozy, divided layout that keeps things comfortable.",
+        "linkedTrait": "openness",
+        "band": "low"
+      }
+    ]
+  },
+  {
+    "id": "t30",
+    "name": "Sunlit Quiet Sunroom House",
+    "scoreProfile": {
+      "sociability": 18,
+      "minimalism": 55,
+      "activity": 15,
+      "openness": 55,
+      "nature": 92
+    },
+    "rooms": [
+      {
+        "type": "entrance",
+        "size": "S",
+        "position": {
+          "x": 20,
+          "y": 230,
+          "width": 50,
+          "height": 50
+        }
+      },
+      {
+        "type": "livingRoom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 150,
+          "width": 140,
+          "height": 110
+        }
+      },
+      {
+        "type": "kitchen",
+        "size": "S",
+        "position": {
+          "x": 240,
+          "y": 150,
+          "width": 100,
+          "height": 80
+        }
+      },
+      {
+        "type": "bedroom",
+        "size": "M",
+        "position": {
+          "x": 90,
+          "y": 30,
+          "width": 120,
+          "height": 100
+        }
+      },
+      {
+        "type": "terrace",
+        "size": "L",
+        "position": {
+          "x": 230,
+          "y": 30,
+          "width": 150,
+          "height": 100
+        }
+      },
+      {
+        "type": "garden",
+        "size": "L",
+        "position": {
+          "x": 20,
+          "y": 30,
+          "width": 60,
+          "height": 170
+        }
+      }
+    ],
+    "features": [
+      {
+        "text": "Great for quietly tending to plants on your own.",
+        "linkedTrait": "sociability",
+        "band": "low"
+      },
+      {
+        "text": "A terrace and garden let you soak up sunlight and greenery all day long.",
+        "linkedTrait": "nature",
+        "band": "high"
+      },
+      {
+        "text": "An open layout flowing onto the terrace keeps it from feeling closed in.",
+        "linkedTrait": "openness",
+        "band": "high"
+      }
+    ]
   }
 ]

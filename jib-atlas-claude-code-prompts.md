@@ -402,6 +402,48 @@ Playwright 클릭 테스트를 해보면서 잡았다.
 
 ---
 
+## STEP 11-B. 집 유형·캐릭터 이름을 쉬운 말로 + 유형 8개 추가
+
+"코업 셰어하우스"·"오픈마인드 시티러버" 같은 이름이 처음 온 사람에게는
+무슨 소리인지 모르겠다는 피드백(친구 테스트). 실제로 안 쓰는 영단어
+조어를 걷어내고, 캐릭터 이름 아래 설명 한 줄과 방 태그 위에 캡션을
+붙였다. 집 유형도 22개 → 30개로 늘렸다.
+
+# 한 일
+1. `data/house-templates.json`의 `name` 22개 전부 재작성 — "코업
+   셰어하우스" → "친구와 함께 사는 셰어하우스", "제로웨이스트 에코
+   하우스" → "친환경을 실천하는 집" 등. id·scoreProfile·rooms·features는
+   그대로 둬서(정규식으로 name 필드만 치환) 매칭 결과는 안 바뀌고 표시
+   이름만 바뀐다.
+2. `lib/persona.ts`의 IDENTITY/MODIFIER 테이블 재작성 — "오픈마인드
+   시티러버" 같은 조어 대신 실제 쓰이는 말(인싸/아싸, 미니멀리스트/
+   맥시멀리스트)이나 "-파" 계열 순우리말 조합(활동파/모험파 등)으로.
+   `Persona.description` 필드를 추가해 trait-descriptions.json의 1순위
+   축 설명을 한 줄로 붙여줬다 — "왜 이 이름인지" 근거를 보여준다.
+3. `app/result/page.tsx` / `app/en/result/page.tsx`: 캐릭터 이름 밑에
+   `persona.description` 표시, 방 태그 위에 "이 집에 있는 공간" 캡션
+   추가.
+4. `data/house-templates.json`에 t23~t30 8개 신규 템플릿 추가(30개) —
+   기존 22개의 scoreProfile 공백을 메우는 조합으로 설계(파티 하우스,
+   명상하는 조용한 집, 홈트레이닝 벙커, 맥시멀 로프트, 대가족 시골집,
+   1인 미니멀 트레이닝 룸, 심플 홈다이닝, 온실집). room 좌표는 기존
+   검증된 템플릿(t1/t5/t6/t7/t9/t13/t18)의 레이아웃을 재사용해 겹침
+   위험을 없앴다. `data/house-templates.en.json`에도 동일 id·
+   scoreProfile·rooms로 영문 번역 추가(언어 무관 매칭 보장 유지).
+5. `TEMPLATE_COUNT`를 하드코딩(22)하던 곳(ShareCard.tsx, Hero.tsx,
+   app/en/page.tsx)을 전부 `houseTemplatesData.length` 기반으로 바꿔서,
+   앞으로 템플릿이 더 늘어도 숫자를 따로 안 맞춰도 된다.
+6. `lib/matching.test.ts` / `lib/explain.test.ts`가 이름 바뀐 템플릿을
+   문자열로 참조하고 있어서 새 이름으로 갱신.
+
+검증: 30개 템플릿 전부 자기 자신의 scoreProfile을 넣으면 자기 자신이
+1순위(100%)로 나오는지 스크립트로 확인(신규 템플릿이 기존 템플릿과
+헷갈리지 않는지). Playwright로 실제 결과 페이지 스크린샷 확인 — 캐릭터
+설명·방 캡션이 자연스럽게 보임. npx tsc --noEmit / npx vitest
+run(11 passed) / eslint 통과.
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.

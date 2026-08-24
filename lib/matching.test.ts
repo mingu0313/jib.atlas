@@ -27,23 +27,23 @@ describe("matchHouseTemplate", () => {
     const user: AxisScores = { ...neutral, activity: 100 };
     const matches = matchHouseTemplate(user);
 
-    expect(matches[0].template.name).toBe("홈짐 액티브 하우스");
+    expect(matches[0].template.name).toBe("운동하기 좋은 집");
     // 2순위도 활동성이 높은 또 다른 템플릿이어야 한다.
-    expect(matches[1].template.name).toBe("액티브 라이프 듀플렉스");
+    expect(matches[1].template.name).toBe("위아래로 나뉜 복층집");
   });
 
   it("사교성만 극단적으로 높으면 사교성 특화 템플릿이 1순위로 나온다", () => {
     const user: AxisScores = { ...neutral, sociability: 100 };
     const matches = matchHouseTemplate(user);
 
-    expect(matches[0].template.name).toBe("대가족형 커뮤널 하우스");
+    expect(matches[0].template.name).toBe("온 가족이 함께 사는 집");
   });
 
   it("미니멀만 극단적으로 높으면 미니멀 특화 템플릿이 1순위로 나온다", () => {
     const user: AxisScores = { ...neutral, minimalism: 100 };
     const matches = matchHouseTemplate(user);
 
-    expect(matches[0].template.name).toBe("스마트 미니멀 원룸");
+    expect(matches[0].template.name).toBe("깔끔하고 실용적인 원룸");
     expect(matches[0].template.scoreProfile.minimalism).toBeGreaterThanOrEqual(85);
   });
 
@@ -56,7 +56,7 @@ describe("matchHouseTemplate", () => {
       nature: 50,
     });
 
-    expect(matches[0].template.name).toBe("대가족형 커뮤널 하우스");
+    expect(matches[0].template.name).toBe("온 가족이 함께 사는 집");
     expect(matches[0].similarity).toBe(100);
   });
 });

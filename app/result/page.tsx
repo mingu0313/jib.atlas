@@ -114,14 +114,18 @@ export default function ResultPage() {
               <span className="font-kr text-[clamp(24px,2.6vw,38px)] tracking-[-0.02em]">{persona.name}</span>
               <span className="text-xs text-muted">MBTI 성향 {mbtiType}</span>
             </div>
+            <p className="text-[14px] text-muted">{persona.description}</p>
           </div>
 
-          <div className="flex flex-wrap gap-[9px]">
-            {roomTags.map((tag) => (
-              <span key={tag} className="rounded-full border border-hair px-[18px] py-2.5 text-[13px] text-[#5f5f57]">
-                {tag}
-              </span>
-            ))}
+          <div className="flex flex-col gap-2.5">
+            <span className="label-mono text-[10px] text-faint">이 집에 있는 공간</span>
+            <div className="flex flex-wrap gap-[9px]">
+              {roomTags.map((tag) => (
+                <span key={tag} className="rounded-full border border-hair px-[18px] py-2.5 text-[13px] text-[#5f5f57]">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center gap-[22px]">

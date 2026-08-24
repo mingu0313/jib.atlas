@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
+import houseTemplatesEnData from "@/data/house-templates.en.json";
 import { HeroEditorWindow } from "@/components/landing/HeroEditorWindow";
 import { FloatingNav } from "@/components/landing/FloatingNav";
 import { Footer } from "@/components/landing/Footer";
 
 const QUESTION_COUNT = 23;
+const TEMPLATE_COUNT = houseTemplatesEnData.length;
 
 const STEPS = [
   { n: "01", text: "Answer 23 quick questions about how you actually want to live." },
-  { n: "02", text: "Get matched to one of 22 house structures, scored across 5 axes." },
+  { n: "02", text: `Get matched to one of ${houseTemplatesEnData.length} house structures, scored across 5 axes.` },
   { n: "03", text: "Decorate the matched room yourself in a 2D isometric editor." },
 ];
 
@@ -39,8 +41,8 @@ export default function EnglishHome() {
         </h1>
         <div className="mt-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <p className="max-w-[420px] text-[15px] leading-[1.75] text-muted">
-            Five axes read your taste, and guide you to one of 22 house structures. Then it&rsquo;s
-            time to make it your own.
+            Five axes read your taste, and guide you to one of {TEMPLATE_COUNT} house structures.
+            Then it&rsquo;s time to make it your own.
           </p>
           <span className="label-mono text-[10px] text-muted">
             {QUESTION_COUNT} questions · 5 min · No sign-up needed

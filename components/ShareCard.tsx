@@ -1,8 +1,11 @@
+import houseTemplatesData from "@/data/house-templates.json";
 import { DEFAULT_PLACED_DEFS } from "@/lib/editorStore";
 import { buildIsoBoxes, TILES, WALL_COL0, WALL_ROW0 } from "@/lib/iso";
 import { AXES, AXIS_LABELS, type AxisScores } from "@/lib/types";
 
-const TEMPLATE_COUNT = 22;
+/** 템플릿 총 개수를 하드코딩하지 않고 실제 데이터 길이로 — 새 유형이
+ * 추가돼도(STEP 11-B) 여기 숫자를 따로 안 맞춰줘도 된다. */
+const TEMPLATE_COUNT = houseTemplatesData.length;
 
 const BOXES = buildIsoBoxes(DEFAULT_PLACED_DEFS.map((d) => ({ key: `${d.defId}-${d.col}-${d.row}`, ...d })));
 
