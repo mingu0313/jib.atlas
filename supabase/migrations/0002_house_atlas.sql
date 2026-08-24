@@ -50,35 +50,51 @@ alter table public.house_likes enable row level security;
 alter table public.house_comments enable row level security;
 
 -- 갤러리라 읽기는 로그인 여부와 무관하게 전부 공개.
+-- 아래 모든 create policy는 (재실행해도 안전하도록) 먼저 drop policy if exists로
+-- 지우고 다시 만든다 — SQL Editor가 "Backend error"로 중간에 끊긴 뒤 재실행해도
+-- "policy already exists" 에러 없이 그대로 다시 돌릴 수 있다.
+drop policy if exists "house_posts public read" on public.house_posts;
 create policy "house_posts public read" on public.house_posts for select using (true);
+drop policy if exists "house_photos public read" on public.house_photos;
 create policy "house_photos public read" on public.house_photos for select using (true);
+drop policy if exists "house_likes public read" on public.house_likes;
 create policy "house_likes public read" on public.house_likes for select using (true);
+drop policy if exists "house_comments public read" on public.house_comments;
 create policy "house_comments public read" on public.house_comments for select using (true);
 
+drop policy if exists "house_posts own insert" on public.house_posts;
 create policy "house_posts own insert" on public.house_posts
   for insert with check (auth.uid() = user_id);
+drop policy if exists "house_posts own update" on public.house_posts;
 create policy "house_posts own update" on public.house_posts
   for update using (auth.uid() = user_id) with check (auth.uid() = user_id);
+drop policy if exists "house_posts own delete" on public.house_posts;
 create policy "house_posts own delete" on public.house_posts
   for delete using (auth.uid() = user_id);
 
 -- house_photos는 자체 user_id가 없어서, 속한 post의 주인인지로 판단한다.
+drop policy if exists "house_photos own insert" on public.house_photos;
 create policy "house_photos own insert" on public.house_photos
   for insert with check (
     exists (select 1 from public.house_posts p where p.id = post_id and p.user_id = auth.uid())
   );
+drop policy if exists "house_photos own delete" on public.house_photos;
 create policy "house_photos own delete" on public.house_photos
   for delete using (
     exists (select 1 from public.house_posts p where p.id = post_id and p.user_id = auth.uid())
   );
 
+drop policy if exists "house_likes own insert" on public.house_likes;
 create policy "house_likes own insert" on public.house_likes
   for insert with check (auth.uid() = user_id);
+drop policy if exists "house_likes own delete" on public.house_likes;
 create policy "house_likes own delete" on public.house_likes
   for delete using (auth.uid() = user_id);
 
+drop policy if exists "house_comments own insert" on public.house_comments;
 create policy "house_comments own insert" on public.house_comments
   for insert with check (auth.uid() = user_id);
+drop policy if exists "house_comments own delete" on public.house_comments;
 create policy "house_comments own delete" on public.house_comments
   for delete using (auth.uid() = user_id);
 
@@ -127,15 +143,18 @@ insert into storage.buckets (id, name, public)
 values ('house-photos', 'house-photos', true)
 on conflict (id) do nothing;
 
+drop policy if exists "house-photos public read" on storage.objects;
 create policy "house-photos public read" on storage.objects
   for select using (bucket_id = 'house-photos');
 
+drop policy if exists "house-photos own insert" on storage.objects;
 create policy "house-photos own insert" on storage.objects
   for insert with check (
     bucket_id = 'house-photos'
     and (storage.foldername(name))[1] = auth.uid()::text
   );
 
+drop policy if exists "house-photos own delete" on storage.objects;
 create policy "house-photos own delete" on storage.objects
   for delete using (
     bucket_id = 'house-photos'
