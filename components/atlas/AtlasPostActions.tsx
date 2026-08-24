@@ -36,6 +36,7 @@ export function AtlasPostActions({
   const [commentBody, setCommentBody] = useState("");
   const [commentPending, setCommentPending] = useState(false);
   const [deletingCommentIds, setDeletingCommentIds] = useState<Set<string>>(new Set());
+  const [confirmingCommentId, setConfirmingCommentId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   function requireLogin() {
@@ -111,6 +112,7 @@ export function AtlasPostActions({
       next.delete(commentId);
       return next;
     });
+    setConfirmingCommentId((current) => (current === commentId ? null : current));
   }
 
   return (
@@ -168,16 +170,37 @@ export function AtlasPostActions({
                         })}
                       </span>
                     </div>
-                    {canDelete && (
-                      <button
-                        type="button"
-                        onClick={() => deleteComment(comment.id)}
-                        disabled={deletingCommentIds.has(comment.id)}
-                        className="text-[11px] text-faint underline underline-offset-2 transition hover:text-fg disabled:opacity-50"
-                      >
-                        삭제
-                      </button>
-                    )}
+                    {canDelete &&
+                      (confirmingCommentId === comment.id ? (
+                        <div className="flex items-center gap-2 text-[11px]">
+                          <span className="text-faint">정말 삭제하시겠습니까?</span>
+                          <button
+                            type="button"
+                            onClick={() => deleteComment(comment.id)}
+                            disabled={deletingCommentIds.has(comment.id)}
+                            className="font-semibold transition disabled:opacity-50"
+                            style={{ color: "#a3402a" }}
+                          >
+                            {deletingCommentIds.has(comment.id) ? "삭제 중…" : "삭제"}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setConfirmingCommentId(null)}
+                            disabled={deletingCommentIds.has(comment.id)}
+                            className="text-faint underline underline-offset-2"
+                          >
+                            취소
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setConfirmingCommentId(comment.id)}
+                          className="text-[11px] text-faint underline underline-offset-2 transition hover:text-fg"
+                        >
+                          삭제
+                        </button>
+                      ))}
                   </div>
                   <p className="text-[14px] whitespace-pre-wrap text-fg">{comment.body}</p>
                 </li>

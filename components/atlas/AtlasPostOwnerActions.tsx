@@ -67,7 +67,7 @@ export function AtlasPostOwnerActions({
         </button>
       ) : (
         <div className="flex items-center gap-3 text-[12px]">
-          <span className="text-muted">정말 삭제할까요? 되돌릴 수 없어요.</span>
+          <span className="text-muted">정말 삭제하시겠습니까? 되돌릴 수 없어요.</span>
           <button
             type="button"
             onClick={handleDelete}
