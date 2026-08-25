@@ -629,6 +629,43 @@ data/furniture-catalog.json의 9개 가구 각각을, box 하나가 아니라 �
 스크린샷으로 보여줘.
 ```
 
+# 구현 결과
+
+프롬프트가 제안한 `EditorScene3D.tsx` 안 함수 대신 `components/
+furniture3d.tsx`를 새로 뺐다 — 9종 모양 함수 다 넣으면 EditorScene3D가
+너무 커져서 씬 구성(카메라·조명·바닥·벽)과 가구 모양(순수 기하) 관심사를
+나눴다.
+
+한 일:
+1. `components/furniture3d.tsx`(신규): `SofaShape`(소파/라운지 공용 —
+   좌석+등받이+팔걸이 2개+다리 4개), `TableShape`(다이닝 테이블/책상
+   공용 — 얇은 상판+원기둥 다리 4개), `CounterShape`(카운터/바 공용 —
+   몸체+선반 분할선+오버행 상판), `WardrobeShape`(몸체+문 세로 분할선+
+   손잡이 2개), `PlantShape`(원뿔대 화분+구 4개 겹친 잎 뭉치),
+   `BedShape`(RoundedBox 매트리스+헤드보드+다리 4개). `FurnitureShape`가
+   `def.id`로 이 중 맞는 걸 고르고, 모르는 id면(카탈로그에 새 가구가
+   추가됐는데 모양이 아직 없을 때) 조용히 기존 단순 박스로 떨어진다.
+2. 회전 처리: 각 Shape는 **항상 회전 안 된 원래 방향**(로컬 +X=폭,
+   +Z=깊이) 기준으로만 그린다 — 처음엔 회전 시 내부 부품(등받이 위치
+   등)을 다시 계산할까 하다가, 그냥 EditorScene3D.tsx의 PlacedItem이
+   가구 전체를 담은 group을 Y축으로 90도 통째로 돌리는 쪽으로 갔다.
+   등받이·헤드보드 같은 방향 있는 부분도 따로 처리할 필요가 없어지고,
+   회전된 가구의 월드 중심 좌표만 canPlace와 똑같은 방식(w/d 맞바꿔서)
+   으로 계산하면 끝난다. (이 김에 STEP 13에서 놓쳤던 버그도 같이
+   고쳤다 — PlacedItem이 item.rotated를 아예 반영 안 해서, 회전된
+   기본 배치 가구가 실제 점유 칸과 다른 크기로 그려지고 있었다.)
+3. `app/editor/page.tsx`는 무변경 — "회전" 버튼·팔레트·선택 로직은
+   STEP 13에서 이미 다 됐다.
+
+검증: 화면에 소파+라운지 체어만 놓고 확대 스크린샷 — 등받이·팔걸이
+2개가 뚜렷해서 소파 vs 1인 체어 구분이 실루엣만으로 됨. 다른 조합(옷장·
+화분·테이블류)도 스크린샷으로 확인 — 각각 몸체+문 선, 화분+잎 뭉치,
+상판+다리로 구분됨. `npx tsc --noEmit` / `npx vitest run`(11 passed) /
+eslint / `npm run build` / `npm run pages:build`(Cloudflare) 전부 통과.
+STEP 12/13에서 검증한 배치·제거·하이라이트 인터랙션은 PlacedItem의
+렌더링 부분만 바꿨을 뿐 클릭 핸들러 구조(부모 group에 onClick 유지, 자식
+메시에서 이벤트 버블링)는 그대로라 안 깨짐.
+
 ---
 
 ## 사용 팁

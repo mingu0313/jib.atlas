@@ -3,6 +3,7 @@
 import { Html, OrbitControls } from "@react-three/drei";
 import { Canvas, type ThreeEvent } from "@react-three/fiber";
 import { Suspense, useMemo, useState } from "react";
+import { FurnitureShape } from "@/components/furniture3d";
 import { HEIGHT_SCALE, ROOM_H, TILE_M } from "@/lib/editor3d";
 import { canPlace, useEditorStore } from "@/lib/editorStore";
 import { buildRoomLayout, type RoomTileRect } from "@/lib/roomLayout3d";
@@ -136,34 +137,36 @@ function FurnitureLabel({ text }: { text: string }) {
 function PlacedItem({ item, def }: { item: PlacedFurniture; def: IsoFurnitureDef }) {
   const removeItem = useEditorStore((s) => s.removeItem);
   const [hovered, setHovered] = useState(false);
+  const rotated = !!item.rotated;
 
+  // FurnitureShape는 항상 "회전 안 된" def.w/def.d 기준(로컬 +X=폭,
+  // +Z=깊이)으로 그린다 — 실제 90도 회전은 도형을 다시 계산하지 않고 이
+  // group을 통째로 Y축으로 돌려서 처리한다(등받이·헤드보드 같은 방향 있는
+  // 부분도 같이 돌아가게). 그래서 바닥 위 월드 중심 좌표만 회전 여부에
+  // 따라 폭/깊이를 맞바꿔 계산하면 된다 — canPlace가 쓰는 footprint와 동일.
   const width = def.w * TILE_M;
   const depth = def.d * TILE_M;
   const height = def.h * HEIGHT_SCALE;
-  const x = (item.col + def.w / 2) * TILE_M;
-  const z = (item.row + def.d / 2) * TILE_M;
+  const x = (item.col + (rotated ? def.d : def.w) / 2) * TILE_M;
+  const z = (item.row + (rotated ? def.w : def.d) / 2) * TILE_M;
 
   return (
-    <group>
-      <mesh
-        position={[x, height / 2, z]}
-        castShadow
-        receiveShadow
-        onClick={(e: ThreeEvent<MouseEvent>) => {
-          e.stopPropagation();
-          removeItem(item.id);
-        }}
-        onPointerOver={(e: ThreeEvent<PointerEvent>) => {
-          e.stopPropagation();
-          setHovered(true);
-        }}
-        onPointerOut={() => setHovered(false)}
-      >
-        <boxGeometry args={[width * 0.94, height, depth * 0.94]} />
-        <meshStandardMaterial color={def.top} roughness={0.8} metalness={0.06} />
-      </mesh>
+    <group
+      position={[x, 0, z]}
+      rotation={[0, rotated ? Math.PI / 2 : 0, 0]}
+      onClick={(e: ThreeEvent<MouseEvent>) => {
+        e.stopPropagation();
+        removeItem(item.id);
+      }}
+      onPointerOver={(e: ThreeEvent<PointerEvent>) => {
+        e.stopPropagation();
+        setHovered(true);
+      }}
+      onPointerOut={() => setHovered(false)}
+    >
+      <FurnitureShape def={def} width={width} depth={depth} height={height} />
       {hovered && (
-        <group position={[x, height, z]}>
+        <group position={[0, height, 0]}>
           <FurnitureLabel text={`${def.en} · ${def.label}`} />
         </group>
       )}
