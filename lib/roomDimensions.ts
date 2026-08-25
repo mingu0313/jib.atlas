@@ -131,3 +131,52 @@ export function buildPolygon(shape: RoomShapeId, dims: Record<string, number>): 
     { x: 0, z: mainDepth },
   ];
 }
+
+export interface DraggableEdge {
+  /** getWallSegments(polygon)의 인덱스 — i번째 점 → i+1번째 점. */
+  edgeIndex: number;
+  /** 이 변을 드래그할 때 반응하는 좌표축(포인터의 x 또는 z를 읽는다). */
+  axis: "x" | "z";
+  fieldId: string;
+  /** 포인터의 axis 좌표(cm) → 실제로 setDimension에 넘길 새 값. 대부분
+   * 그대로 통과하지만(direct), L자형 notchWidth처럼 원점 안 닿는 변이
+   * 없는 필드는 다른 필드(mainWidth)에서 역산해야 한다. */
+  toFieldValue: (pointerCoord: number) => number;
+}
+
+/**
+ * 평면도에서 "변을 직접 드래그해서 치수 바꾸기"(STEP 12 후속)에 쓰는
+ * 변→필드 매핑. buildPolygon이 항상 원점(0,0)에 폴리곤을 고정해서 그리는
+ * 관례 덕분에, 원점에 안 닿는 변은 "그 변이 놓인 좌표 = 그 필드의 cm
+ * 값" 그대로다(direct). 예: 직사각형 오른쪽 변은 항상 x=width에 있으니,
+ * 그 변을 x=420으로 드래그하면 곧 width=420이 된다.
+ *
+ * 원점에 닿는 두 변(각 도형의 첫 점 p0과 이어지는 변 2개)은 이 트릭이
+ * 안 통해서(그 변을 옮기면 원점 자체가 움직여야 함) 드래그 대상에서
+ * 뺐다 — 정사각형/직사각형은 4변 중 2변, L자형은 6변 중 2변이 빠지고
+ * 나머지가 각자 정확히 필드 하나씩을 담당한다. 단, L자형의 notchWidth는
+ * 원점에 안 닿는 변(e1, x=mainWidth-notchWidth) 중에도 "그 변의 위치 =
+ * notchWidth"인 변이 없어서(위치가 mainWidth와 notchWidth의 차라서)
+ * mainWidth - pointer.x로 역산한다(derived).
+ */
+export function getDraggableEdges(shape: RoomShapeId, dims: Record<string, number>): DraggableEdge[] {
+  if (shape === "square") {
+    return [
+      { edgeIndex: 1, axis: "x", fieldId: "side", toFieldValue: (v) => v },
+      { edgeIndex: 2, axis: "z", fieldId: "side", toFieldValue: (v) => v },
+    ];
+  }
+  if (shape === "rectangle") {
+    return [
+      { edgeIndex: 1, axis: "x", fieldId: "width", toFieldValue: (v) => v },
+      { edgeIndex: 2, axis: "z", fieldId: "depth", toFieldValue: (v) => v },
+    ];
+  }
+  const mainWidth = dims.mainWidth ?? MIN_DIMENSION_CM;
+  return [
+    { edgeIndex: 1, axis: "x", fieldId: "notchWidth", toFieldValue: (v) => mainWidth - v },
+    { edgeIndex: 2, axis: "z", fieldId: "notchDepth", toFieldValue: (v) => v },
+    { edgeIndex: 3, axis: "x", fieldId: "mainWidth", toFieldValue: (v) => v },
+    { edgeIndex: 4, axis: "z", fieldId: "mainDepth", toFieldValue: (v) => v },
+  ];
+}

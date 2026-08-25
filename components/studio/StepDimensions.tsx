@@ -1,7 +1,7 @@
 "use client";
 
 import { DimensionInput } from "@/components/studio/DimensionInput";
-import { RoomPolygonPreview } from "@/components/studio/RoomPolygonPreview";
+import { RoomDimensionCanvas } from "@/components/studio/RoomDimensionCanvas";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { getDimensionFields, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "@/lib/roomDimensions";
 
@@ -34,7 +34,8 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
           치수를 정해보세요<span className="heading-dot">.</span>
         </h1>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          숫자를 바꾸면 아래 미리보기가 바로 따라와요. 150cm~1500cm 사이에서만 조정돼요.
+          숫자를 직접 입력해도 되고, 아래 평면도의 벽을 드래그해서 바꿔도 돼요. 150cm~1500cm 사이에서만
+          조정돼요.
         </p>
       </div>
 
@@ -82,8 +83,8 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
       </div>
 
       <div className="flex flex-col gap-4 rounded-[28px] bg-panel px-6 py-10 sm:px-10">
-        <span className="label-mono text-[10px] text-faint">Preview</span>
-        <RoomPolygonPreview polygon={roomPolygon} className="mx-auto h-[280px] w-full max-w-[440px]" strokeWidth={3} />
+        <span className="label-mono text-[10px] text-faint">Preview — 테두리를 드래그해서 치수를 바꿀 수 있어요</span>
+        <RoomDimensionCanvas className="mx-auto h-[320px] w-full max-w-[480px]" />
       </div>
 
       <div className="flex items-center justify-between">
