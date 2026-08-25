@@ -15,7 +15,7 @@ const RESEND_COOLDOWN_SECONDS = 30;
 export function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/editor";
+  const next = searchParams.get("next") ?? "/studio";
 
   // /auth/confirm, /auth/callback이 실패하면 /login?error=...로 되돌려보낸다.
   // 예전엔 이 파라미터를 아예 안 읽어서 로그인 화면에 그냥 멈춰있는 것처럼

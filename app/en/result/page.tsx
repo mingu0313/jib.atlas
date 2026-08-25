@@ -125,7 +125,7 @@ export default function EnglishResultPage() {
 
           <div className="flex flex-wrap items-center gap-[22px]">
             <Link
-              href="/editor"
+              href="/studio"
               className="rounded-full bg-olive px-[42px] py-5 text-[15px] font-semibold text-cream transition hover:bg-fg"
             >
               Decorate this room
@@ -239,12 +239,11 @@ export default function EnglishResultPage() {
               interior
             </h2>
             <p className="max-w-[420px] text-[13px] leading-[1.8] text-cream/75">
-              Starting from the {topMatch.template.name} structure, pick furniture from the palette
-              and place it on the grid to make the space your own. Your layout is saved to your
-              account automatically.
+              Starting from a shape, wall color, and floor matched to your {topMatch.template.name} profile, set
+              the real dimensions, add doors and windows, and see an estimated budget right away.
             </p>
             <Link
-              href="/editor"
+              href="/studio"
               className="w-fit rounded-full bg-sage px-[34px] py-4 text-[13px] font-semibold text-sage-ink transition hover:bg-cream"
             >
               Decorate it now

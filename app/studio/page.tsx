@@ -1,30 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StepBudget } from "@/components/studio/StepBudget";
 import { StepDimensions } from "@/components/studio/StepDimensions";
 import { StepFinish } from "@/components/studio/StepFinish";
 import { StepShape } from "@/components/studio/StepShape";
+import { calculateScores } from "@/lib/scoring";
+import { matchHouseTemplate } from "@/lib/matching";
+import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
+import { getStudioDefaults } from "@/lib/studioDefaults";
+import { useTestStore } from "@/lib/store";
+import type { Answer } from "@/lib/types";
 
 /**
- * `/studio` — 진단과 무관한 독립 룸빌더 진입 경로(STEP 15). IKEA 홈디자인
- * 플래너를 참고한 4단계 위저드로 간다: ① 모양·크기 → ② 치수 → ③ 문/창문·
- * 마감재 → ④ 예산(STEP 14까지 전부 구현).
+ * `/studio` — 이 서비스의 유일한 룸빌더(인테리어 견적 스튜디오)다. IKEA
+ * 홈디자인 플래너를 참고한 4단계 위저드: ① 모양·크기 → ② 치수 → ③ 문/창문·
+ * 마감재 → ④ 예산(STEP 11~14).
  *
- * 기존 `/editor`(진단 매칭 → 고정 격자 3D 방, lib/editorStore.ts)는 그대로
- * 두고 완전히 별도로 만든 새 store(lib/roomBuilderStore.ts)를 쓴다 — 집
- * 아틀라스 공유(house_posts.room_items)가 기존 격자 구조에 의존하고 있어서,
- * 이 정밀 빌더가 그 위에 얹히면 안 된다.
+ * 진단(/test → /result)을 마치고 왔든, 랜딩에서 "진단 없이 바로 꾸며보기"로
+ * 곧장 왔든 같은 페이지를 쓴다 — 마운트 시 useTestStore에 완료된 진단
+ * 답변이 있으면(그리고 아직 매칭 기준을 적용/초기화한 적 없으면) 자동으로
+ * 매칭 타입에 맞는 모양·벽색·바닥 기본값을 한 번 적용한다(아래
+ * useEffect). 없으면 중립 기본값(직사각형·웜화이트·원목)으로 시작한다.
+ *
+ * 예전엔 진단 결과가 이 폴리곤 빌더 대신 격자+박스가구 방식인 `/editor`로
+ * 갔었다 — 이제 `/result`·`/en/result`·랜딩·로그인/비번재설정 후 리다이렉트
+ * 전부 여기로 통일했다. `/editor` 코드 자체(및 그 위의 "지도에 공유하기"
+ * 기능)는 아직 지우지 않았다 — 이 스튜디오엔 아직 가구 배치가 없어서,
+ * 가구 예산·배치까지 옮겨오기 전까진 `/atlas`의 "방 꾸미고 공유하기"만
+ * 당분간 거기 남겨뒀다(app/atlas/page.tsx).
  *
  * 단계 이동은 이 페이지 안의 로컬 state(activeStep)로만 관리한다 — 아직
- * URL로 딥링크할 필요(예: 새로고침 후에도 2단계 유지)가 없어서 쿼리
- * 파라미터 동기화는 안 넣었다. 필요해지면 그때 추가.
+ * URL로 딥링크할 필요가 없어서 쿼리 파라미터 동기화는 안 넣었다.
  *
- * 상단바는 랜딩의 FloatingNav 대신 /editor와 같은 자체 툴바 패턴을 쓴다 —
- * FloatingNav는 실제로 `/`·`/en` 랜딩 두 곳에서만 쓰이고, 도구성 페이지는
- * 각자 로고+단계 라벨+뒤로가기로 된 얇은 바를 쓰는 게 이 저장소 관례다.
+ * 상단바는 랜딩의 FloatingNav 대신 각자 로고+단계 라벨+뒤로가기로 된
+ * 얇은 툴바를 쓰는 이 저장소 관례를 따른다.
  */
+
+const TOTAL_QUESTION_COUNT = 23; // 라이프스타일 15 + MBTI 8 — lib/store.ts 진단 완료 기준과 동일
 
 const STEPS = [
   { id: "shape", label: "모양·크기" },
@@ -35,6 +49,29 @@ const STEPS = [
 
 export default function StudioPage() {
   const [activeStep, setActiveStep] = useState(1); // 1-indexed, STEPS 배열과 맞춤
+  const [autoApplyDismissed, setAutoApplyDismissed] = useState(false);
+
+  const answers = useTestStore((s) => s.answers);
+  const matchedTemplate = useRoomBuilderStore((s) => s.matchedTemplate);
+  const applyTemplateDefaults = useRoomBuilderStore((s) => s.applyTemplateDefaults);
+  const clearMatchedTemplate = useRoomBuilderStore((s) => s.clearMatchedTemplate);
+
+  useEffect(() => {
+    // 이미 적용됐거나(matchedTemplate) "처음부터 다시 시작"으로 유저가
+    // 직접 걷어냈으면(autoApplyDismissed) 다시 덮어쓰지 않는다.
+    if (matchedTemplate || autoApplyDismissed) return;
+    if (Object.keys(answers).length < TOTAL_QUESTION_COUNT) return; // 진단 미완료 — 중립 기본값 유지
+    const answerList: Answer[] = Object.entries(answers).map(([questionId, value]) => ({ questionId, value }));
+    const { axisScores } = calculateScores(answerList);
+    const [topMatch] = matchHouseTemplate(axisScores);
+    const defaults = getStudioDefaults(topMatch.template);
+    applyTemplateDefaults(
+      { id: topMatch.template.id, name: topMatch.template.name },
+      defaults.roomShape,
+      defaults.wallColorHex,
+      defaults.floorStyleId,
+    );
+  }, [answers, matchedTemplate, autoApplyDismissed, applyTemplateDefaults]);
 
   return (
     <main className="flex min-h-screen flex-col bg-bg text-fg">
@@ -46,7 +83,7 @@ export default function StudioPage() {
           </Link>
           <span className="h-[18px] w-px bg-hair" />
           <span className="label-mono text-[10px] text-olive-mid">
-            Room Studio — {activeStep}. {STEPS[activeStep - 1].label}
+            Interior Studio — {activeStep}. {STEPS[activeStep - 1].label}
           </span>
         </div>
         <Link
@@ -86,6 +123,26 @@ export default function StudioPage() {
             );
           })}
         </ol>
+
+        {/* 진단 매칭 기준으로 시작했을 때만 — 언제든 중립 기본값으로 되돌릴 수 있게. */}
+        {matchedTemplate && (
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-full bg-sage px-5 py-3 text-[12px] text-sage-ink">
+            <span>
+              <strong className="font-semibold">{matchedTemplate.name}</strong> 매칭 결과를 기준으로 시작했어요 —
+              자유롭게 바꿔도 괜찮아요.
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                clearMatchedTemplate();
+                setAutoApplyDismissed(true);
+              }}
+              className="shrink-0 underline underline-offset-2 hover:no-underline"
+            >
+              처음부터 다시 시작
+            </button>
+          </div>
+        )}
 
         {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
         {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}

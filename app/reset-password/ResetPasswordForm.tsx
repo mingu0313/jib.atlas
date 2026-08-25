@@ -36,7 +36,7 @@ export function ResetPasswordForm() {
       }
       setDone(true);
       setTimeout(() => {
-        router.push("/editor");
+        router.push("/studio");
         router.refresh();
       }, 1200);
     } catch (err) {

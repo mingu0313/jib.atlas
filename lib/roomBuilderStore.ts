@@ -146,6 +146,20 @@ interface RoomBuilderState {
   /** 바닥 스타일 프리셋 id. */
   floorStyleId: string;
   setFloorStyle: (id: string) => void;
+
+  /** 진단으로 매칭된 하우스 타입(있으면) — /result에서 넘어왔을 때만
+   * 채워진다. null이면 `/studio`를 진단 없이 바로 시작한 것(STEP 15). */
+  matchedTemplate: { id: string; name: string } | null;
+  /** 매칭 결과 기준 기본값(lib/studioDefaults.ts가 계산)을 한 번에 적용 —
+   * 모양·색·바닥을 개별로 여러 번 set 호출하지 않고 한 트랜잭션으로. */
+  applyTemplateDefaults: (
+    template: { id: string; name: string },
+    roomShape: RoomShapeId,
+    wallColorHex: string,
+    floorStyleId: string,
+  ) => void;
+  /** "처음부터 다시 시작" — 매칭 기준을 버리고 완전 중립 기본값으로. */
+  clearMatchedTemplate: () => void;
 }
 
 export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
@@ -217,4 +231,22 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   setWallColor: (hex) => set({ wallColorHex: hex }),
   floorStyleId: DEFAULT_FLOOR_STYLE_ID,
   setFloorStyle: (id) => set({ floorStyleId: id }),
+
+  matchedTemplate: null,
+  applyTemplateDefaults: (template, roomShape, wallColorHex, floorStyleId) =>
+    set({
+      matchedTemplate: template,
+      roomShape,
+      roomPolygon: presetById(roomShape).defaultPolygon,
+      wallColorHex,
+      floorStyleId,
+    }),
+  clearMatchedTemplate: () =>
+    set({
+      matchedTemplate: null,
+      roomShape: "rectangle",
+      roomPolygon: presetById("rectangle").defaultPolygon,
+      wallColorHex: DEFAULT_WALL_COLOR_HEX,
+      floorStyleId: DEFAULT_FLOOR_STYLE_ID,
+    }),
 }));

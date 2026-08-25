@@ -14,7 +14,7 @@ const TEXT: Record<Locale, Record<string, string>> = {
   ko: {
     diagnosis: "진단",
     houseTypes: "집 유형",
-    editor: "룸 에디터",
+    editor: "인테리어 스튜디오",
     atlas: "집 지도",
     share: "공유 카드",
     collab: "협업 문의",
@@ -28,7 +28,7 @@ const TEXT: Record<Locale, Record<string, string>> = {
   en: {
     diagnosis: "Quiz",
     houseTypes: "House Types",
-    editor: "Room Editor",
+    editor: "Interior Studio",
     atlas: "House Atlas",
     share: "Share Card",
     collab: "Contact",
@@ -105,7 +105,7 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
             {t.houseTypes}
           </Link>
         )}
-        <Link href="/editor" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+        <Link href="/studio" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           {t.editor}
         </Link>
         <Link href="/atlas" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
