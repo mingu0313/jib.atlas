@@ -444,6 +444,138 @@ run(11 passed) / eslint 통과.
 
 ---
 
+## STEP 12. 룸 에디터 3D 전환 — three.js 실시간 렌더링
+
+"3D로 만들어야 사람들이 정말 사용할 거 같다"는 요청으로, SVG
+아이소메트릭 캔버스(EditorCanvas)를 react-three-fiber 기반 실제 3D
+씬(EditorScene3D)으로 교체했다.
+
+# 한 일
+1. 의존성 추가: `three`, `@react-three/fiber`, `@react-three/drei`.
+2. `lib/editor3d.ts`: `lib/iso.ts`와 같은 격자(RW×RD, 벽높이 WH)를
+   공유하는 미터 단위 3D 좌표계(TILE_M=0.7, HEIGHT_SCALE=0.023 — 눈대중
+   으로 실제 가구 비례에 맞춘 배율, cm 실측값은 아님).
+3. `components/EditorScene3D.tsx`: 바닥 타일(RW×RD개, 클릭 배치는
+   그대로), 벽 2면, 각도 제한된 궤도 카메라, 방향광+포인트광+그림자,
+   가구에 마우스를 올리면 뜨는 이름 라벨(콜아웃 스타일). 상태는 기존
+   `lib/editorStore.ts`(items/selectedDefId/placeAt/removeItem/canPlace)
+   그대로 재사용 — 저장·팔레트·공유 로직은 변경 없음.
+4. `lib/types.ts`의 `IsoFurnitureDef`에 실제 제품 연동용 선택 필드
+   (`brand`/`productName`/`priceKrw`/`purchaseUrl`/`modelUrl`) 추가 —
+   지금은 비어 있고 자리만 마련.
+5. 기존 SVG(`EditorCanvas.tsx`, `lib/iso.ts`)는 랜딩 히어로 미니 창·공유
+   카드·아틀라스 카드가 계속 쓰므로 그대로 둠 — 두 좌표계가 서로 안
+   건드리며 공존.
+
+로컬에서 Playwright로 스크린샷 + 클릭 시뮬레이션 확인: 가구를 선택하면
+배치 가능한 타일이 초록으로 밝아지는 것, 빈 타일 클릭 시 배치, 놓인
+가구 클릭 시 제거까지 전부 동작 확인(콘솔 에러 0개 — 401 하나는 로그인
+안 한 상태에서 저장을 시도한 것뿐이라 정상 동작). `npm run build` /
+`npm run pages:build`(Cloudflare Workers) 둘 다 통과.
+
+가구는 아직 색깔 박스 형태고, 어떤 집 유형이든 방 구조가 똑같다 — 이
+두 가지가 STEP 13, 14로 이어진다.
+
+---
+
+## STEP 13. 하우스 타입마다 다른 3D 방 구조
+
+```
+jib.atlas 프로젝트의 룸 에디터(components/EditorScene3D.tsx, STEP 12에서
+three.js로 전환됨)를 확장한다. 지금은 어떤 집 유형(House Type)으로
+매칭되든 똑같은 고정 사각형 방(RW=10×RD=8, lib/editor3d.ts)만 나온다 —
+진단 결과가 방 구조에 전혀 반영이 안 돼서, 사용자 입장에선 "내가 진단한
+의미"가 없다.
+
+# 배경 — 이미 있는 데이터
+data/house-templates.json의 각 HouseTemplate은 이미 `rooms` 필드에 방
+구성(type: livingRoom/kitchen/bedroom/bathroom 등, size: S/M/L,
+position: {x,y,width,height} — 400×300 좌표계)을 갖고 있다. 지금은
+components/FloorPlan.tsx(/result 페이지의 2D 평면도 미리보기)만 이
+데이터를 쓰고, 룸 에디터(EditorScene3D)는 완전히 무시하고 있다.
+
+# 요구사항
+1. HouseTemplate.rooms → 3D 방 형태로 바꾸는 변환 로직을 만들어줘
+   (lib/editor3d.ts 확장 또는 새 파일). 400×300 좌표계를 미터 단위로
+   스케일하고, 각 room을 독립된 공간(바닥+벽 4면)으로 만들되 방과 방
+   사이엔 개구부를 하나씩 둬서(완전히 막히면 안으로 들어가서 볼 수가
+   없다) 서로 이어지게 해줘.
+2. components/EditorScene3D.tsx가 지금의 고정 RW×RD 대신, 매칭된
+   템플릿(app/editor/page.tsx의 topMatch.template)의 rooms 레이아웃을
+   props로 받아서 그 모양대로 렌더링하게 바꿔줘.
+3. 가구 배치(팔레트 클릭 → 타일 클릭)를 room 타입과 연결해줘 — 예를
+   들어 침대는 bedroom 타입 방 안에서만, 소파는 livingRoom 안에서만
+   놓을 수 있게. lib/editorStore.ts의 canPlace를 확장하되, 기존
+   시그니처를 쓰는 다른 곳이 있다면 안 깨지는지 확인해줘.
+4. lib/editorStore.ts의 DEFAULT_PLACED_DEFS(하드코딩된 col/row 6개)는
+   템플릿마다 room 배치가 다르니 고정값으로 못 쓴다 — 템플릿의 rooms를
+   보고 각 방 타입에 맞는 기본 가구를 자동으로 하나씩 배치하는 함수로
+   바꿔줘(예: livingRoom엔 소파+테이블, bedroom엔 침대, kitchen엔
+   카운터).
+5. 카메라(OrbitControls target/거리)도 방 전체 크기가 템플릿마다
+   달라지니 방 바운딩 박스 기준으로 자동으로 맞춰줘(RW/RD 상수를 그대로
+   하드코딩해서 쓰지 말 것).
+
+# 하지 말 것
+- data/house-templates.json의 rooms 좌표 자체는 바꾸지 마 — /result의
+  2D 평면도(FloorPlan.tsx)가 같은 데이터를 쓰고 있어서 좌표를 바꾸면
+  거기 레이아웃도 깨진다.
+- 지금 저장 스키마(PlacedFurniture: id/defId/col/row, Supabase의 저장된
+  배치)는 최대한 유지하고 싶다 — col/row의 "기준"이 방마다 달라져도
+  괜찮은지, 아니면 필드를 늘려야 하는지(예: roomIndex 추가) 먼저 네
+  판단을 보여줘.
+
+작업 시작 전에: 30개 템플릿의 rooms를 실제로 훑어보고, 이 접근이 안
+맞는 엣지 케이스(방이 너무 작아서 가구가 하나도 안 들어가는 등)가
+있는지 먼저 보고해줘. 그리고 나서 구현해.
+```
+
+---
+
+## STEP 14. 가구를 박스 대신 실제 가구처럼
+
+```
+jib.atlas 룸 에디터(components/EditorScene3D.tsx)의 가구가 지금은 단색
+직육면체(box) 하나로만 그려진다. 로그인한 유저가 "내 방 같다"고 느끼게
+실제 가구 형태로 바꾼다.
+
+# 방식 — 외부 3D 모델 파일을 새로 붙이지 말고, 코드로 만드는 프로시저럴
+지오메트리로 간다. 이유: 실제 브랜드 제품의 공식 3D 모델은 라이선스
+없이 못 쓰고, 이름 모를 CC0 에셋을 갖다 붙이면 지금 올리브·세이지 톤
+스타일과 안 맞을 수 있다. 나중에 실제 브랜드 제휴나 AI 생성 3D 모델이
+생기면 IsoFurnitureDef.modelUrl(STEP 12에서 마련해둔 필드)에 그 GLTF를
+넣어서 이 프로시저럴 형태를 대체하면 된다.
+
+# 요구사항
+data/furniture-catalog.json의 9개 가구 각각을, box 하나가 아니라 여러
+개의 primitive(박스/실린더)를 조합해서 다시 만들어줘:
+- sofa: 좌석 박스 + 등받이 박스 + 팔걸이 2개 + 다리 4개
+- lounge: sofa보다 작은 버전 + 팔걸이
+- ctable(다이닝 테이블): 상판 얇은 박스 + 다리 4개(원기둥)
+- counter/bar: 상판 + 몸체(수납장처럼 아래쪽에 선반 분할선)
+- desk: 상판 + 다리 4개
+- wardrobe: 몸체 + 문 분할선(가운데 세로 선) + 손잡이(작은 원기둥)
+- plant: 화분(원뿔대) + 잎(구 여러 개 겹쳐서 뭉치 느낌)
+- bed: 매트리스(둥근 모서리 박스) + 헤드보드 + 다리
+
+각 조각은 components/EditorScene3D.tsx 안에 가구 종류별 함수
+컴포넌트로 분리해줘(SofaMesh, BedMesh 등). def.top/left/right 색은
+지금처럼 재질 색으로 재사용하되, 부위별로(다리는 더 어둡게 등) 살짝
+명암을 줘도 좋다.
+
+# 하지 말 것
+- 외부 GLTF/GLB 파일을 새로 추가하지 마(라이선스·번들 크기 문제).
+- lib/editorStore.ts의 충돌 판정(canPlace, w/d 기준)은 그대로 — 시각적
+  디테일만 늘리는 거지 배치 격자 크기는 안 바뀐다.
+- STEP 12에서 확인한 인터랙션(선택→배치, 클릭 제거, 하이라이트)이
+  깨지면 안 된다 — 끝나고 다시 한번 확인해줘.
+
+완료 후 각 가구가 실루엣만으로 뭔지 알아볼 수 있는지(소파 vs 침대 등)
+스크린샷으로 보여줘.
+```
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.
