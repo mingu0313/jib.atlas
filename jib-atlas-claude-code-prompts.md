@@ -668,6 +668,115 @@ STEP 12/13에서 검증한 배치·제거·하이라이트 인터랙션은 Place
 
 ---
 
+## STEP 15. Kenney Furniture Kit(CC0) GLTF 가구 통합
+
+다른 세션이 조사해서 올려준 스펙 문서(`STEP9furniturespec.md` — 자체
+번호는 "STEP 9"지만 이 프로젝트 STEP 시퀀스와는 무관해서 여기선 15로
+기록한다)를 그대로 실행했다. 그 문서는 STEP 12 시점(고정 RW×RD 한 칸짜리
+방, 박스 가구, canPlace 4-인자, EditorCanvas.tsx가 아직 살아있던 때)
+기준으로 조사돼 있었다 — STEP 13(방 구조)·STEP 14(프로시저럴 가구)를
+몰랐던 채로 쓰인 거라, 구현하면서 최신 코드베이스에 맞게 여러 곳을
+조정했다.
+
+# 에셋 확보
+`public/models/furniture/*.glb`가 스펙 문서 말대로 이 리포/세션엔 전혀
+없었다 — 하지만 이 환경에 실제로 아웃바운드 네트워크가 열려 있어서,
+kenney.nl에서 Furniture Kit(CC0, v2.0) 공식 zip을 직접 받아 GLTF(.glb)
+39개 중 필요한 38개를 `public/models/furniture/`에 커밋했다(라이선스
+파일도 같이). 스펙의 파일명은 "Kenney 표준 규칙 추정값이라 검증 필요"라고
+스스로 밝혔었는데, 실제로 5개가 틀렸다 — `roundTable`→`tableRound`,
+`coffeeTable`→`tableCoffee`, `barStool`→`stoolBar`, `deskChair`→
+`chairDesk`, `plantSmall`→`plantSmall1`(1/2/3 세 변형 중 1). 아웃도어
+카테고리(bench 등 3종)는 스펙 2.6 결정대로 아예 안 받았다 — Furniture
+Kit엔 야외 가구가 없고, Nature Kit은 이번 범위 밖.
+
+GLB를 직접 열어(GLB JSON 청크 파싱, 헤더 12바이트+길이+타입 읽고 나머지를
+JSON.parse) 실제 머티리얼 이름도 확인했다 — 스펙 3.2가 "실제로 열어봐야
+안다"고 한 그 이름이 `wood`/`woodDark`/`metal`/`metalDark`/`metalMedium`/
+`carpet`/`carpetDarker`/`carpetWhite`/`plant`/`lamp`/`_defaultMat` 11종
+이었다(스펙이 예시로 든 wood/fabric/metal 같은 뭉뚱그린 이름이 아니다).
+킷 전체가 이 11개를 재사용해서, 항목마다 새로 매핑을 정의할 필요 없이
+공용 기본 매핑(`DEFAULT_MATERIAL_PALETTE`) 하나로 대부분 해결됐다 —
+스펙 표가 걱정한 "머티리얼 이름 몰라서 항목마다 다시 정의" 문제가 거의
+없어진 셈.
+
+# 스펙에서 의도적으로 벗어난 부분
+1. **`modelPath` 신규 필드 대신 기존 `modelUrl`(STEP 12에서 이미 만들어둔
+   "실제 제품 3D 모델" 자리) 재사용.** 로컬 Kenney 경로든 나중에 생길
+   실제 브랜드 CDN URL이든 "이 가구를 그릴 GLB가 어디 있는지"는 같은
+   질문이라 필드를 두 개 둘 이유가 없었다.
+2. **`footprint`/`defaultScale` 필드를 안 만들고 기존 `w`/`d`/`h`를 그대로
+   씀.** 스펙 2.4("실측 우선 — 측정값이 JSON 값을 이긴다")를 문자 그대로
+   따르면, 비동기로 로드되는 GLTF의 실측 bbox가 **동기 함수인 canPlace의
+   충돌 판정 격자**를 나중에 바꿔야 한다는 뜻인데, 이게 배치 시점과 로드
+   시점 사이 경쟁 상태를 만들 위험이 있었다. 대신 배치 격자(w×d×h)는
+   끝까지 결정적으로 고정해두고, 실측 bbox는 그 격자 칸에 비율을 유지한
+   채 맞춰 넣는(`fitScale`) 용도로만 썼다 — Kenney 모델의 실측 스케일과
+   우리 격자의 눈대중 배율(STEP 12, `HEIGHT_SCALE=0.023`)이 안 맞는
+   문제(스펙 1.4가 지적한 그 문제)를 "항상 제 칸에 맞춘다"로 흡수한
+   것. `measureFootprint`는 그래서 진단(콘솔 경고)용이 아니라 아예 이
+   fitScale 계산에 직접 쓰인다.
+3. **3.1 파일명 검증 스크립트(HEAD 요청으로 404 찾기)는 안 만듦** — 이미
+   실제 zip을 받아서 파일명을 전부 손으로 대조 확인했으니 런타임에 또
+   확인할 필요가 없었다.
+4. **인스턴싱(3.7)은 스펙이 허용한 대로 후순위로 미룸** — "성능이 실제로
+   문제되지 않으면 미뤄도 된다"고 스펙 자신이 적어뒀고, 지금 규모(방 하나
+   에 가구 수십 개)에선 필요 없다.
+
+# 한 일
+1. Kenney zip에서 검증된 파일 38개 + `LICENSE.txt`를
+   `public/models/furniture/`에 커밋(568KB, 가벼움).
+2. `lib/furniturePalette.ts`(신규): `PALETTE`(스펙 2.2 그레이지+코퍼
+   그대로), `DEFAULT_MATERIAL_PALETTE`(위에서 확인한 실제 11개 이름
+   기준), `recolorScene()`, `measureFootprint()`, `fitScale()`.
+3. `lib/types.ts`: `FurnitureCategory`/`CATEGORY_LABELS`(스펙 3.3, 아웃도어
+   제외 8종), `IsoFurnitureDef`에 `category`/`materialOverride`/`layer`
+   추가(전부 optional — 기존 SVG 경로 무영향).
+4. `lib/editorStore.ts`의 `canPlace`에 `layer` 겹침 규칙 추가 — STEP
+   13의 roomRects/rotated 인자는 그대로 두고 위에 얹었다(스펙의 4-인자
+   버전으로 되돌리지 않음). 러그(`layer:"floor"`)는 다른 가구와 겹칠 수
+   있고, 러그끼리는 여전히 못 겹친다.
+5. `lib/editor3d.ts`: `gridToWorld()` 추가(스펙 3.6) — EditorScene3D의
+   PlacedItem이 좌표 계산에 이거 하나만 쓰게 정리.
+6. `components/furniturePalette.ts` 유틸 위에 `components/
+   furnitureModel3d.tsx`(신규) — `useGLTF` 로드 → clone(같은 GLB를 여러
+   개 배치해도 하나만 안 남게) → 리컬러(딱 한 번만) → 실측+fitScale.
+   `components/EditorScene3D.tsx`에 `FurnitureVisual` 디스패처를 추가해
+   `def.modelUrl`이 있으면 GLTF, 없으면 STEP 14 프로시저럴 형태로 —
+   **로딩 중(Suspense) fallback도 프로시저럴 형태**라 "로딩 중 최소
+   placeholder"가 자연히 충족된다(빈 박스가 아니라 이미 가구 실루엣).
+   회전 처리(그룹째 Y축 90도)도 STEP 14와 동일하게 유지.
+7. `data/furniture-catalog.json`: 기존 9개는 필드만 추가(다른 필드 값
+   변경 없음), 새 가구 29종 추가(총 38종) — 침대 4/소파 6/식탁 8/수납
+   7/수납용품 4/텍스타일 4/화분 2/책상 3. `allowedRoomTypes`는 새 항목엔
+   안 넣었다(undefined = 어디든 배치 가능) — 스펙이 방 타입 개념 자체를
+   몰랐던 채로 짠 카탈로그라 32~38종 전부에 정교한 방 제약을 새로
+   설계하는 건 이번 범위 밖으로 뒀다.
+8. `app/editor/page.tsx`: 좌측 팔레트를 세로 리스트 → 카테고리 칩 탭
+   (가로 스크롤, `.pill-mask`) + 2열 그리드로 교체(스펙 3.8). 좌측 폭
+   250px→280px. 상단바 카운터 `{items.length} / {catalog.length}` →
+   `{items.length} Placed`(스펙대로 단순화 — 38종이면 분모가 의미 없음).
+9. `components/EditorScene3D.tsx` 씬 리컬러(스펙 2.3) — 배경/바닥/벽/
+   하이라이트/조명을 다크(#15130f 무드, STEP 12)에서 라이트 그레이지
+   톤으로. `app/globals.css` 토큰은 그대로 안 건드림(3D 씬 내부만).
+
+# 구현 중 발견한 버그
+`recolorScene`이 원래 단일 머티리얼이던 메시도 무조건 배열로 감싸서
+재할당하고 있었다(`mats.map(...)`가 항상 배열을 반환) — geometry에
+`groups`가 없는 상태에서 material만 배열이 되면 three.js가 그 메시를
+아예 안 그렸다(첫 스크린샷에서 방은 나오는데 가구가 전부 안 보이는
+버그로 나타남). 원래 단일/배열 여부를 유지하도록 고쳐서 해결.
+
+검증: 소파+원형테이블+침대+옷장+화분+정사각러그를 한 방에 놓고
+스크린샷 — 리컬러(그레이지 쿠션·코퍼 원목·초록 잎)와 형태(러그 테두리
+무늬, 옷장 손잡이, 화분 잎사귀) 전부 확인. 클릭 제거도 GLTF 메시에서
+그대로 동작(부모 group 이벤트 버블링, STEP 14와 동일 구조). 카테고리 탭
+전환·필터링도 별도 스크린샷으로 확인. `npx tsc --noEmit` / `npx vitest
+run`(11 passed) / eslint / `npm run build` / `npm run
+pages:build`(Cloudflare, GLB 38개 포함해서 빌드됨) 전부 통과.
+
+---
+
 ## 사용 팁
 
 - 각 STEP은 독립적으로 실행 가능하지만 **순서를 지켜야** 이전 산출물을 참조합니다.

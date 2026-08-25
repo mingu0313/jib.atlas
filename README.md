@@ -46,6 +46,7 @@
 - [x] STEP 12. 룸 에디터 3D 전환 — SVG 아이소메트릭 → three.js 실시간 렌더링
 - [x] STEP 13. 하우스 타입마다 다른 3D 방 구조 — HouseTemplate.rooms를 그대로 3D에 반영
 - [x] STEP 14. 가구를 박스 대신 실제 가구 형태로 — 프로시저럴 지오메트리(다리·등받이·팔걸이 등)
+- [x] STEP 15. Kenney Furniture Kit(CC0) GLTF 가구 38종 통합 — 카테고리 탭 팔레트, 씬 라이트 그레이지+코퍼 리컬러
 
 ## 시작하기
 

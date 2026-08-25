@@ -181,11 +181,40 @@ export interface HouseTemplate {
  * 크기(w×d)와 높이(h), 이소메트릭 3면(top/left/right) 색을 갖는다.
  * (components/EditorCanvas.tsx의 ixy/up 투영에 그대로 쓰인다.)
  */
+/**
+ * 룸 에디터 팔레트의 가구 카테고리(STEP 15) — 업로드된 스펙 문서
+ * (STEP9furniturespec.md) 3.3 그대로. 팔레트 UI(app/editor/page.tsx)가
+ * 카테고리 탭으로 묶어 보여줄 때 쓴다.
+ */
+export type FurnitureCategory =
+  | "storage" // 수납 가구
+  | "storage-item" // 수납 용품
+  | "bed" // 침대/매트리스
+  | "textile" // 텍스타일/러그
+  | "sofa" // 소파/암체어
+  | "plant" // 화분/식물
+  | "dining" // 식탁/테이블/의자
+  | "desk"; // 책상/사무용의자
+
+export const CATEGORY_LABELS: Record<FurnitureCategory, string> = {
+  storage: "수납 가구",
+  "storage-item": "수납 용품",
+  bed: "침대/매트리스",
+  textile: "텍스타일/러그",
+  sofa: "소파/암체어",
+  plant: "화분/식물",
+  dining: "식탁/테이블/의자",
+  desk: "책상/사무용의자",
+};
+
 export interface IsoFurnitureDef {
   id: string;
   label: string;
   /** 캔버스 위 가구 이름표(모노 8px)에 쓰는 영문 라벨. */
   en: string;
+  /** 배치 격자 위 폭(칸). GLTF 가구(STEP 15)도 이 칸 안에 맞춰 스케일된다
+   * (lib/furniturePalette.ts의 fitScale) — 모델 원본 실측 크기와 무관하게
+   * 배치·충돌 판정은 항상 이 값 기준으로 결정적이다. */
   w: number;
   d: number;
   h: number;
@@ -208,8 +237,26 @@ export interface IsoFurnitureDef {
   productName?: string;
   priceKrw?: number;
   purchaseUrl?: string;
-  /** 실제 제품의 GLTF/GLB 모델 URL. 없으면 3D 뷰는 비례를 맞춘 박스로 대체 렌더링한다. */
+  /**
+   * GLTF/GLB 모델 경로 — STEP 15부터 Kenney Furniture Kit(CC0, 로컬
+   * `/public/models/furniture/*.glb`) 경로로 채워진다. 없으면 3D 뷰는
+   * components/furniture3d.tsx의 프로시저럴 형태(STEP 14)로 대체 렌더링한다
+   * (박스가 아니라 이미 실제 가구 실루엣이라 대체 경로도 어색하지 않다).
+   */
   modelUrl?: string;
+  /** 팔레트 카테고리 탭 분류(STEP 15). 없으면 미분류로 취급. */
+  category?: FurnitureCategory;
+  /**
+   * GLTF 리컬러 시 lib/furniturePalette.ts의 DEFAULT_MATERIAL_PALETTE를
+   * 덮어쓸 항목별 예외(STEP 15). 대부분은 기본 매핑으로 충분해서 비워둔다.
+   */
+  materialOverride?: Record<string, import("./furniturePalette").PaletteKey>;
+  /**
+   * "floor"면 러그처럼 바닥에 까는 오브젝트 — 다른 layer의 가구와 겹칠 수
+   * 있다(lib/editorStore.ts의 canPlace가 layer가 다르면 겹침을 허용한다).
+   * 없으면 "object"(기존 동작과 동일, 전부 서로 겹칠 수 없음).
+   */
+  layer?: "floor" | "object";
 }
 
 /** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅).

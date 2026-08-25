@@ -11,8 +11,21 @@ import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/supabase/useUser";
-import { AXES, AXIS_LABELS } from "@/lib/types";
-import type { Answer, IsoFurnitureDef } from "@/lib/types";
+import { AXES, AXIS_LABELS, CATEGORY_LABELS } from "@/lib/types";
+import type { Answer, FurnitureCategory, IsoFurnitureDef } from "@/lib/types";
+
+/** 팔레트 카테고리 탭 순서(STEP 15, 업로드된 스펙 3.8 그대로) — 아웃도어는
+ * 스펙 2.6에 따라 이번엔 카탈로그에도 안 넣어서 탭에서도 뺐다. */
+const CATEGORY_ORDER: FurnitureCategory[] = [
+  "storage",
+  "storage-item",
+  "bed",
+  "textile",
+  "sofa",
+  "plant",
+  "dining",
+  "desk",
+];
 
 /**
  * 인테리어 에디터 — DESIGN-HANDOFF-V2.md "5. 룸 에디터" + jib-atlas-v2-preview.html
@@ -65,6 +78,9 @@ export default function EditorPage() {
   // 콜드스타트 해결용: 진단만 마치면 클릭 한 번으로 갤러리에 콘텐츠가 생긴다.
   const [roomShareStatus, setRoomShareStatus] = useState<"idle" | "pending" | "done" | "error">("idle");
   const [sharedPostId, setSharedPostId] = useState<string | null>(null);
+  // STEP 15 — 38종이 되면서 세로 리스트 하나로는 스크롤이 너무 길어져
+  // 카테고리 탭 + 그 아래 그리드로 바꿨다(업로드된 스펙 3.8).
+  const [activeCategory, setActiveCategory] = useState<FurnitureCategory>(CATEGORY_ORDER[0]);
 
   // 로그인이 확인되면 서버에 저장된 배치를 불러온다.
   useEffect(() => {
@@ -183,9 +199,7 @@ export default function EditorPage() {
           </span>
         </div>
         <div className="flex items-center gap-[14px] sm:gap-[18px]">
-          <span className="label-mono text-[10px] text-faint">
-            {items.length} / {furnitureCatalog.length} Placed
-          </span>
+          <span className="label-mono text-[10px] text-faint">{items.length} Placed</span>
           <button
             type="button"
             onClick={() => resetPlacement(topMatch.template.rooms)}
@@ -225,34 +239,64 @@ export default function EditorPage() {
         </p>
       )}
 
-      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[250px_1fr_280px]">
-        {/* 좌: 팔레트 */}
+      <div className="grid flex-1 grid-cols-1 lg:grid-cols-[280px_1fr_280px]">
+        {/* 좌: 팔레트 — 카테고리 탭(가로 스크롤) + 그 아래 가구 그리드 */}
         <div className="flex flex-col gap-[18px] border-b border-hair px-[22px] py-7 lg:border-r lg:border-b-0">
           <span className="label-mono text-[10px] text-faint">Palette</span>
-          <div className="flex flex-col gap-[7px]">
-            {furnitureCatalog.map((def) => {
-              const selected = selectedDefId === def.id;
-              return (
-                <button
-                  key={def.id}
-                  type="button"
-                  onClick={() => selectDef(def.id)}
-                  className="flex items-center gap-[14px] rounded-[14px] border px-[15px] py-[13px] text-left transition-all duration-150 hover:border-olive"
-                  style={{
-                    borderColor: selected ? "var(--color-olive)" : "var(--color-hair)",
-                    background: selected ? "var(--color-sage)" : "transparent",
-                  }}
-                >
-                  <span className="h-[17px] w-[17px] shrink-0 rounded-[4px]" style={{ background: def.top }} />
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-[13px] text-fg">{def.label}</span>
-                    <span className="label-mono text-[9px] text-faint">
-                      {def.w}×{def.d}
+
+          <div className="relative">
+            <div className="pill-mask flex gap-2 overflow-x-auto pb-1">
+              {CATEGORY_ORDER.map((cat) => {
+                const active = activeCategory === cat;
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setActiveCategory(cat)}
+                    className="shrink-0 whitespace-nowrap rounded-full border px-4 py-2 text-[12px] font-semibold transition-colors"
+                    style={{
+                      borderColor: active ? "var(--color-olive)" : "var(--color-hair)",
+                      background: active ? "var(--color-sage)" : "var(--color-card)",
+                      color: active ? "var(--color-sage-ink)" : "var(--color-fg)",
+                    }}
+                  >
+                    {CATEGORY_LABELS[cat]}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            {furnitureCatalog
+              .filter((def) => def.category === activeCategory)
+              .map((def) => {
+                const selected = selectedDefId === def.id;
+                return (
+                  <button
+                    key={def.id}
+                    type="button"
+                    onClick={() => selectDef(def.id)}
+                    className="flex flex-col items-start gap-2 rounded-[14px] border px-3 py-3 text-left transition-all duration-150 hover:border-olive"
+                    style={{
+                      borderColor: selected ? "var(--color-olive)" : "var(--color-hair)",
+                      background: selected ? "var(--color-sage)" : "transparent",
+                    }}
+                  >
+                    <span
+                      className="h-8 w-full shrink-0 rounded-[8px]"
+                      style={{ background: def.top }}
+                      aria-hidden
+                    />
+                    <span className="flex flex-col gap-0.5">
+                      <span className="text-[12px] leading-tight text-fg">{def.label}</span>
+                      <span className="label-mono text-[9px] text-faint">
+                        {def.w}×{def.d}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              );
-            })}
+                  </button>
+                );
+              })}
           </div>
         </div>
 

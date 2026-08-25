@@ -23,3 +23,14 @@ export const HEIGHT_SCALE = 0.023;
  * 고정값을 쓴다. room.size(S/M/L)별로 다르게 하는 건 이후 과제.
  */
 export const ROOM_H = 2.5;
+
+/**
+ * 격자 좌표(col,row, 저장되는 값 그대로) → 3D 월드 좌표. 렌더링 시점에만
+ * 쓰는 순수 변환 — 저장 데이터(PlacedFurniture)는 항상 (col,row)고, 3D
+ * 좌표를 저장한 적도 저장할 계획도 없다. STEP 15 — EditorScene3D의
+ * PlacedItem이 이 함수 하나로 좌표를 구하게 해서, 렌더링 방식이 또
+ * 바뀌어도(예: 다른 3D 좌표계) 여길 갈아끼우면 끝나게 한다.
+ */
+export function gridToWorld(col: number, row: number, w: number, d: number): [number, number, number] {
+  return [(col + w / 2) * TILE_M, 0, (row + d / 2) * TILE_M];
+}

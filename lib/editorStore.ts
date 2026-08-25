@@ -39,9 +39,14 @@ function footprint(def: IsoFurnitureDef, rotated: boolean): [number, number] {
 /**
  * col,row에 def(rotated면 d×w, 아니면 w×d)를 놓을 수 있는지 — roomRects가
  * 나타내는 방 구조를 완전히 벗어나거나(방과 방 사이 틈 포함),
- * def.allowedRoomTypes에 없는 방 타입이거나, 이미 놓인 가구와 겹치면
+ * def.allowedRoomTypes에 없는 방 타입이거나, 같은 layer의 가구와 겹치면
  * false. 작은 방(예: 3타일 폭 주방)엔 가로로 안 들어가는 가구를 세로로
  * 돌려서 놓을 수 있게 rotated를 지원한다(STEP 13).
+ *
+ * layer(STEP 15): 러그 같은 "floor" 오브젝트는 바닥에 까는 물건이라 다른
+ * 가구와 겹칠 수 있어야 한다 — layer가 다르면(하나는 floor, 하나는
+ * object) 겹침 검사를 건너뛴다. 둘 다 명시 안 하면(기존 9개 가구처럼)
+ * 전부 "object"로 취급돼 기존 동작(전부 서로 겹칠 수 없음)과 동일하다.
  */
 export function canPlace(
   col: number,
@@ -54,9 +59,11 @@ export function canPlace(
   if (col < 0 || row < 0) return false;
   const [w, d] = footprint(def, rotated);
   if (!roomContaining(roomRects, col, row, w, d, def.allowedRoomTypes)) return false;
+  const layer = def.layer ?? "object";
   return placed.every((item) => {
     const itemDef = defById.get(item.defId);
     if (!itemDef) return true;
+    if ((itemDef.layer ?? "object") !== layer) return true;
     const [iw, id] = footprint(itemDef, !!item.rotated);
     const overlaps = col < item.col + iw && col + w > item.col && row < item.row + id && row + d > item.row;
     return !overlaps;
