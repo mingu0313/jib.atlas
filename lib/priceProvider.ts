@@ -91,3 +91,11 @@ export class MockPriceProvider implements PriceProvider {
     return this.furniturePricePerCategory[def.category] ?? 0;
   }
 }
+
+/**
+ * 모듈 스코프에 하나만 — MockPriceProvider는 상태가 없는 순수 조회 객체라
+ * 여러 화면(StepBudget의 예산 합계, FurniturePalette의 가격 힌트)이 각자
+ * `new`할 이유가 없다. 실데이터 Provider로 바꿀 때도 이 한 줄만 교체하면
+ * 그 두 화면 모두 한 번에 바뀐다.
+ */
+export const defaultPriceProvider: PriceProvider = new MockPriceProvider();

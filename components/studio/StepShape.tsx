@@ -1,12 +1,13 @@
 "use client";
 
 import { RoomPolygonPreview } from "@/components/studio/RoomPolygonPreview";
+import { StepNav } from "@/components/studio/StepNav";
 import { ROOM_SHAPE_PRESETS, useRoomBuilderStore } from "@/lib/roomBuilderStore";
 
-/** STEP 11 — 1단계: 방 모양 프리셋 7종 카드 선택 + 큰 미리보기. */
+/** STEP 11 — 1단계: 방 모양 프리셋 7종 카드 선택. 선택 결과의 큰 미리보기는
+ * 오른쪽 상시 패널(StudioPreviewPanel, app/studio/page.tsx)이 대신 보여준다. */
 export function StepShape({ onNext }: { onNext: () => void }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
-  const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const selectShape = useRoomBuilderStore((s) => s.selectShape);
 
   return (
@@ -28,7 +29,7 @@ export function StepShape({ onNext }: { onNext: () => void }) {
               key={preset.id}
               type="button"
               onClick={() => selectShape(preset.id)}
-              className="flex flex-col gap-3 rounded-[18px] border p-4 text-left transition-colors sm:gap-4 sm:rounded-[22px] sm:p-6"
+              className="flex flex-col gap-3 rounded-[18px] border p-4 text-left transition-all duration-150 hover:shadow-sm sm:gap-4 sm:rounded-[22px] sm:p-6"
               style={{
                 borderColor: selected ? "var(--color-olive)" : "var(--color-hair)",
                 background: selected ? "var(--color-sage)" : "var(--color-panel)",
@@ -48,18 +49,7 @@ export function StepShape({ onNext }: { onNext: () => void }) {
         })}
       </div>
 
-      <div className="flex flex-col gap-4 rounded-[28px] bg-panel px-6 py-10 sm:px-10">
-        <span className="label-mono text-[10px] text-faint">Preview</span>
-        <RoomPolygonPreview polygon={roomPolygon} className="mx-auto h-[280px] w-full max-w-[440px]" strokeWidth={3} />
-      </div>
-
-      <button
-        type="button"
-        onClick={onNext}
-        className="self-end rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream transition hover:bg-fg"
-      >
-        다음: 치수 조정하기 →
-      </button>
+      <StepNav onNext={onNext} nextLabel="다음: 치수 조정하기 →" />
     </div>
   );
 }

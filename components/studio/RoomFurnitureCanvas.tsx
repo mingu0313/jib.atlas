@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { furnitureFootprintCm, useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
 import { getPolygonViewBox, getWallSegments } from "@/lib/roomGeometry";
@@ -10,6 +11,11 @@ const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
 const WALL_THICKNESS_CM = 10;
+/** RoomPlanCanvas와 같은 기준 — 이 거리(px) 미만 이동이면 드래그가 아니라
+ * 클릭(선택)으로 본다. */
+const CLICK_THRESHOLD_PX = 6;
+const TOOLBAR_BTN_R = WALL_THICKNESS_CM * 1.8;
+const TOOLBAR_GAP_CM = WALL_THICKNESS_CM * 2.2;
 
 /** 클릭/포인터 클라이언트 좌표(px)를 이 svg의 viewBox 좌표계(cm)로 —
  * RoomPlanCanvas와 동일한 변환(components/studio/RoomPlanCanvas.tsx 참고). */
@@ -23,18 +29,72 @@ function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number): Point
   return { x: p.x, z: p.y };
 }
 
+/** 선택된 가구 위에 뜨는 회전·삭제 버튼 두 개짜리 인라인 툴바 — 가구
+ * bounding box 위쪽 가장자리 바로 위, 가로로 나란히. */
+function FurnitureToolbar({
+  cx,
+  topZ,
+  onRotate,
+  onDelete,
+}: {
+  cx: number;
+  topZ: number;
+  onRotate: () => void;
+  onDelete: () => void;
+}) {
+  const btnY = topZ - TOOLBAR_GAP_CM;
+  const gap = TOOLBAR_BTN_R * 2.4;
+  return (
+    <g onPointerDown={(e) => e.stopPropagation()} style={{ cursor: "pointer" }}>
+      <g
+        transform={`translate(${cx - gap / 2} ${btnY})`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onRotate();
+        }}
+      >
+        <circle r={TOOLBAR_BTN_R} fill="var(--color-fg)" opacity={0.9} />
+        <text textAnchor="middle" dominantBaseline="central" fontSize={TOOLBAR_BTN_R * 1.2} fill="var(--color-cream)" style={{ pointerEvents: "none" }}>
+          ↻
+        </text>
+        <title>회전(R)</title>
+      </g>
+      <g
+        transform={`translate(${cx + gap / 2} ${btnY})`}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+      >
+        <circle r={TOOLBAR_BTN_R} fill="var(--color-fg)" opacity={0.9} />
+        <text textAnchor="middle" dominantBaseline="central" fontSize={TOOLBAR_BTN_R * 1.3} fill="var(--color-cream)" style={{ pointerEvents: "none" }}>
+          ×
+        </text>
+        <title>삭제(Delete)</title>
+      </g>
+    </g>
+  );
+}
+
 function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
   const moveFurniture = useRoomBuilderStore((s) => s.moveFurniture);
   const removeFurniture = useRoomBuilderStore((s) => s.removeFurniture);
+  const rotateFurniture = useRoomBuilderStore((s) => s.rotateFurniture);
+  const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);
+  const selectFurnitureItem = useRoomBuilderStore((s) => s.selectFurnitureItem);
+  const downPos = useRef<{ x: number; y: number } | null>(null);
   const def = furnitureDefById.get(item.defId);
   if (!def) return null;
   const { widthCm, depthCm } = furnitureFootprintCm(def, item.rotated);
+  const topZ = item.cz - depthCm / 2;
+  const isSelected = selectedFurnitureId === item.id;
 
   return (
     <g
       onPointerDown={(e) => {
         e.stopPropagation();
         e.currentTarget.setPointerCapture(e.pointerId);
+        downPos.current = { x: e.clientX, y: e.clientY };
       }}
       onPointerMove={(e) => {
         if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
@@ -42,6 +102,14 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
         if (!svg) return;
         const p = toSvgPoint(svg, e.clientX, e.clientY);
         moveFurniture(item.id, p.x, p.z);
+      }}
+      onPointerUp={(e) => {
+        e.stopPropagation();
+        const start = downPos.current;
+        downPos.current = null;
+        if (!start) return;
+        const moved = Math.hypot(e.clientX - start.x, e.clientY - start.y);
+        if (moved < CLICK_THRESHOLD_PX) selectFurnitureItem(item.id);
       }}
       onDoubleClick={(e) => {
         e.stopPropagation();
@@ -56,20 +124,28 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
         height={depthCm}
         rx={6}
         fill={def.top}
-        stroke="rgba(18,18,15,0.35)"
-        strokeWidth={2}
+        stroke={isSelected ? "var(--color-olive)" : "rgba(18,18,15,0.35)"}
+        strokeWidth={isSelected ? 3.5 : 2}
       />
-      <title>{`${def.label} — 드래그로 이동, 더블클릭으로 삭제`}</title>
+      <title>{`${def.label} — 클릭하면 선택돼요(회전·삭제 버튼이 떠요), 드래그로 이동, 더블클릭으로 바로 삭제`}</title>
+      {isSelected && (
+        <FurnitureToolbar
+          cx={item.cx}
+          topZ={topZ}
+          onRotate={() => rotateFurniture(item.id)}
+          onDelete={() => removeFurniture(item.id)}
+        />
+      )}
     </g>
   );
 }
 
 /**
- * STEP(가구 배치) — /studio 4단계에서 쓰는 인터랙티브 평면도. RoomPlanCanvas
- * (3단계, 문/창문)와 같은 SVG 좌표 변환·pointer capture 드래그 패턴을
- * 쓰지만, 배치 대상이 벽 위 offset이 아니라 바닥 위 자유 좌표(cx,cz)라는
- * 점이 다르다. 문/창문은 여기선 위치 참고용으로만 그리고(읽기 전용,
- * pointerEvents:none) 이동/삭제는 3단계 캔버스에서만 한다.
+ * STEP(가구 배치) — /studio 4·5단계에서 쓰는 인터랙티브 평면도. RoomPlanCanvas
+ * (3단계, 문/창문)와 같은 SVG 좌표 변환·pointer capture 드래그·클릭 선택
+ * 패턴을 쓰지만, 배치 대상이 벽 위 offset이 아니라 바닥 위 자유 좌표
+ * (cx,cz)라는 점이 다르다. 문/창문은 여기선 위치 참고용으로만 그리고(읽기
+ * 전용, pointerEvents:none) 이동/삭제는 3단계 캔버스에서만 한다.
  */
 export function RoomFurnitureCanvas({ className }: { className?: string }) {
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
@@ -79,6 +155,7 @@ export function RoomFurnitureCanvas({ className }: { className?: string }) {
   const furniture = useRoomBuilderStore((s) => s.furniture);
   const selectedFurnitureDefId = useRoomBuilderStore((s) => s.selectedFurnitureDefId);
   const placeFurnitureAt = useRoomBuilderStore((s) => s.placeFurnitureAt);
+  const selectFurnitureItem = useRoomBuilderStore((s) => s.selectFurnitureItem);
 
   const floorPreset = FLOOR_STYLE_PRESETS.find((p) => p.id === floorStyleId) ?? FLOOR_STYLE_PRESETS[0];
   const walls = getWallSegments(roomPolygon);
@@ -91,7 +168,10 @@ export function RoomFurnitureCanvas({ className }: { className?: string }) {
         points={floorPoints}
         fill={floorPreset.base}
         onClick={(e) => {
-          if (!selectedFurnitureDefId) return;
+          if (!selectedFurnitureDefId) {
+            selectFurnitureItem(null);
+            return;
+          }
           const svg = e.currentTarget.ownerSVGElement;
           if (!svg) return;
           const p = toSvgPoint(svg, e.clientX, e.clientY);

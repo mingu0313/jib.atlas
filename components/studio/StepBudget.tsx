@@ -2,14 +2,10 @@
 
 import Link from "next/link";
 import { useMemo } from "react";
+import { StepNav } from "@/components/studio/StepNav";
 import { calculateStudioBudget } from "@/lib/budget";
-import { MockPriceProvider } from "@/lib/priceProvider";
+import { defaultPriceProvider } from "@/lib/priceProvider";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
-
-// 모듈 스코프에 하나만 — MockPriceProvider는 상태가 없는 순수 조회
-// 객체라 렌더마다 새로 만들 이유가 없다. 실데이터 Provider로 바꿀 때도
-// 이 한 줄만 교체하면 된다(lib/priceProvider.ts 주석 참고).
-const priceProvider = new MockPriceProvider();
 
 function formatWon(n: number): string {
   return `${Math.round(n).toLocaleString("ko-KR")}원`;
@@ -30,7 +26,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
   const budget = useMemo(
     () =>
       calculateStudioBudget({
-        provider: priceProvider,
+        provider: defaultPriceProvider,
         roomPolygon,
         wallHeightCm,
         wallColorHex,
@@ -90,13 +86,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
         </Link>
       </div>
 
-      <button
-        type="button"
-        onClick={onBack}
-        className="self-start rounded-full border border-hair px-8 py-4 text-[13px] font-semibold text-[#5f5f57] transition hover:border-olive hover:text-fg"
-      >
-        ← 이전
-      </button>
+      <StepNav onBack={onBack} />
     </div>
   );
 }

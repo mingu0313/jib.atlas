@@ -307,6 +307,23 @@ interface RoomBuilderState {
    * 유효 위치 유지). */
   moveFurniture: (id: string, cx: number, cz: number) => void;
   removeFurniture: (id: string) => void;
+
+  /** 이미 놓인 opening/furniture 하나를 "선택"한 상태 — 새로 배치할 때
+   * 쓰는 pendingOpening/selectedFurnitureDefId(팔레트에서 고른 "다음에
+   * 놓을 것")와는 완전히 별개다. 선택된 아이템은 평면도 위에 인라인
+   * 삭제·회전 버튼을 띄우는 용도로만 쓴다(더블클릭 삭제만 있던 걸
+   * 대체 — 클릭해서 선택하는 쪽이 더 잘 눈에 띄고 모바일에서도 된다). */
+  selectedOpeningId: string | null;
+  selectedFurnitureId: string | null;
+  /** 같은 id를 다시 selectXxx하면 선택 해제(토글) — 다른 팔레트 선택
+   * 관례들과 통일. */
+  selectOpening: (id: string | null) => void;
+  selectFurnitureItem: (id: string | null) => void;
+  /** 선택된 가구를 같은 자리(cx,cz)에서 90도 돌린다 — 돌린 결과가 방을
+   * 벗어나거나 다른 가구와 겹치면 조용히 무시(moveFurniture와 같은 관례).
+   * "놓기 전"에만 되던 회전(furnitureRotated)과 달리, 이미 놓인 가구를
+   * 지우고 다시 놓지 않아도 방향을 바꿀 수 있게 해준다. */
+  rotateFurniture: (id: string) => void;
 }
 
 export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
@@ -317,7 +334,14 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   // 모양을 바꾸면 방 자체가 달라지는 거라, 이전 모양 기준으로 놓았던
   // 가구가 새 폴리곤을 벗어나 있을 수 있다 — /editor(syncTemplate)가
   // 템플릿이 바뀌면 배치를 리셋하는 것과 같은 이유로 같이 비운다.
-  selectShape: (id) => set({ roomShape: id, roomPolygon: presetById(id).defaultPolygon, furniture: [] }),
+  selectShape: (id) =>
+    set({
+      roomShape: id,
+      roomPolygon: presetById(id).defaultPolygon,
+      furniture: [],
+      selectedOpeningId: null,
+      selectedFurnitureId: null,
+    }),
   setDimension: (fieldId, cm) => {
     const { roomShape, roomPolygon } = get();
     const dims = { ...readDimensions(roomShape, roomPolygon), [fieldId]: cm };
@@ -336,6 +360,7 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
           ? null
           : { kind, presetId },
       openingWarn: false,
+      selectedOpeningId: null, // 새로 놓을 걸 고르는 중이면 기존 선택(삭제 툴바)은 의미 없음
     })),
   placeOpeningOnWall: (wallIndex, offsetCm) => {
     const { pendingOpening, roomPolygon, openings } = get();
@@ -375,7 +400,11 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       if (overlapsOtherOpening(state.openings, target.wallIndex, clamped, target.widthCm, id)) return state;
       return { openings: state.openings.map((o) => (o.id === id ? { ...o, offsetCm: clamped } : o)) };
     }),
-  removeOpening: (id) => set((state) => ({ openings: state.openings.filter((o) => o.id !== id) })),
+  removeOpening: (id) =>
+    set((state) => ({
+      openings: state.openings.filter((o) => o.id !== id),
+      selectedOpeningId: state.selectedOpeningId === id ? null : state.selectedOpeningId,
+    })),
 
   wallColorHex: DEFAULT_WALL_COLOR_HEX,
   setWallColor: (hex) => set({ wallColorHex: hex }),
@@ -391,6 +420,8 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       wallColorHex,
       floorStyleId,
       furniture: [],
+      selectedOpeningId: null,
+      selectedFurnitureId: null,
     }),
   clearMatchedTemplate: () =>
     set({
@@ -400,6 +431,8 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       wallColorHex: DEFAULT_WALL_COLOR_HEX,
       floorStyleId: DEFAULT_FLOOR_STYLE_ID,
       furniture: [],
+      selectedOpeningId: null,
+      selectedFurnitureId: null,
     }),
 
   furniture: [],
@@ -411,6 +444,7 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       selectedFurnitureDefId: state.selectedFurnitureDefId === defId ? null : defId,
       furnitureRotated: false,
       furnitureWarn: false,
+      selectedFurnitureId: null, // 새로 놓을 걸 고르는 중이면 기존 선택(삭제·회전 툴바)은 의미 없음
     })),
   toggleFurnitureRotate: () => set((state) => ({ furnitureRotated: !state.furnitureRotated })),
   placeFurnitureAt: (cx, cz) => {
@@ -435,5 +469,25 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       if (!canPlaceFurniture(cx, cz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id)) return state;
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, cx, cz } : f)) };
     }),
-  removeFurniture: (id) => set((state) => ({ furniture: state.furniture.filter((f) => f.id !== id) })),
+  removeFurniture: (id) =>
+    set((state) => ({
+      furniture: state.furniture.filter((f) => f.id !== id),
+      selectedFurnitureId: state.selectedFurnitureId === id ? null : state.selectedFurnitureId,
+    })),
+
+  selectedOpeningId: null,
+  selectedFurnitureId: null,
+  selectOpening: (id) => set((state) => ({ selectedOpeningId: state.selectedOpeningId === id ? null : id })),
+  selectFurnitureItem: (id) => set((state) => ({ selectedFurnitureId: state.selectedFurnitureId === id ? null : id })),
+  rotateFurniture: (id) =>
+    set((state) => {
+      const target = state.furniture.find((f) => f.id === id);
+      const def = target ? furnitureDefById.get(target.defId) : undefined;
+      if (!target || !def) return state;
+      const nextRotated = !target.rotated;
+      if (!canPlaceFurniture(target.cx, target.cz, def, nextRotated, state.roomShape, state.roomPolygon, state.furniture, id)) {
+        return state;
+      }
+      return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, rotated: nextRotated } : f)) };
+    }),
 }));

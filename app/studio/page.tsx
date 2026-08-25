@@ -7,6 +7,7 @@ import { StepDimensions } from "@/components/studio/StepDimensions";
 import { StepFinish } from "@/components/studio/StepFinish";
 import { StepFurniture } from "@/components/studio/StepFurniture";
 import { StepShape } from "@/components/studio/StepShape";
+import { StudioPreviewPanel } from "@/components/studio/StudioPreviewPanel";
 import { calculateScores } from "@/lib/scoring";
 import { matchHouseTemplate } from "@/lib/matching";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
@@ -34,6 +35,12 @@ import type { Answer } from "@/lib/types";
  *
  * 단계 이동은 이 페이지 안의 로컬 state(activeStep)로만 관리한다 — 아직
  * URL로 딥링크할 필요가 없어서 쿼리 파라미터 동기화는 안 넣었다.
+ *
+ * 콘텐츠 영역은 좌(단계별 컨트롤)/우(상시 2D·3D 프리뷰 패널) 2컬럼이다.
+ * StudioPreviewPanel은 여기 페이지 레벨에서 activeStep이 바뀌어도 리마운트
+ * 없이 계속 살아있다 — 안에 있는 3D 씬(<Canvas>)이 단계를 넘길 때마다
+ * 초기화되지 않고 카메라 각도를 유지하는 이유가 이거다(컴포넌트 자체 주석
+ * 참고).
  *
  * 상단바는 랜딩의 FloatingNav 대신 각자 로고+단계 라벨+뒤로가기로 된
  * 얇은 툴바를 쓰는 이 저장소 관례를 따른다.
@@ -96,7 +103,7 @@ export default function StudioPage() {
         </Link>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[1100px] flex-1 flex-col gap-12 px-6 py-12 sm:px-10 sm:py-16">
+      <div className="mx-auto flex w-full max-w-[1320px] flex-1 flex-col gap-12 px-6 py-12 sm:px-10 sm:py-16">
         {/* 5단계 인디케이터 — 이미 지나온 단계만 클릭해 되돌아갈 수 있다. */}
         <ol className="flex flex-wrap items-center gap-3">
           {STEPS.map((step, i) => {
@@ -146,11 +153,18 @@ export default function StudioPage() {
           </div>
         )}
 
-        {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
-        {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}
-        {activeStep === 3 && <StepFinish onBack={() => setActiveStep(2)} onNext={() => setActiveStep(4)} />}
-        {activeStep === 4 && <StepFurniture onBack={() => setActiveStep(3)} onNext={() => setActiveStep(5)} />}
-        {activeStep === 5 && <StepBudget onBack={() => setActiveStep(4)} />}
+        <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-[1fr_440px]">
+          <div className="min-w-0">
+            {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
+            {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}
+            {activeStep === 3 && <StepFinish onBack={() => setActiveStep(2)} onNext={() => setActiveStep(4)} />}
+            {activeStep === 4 && <StepFurniture onBack={() => setActiveStep(3)} onNext={() => setActiveStep(5)} />}
+            {activeStep === 5 && <StepBudget onBack={() => setActiveStep(4)} />}
+          </div>
+          <div className="lg:sticky lg:top-24">
+            <StudioPreviewPanel step={activeStep} />
+          </div>
+        </div>
       </div>
     </main>
   );

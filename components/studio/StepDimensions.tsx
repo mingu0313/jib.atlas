@@ -1,7 +1,7 @@
 "use client";
 
 import { DimensionInput } from "@/components/studio/DimensionInput";
-import { RoomDimensionCanvas } from "@/components/studio/RoomDimensionCanvas";
+import { StepNav } from "@/components/studio/StepNav";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { getDimensionFields, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "@/lib/roomDimensions";
 
@@ -13,7 +13,9 @@ const UNIT_OPTIONS: { id: RoomUnit; label: string }[] = [
 /**
  * STEP 12 — 2단계: 치수 조정. 단위(ft/cm) 토글은 표시·입력에만 영향을 주고
  * 실제 저장은 항상 cm(roomPolygon)이다 — 토글해도 값이 반올림 오차로
- * 계속 깎여나가지 않는다(lib/roomDimensions.ts 주석 참고).
+ * 계속 깎여나가지 않는다(lib/roomDimensions.ts 주석 참고). 드래그로 바꾸는
+ * 평면도는 오른쪽 상시 패널(StudioPreviewPanel)에 있다 — 여기 숫자 입력과
+ * 같은 store 액션(setDimension)을 쓰니 둘은 항상 같은 값에 수렴한다.
  */
 export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
@@ -34,7 +36,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
           치수를 정해보세요<span className="heading-dot">.</span>
         </h1>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          숫자를 직접 입력해도 되고, 아래 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만
+          숫자를 직접 입력해도 되고, 오른쪽 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만
           조정돼요.
         </p>
       </div>
@@ -82,27 +84,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
         />
       </div>
 
-      <div className="flex flex-col gap-4 rounded-[28px] bg-panel px-6 py-10 sm:px-10">
-        <span className="label-mono text-[10px] text-faint">Preview — 테두리를 드래그해서 치수를 바꿀 수 있어요</span>
-        <RoomDimensionCanvas className="mx-auto h-[320px] w-full max-w-[480px]" />
-      </div>
-
-      <div className="flex items-center justify-between">
-        <button
-          type="button"
-          onClick={onBack}
-          className="rounded-full border border-hair px-8 py-4 text-[13px] font-semibold text-[#5f5f57] transition hover:border-olive hover:text-fg"
-        >
-          ← 이전
-        </button>
-        <button
-          type="button"
-          onClick={onNext}
-          className="rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream transition hover:bg-fg"
-        >
-          다음: 문/창문·마감재 →
-        </button>
-      </div>
+      <StepNav onBack={onBack} onNext={onNext} nextLabel="다음: 문/창문·마감재 →" />
     </div>
   );
 }
