@@ -1,4 +1,4 @@
-import type { PlacedOpening, Point, RoomShapeId } from "./roomBuilderStore";
+import type { PlacedOpening, Point } from "./roomBuilderStore";
 import { getFloorAreaM2, getWallAreaM2 } from "./roomGeometry";
 import type { PriceProvider } from "./priceProvider";
 import { DOOR_PRESETS, FLOOR_STYLE_PRESETS, WINDOW_PRESETS } from "./roomStyle";
@@ -39,7 +39,6 @@ function countByPreset(openings: PlacedOpening[]): Map<string, number> {
  */
 export function calculateStudioBudget(params: {
   provider: PriceProvider;
-  roomShape: RoomShapeId;
   roomPolygon: Point[];
   wallHeightCm: number;
   wallColorHex: string;
@@ -47,11 +46,11 @@ export function calculateStudioBudget(params: {
   openings: PlacedOpening[];
   furnitureItems?: FurnitureBudgetInput[];
 }): BudgetResult {
-  const { provider, roomShape, roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings, furnitureItems = [] } = params;
+  const { provider, roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings, furnitureItems = [] } = params;
 
   const items: BudgetLineItem[] = [];
 
-  const floorAreaM2 = getFloorAreaM2(roomShape, roomPolygon);
+  const floorAreaM2 = getFloorAreaM2(roomPolygon);
   const floorUnit = provider.getFloorUnitPrice(floorStyleId);
   const floorLabel = FLOOR_STYLE_PRESETS.find((p) => p.id === floorStyleId)?.label ?? "바닥재";
   items.push({

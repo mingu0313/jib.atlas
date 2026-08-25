@@ -34,7 +34,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
           치수를 정해보세요<span className="heading-dot">.</span>
         </h1>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          숫자를 직접 입력해도 되고, 아래 평면도의 벽을 드래그해서 바꿔도 돼요. 150cm~1500cm 사이에서만
+          숫자를 직접 입력해도 되고, 아래 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만
           조정돼요.
         </p>
       </div>

@@ -8,8 +8,8 @@ import { FurnitureShape } from "@/components/furniture3d";
 import { FurnitureModel } from "@/components/furnitureModel3d";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { HEIGHT_SCALE, TILE_M } from "@/lib/editor3d";
-import { useRoomBuilderStore, type PlacedStudioFurniture } from "@/lib/roomBuilderStore";
-import { buildWallBoxes, getFloorRects, getWallSegments } from "@/lib/roomGeometry";
+import { useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
+import { buildWallBoxes, CONVEX_DIAGONAL_SHAPES, getFloorRects, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
 import type { IsoFurnitureDef } from "@/lib/types";
 
@@ -54,6 +54,38 @@ function FloorRect({ x0, z0, x1, z1, color }: { x0: number; z0: number; x1: numb
     geo.computeVertexNormals();
     return geo;
   }, [x0, z0, x1, z1]);
+
+  return (
+    <mesh geometry={geometry} receiveShadow>
+      <meshStandardMaterial color={color} roughness={0.9} metalness={0.02} side={THREE.DoubleSide} />
+    </mesh>
+  );
+}
+
+/**
+ * 잘라내기·경사진(대각선 변이 있는 볼록 다각형) 전용 바닥 — getFloorRects의
+ * 축정렬 사각형 분해가 안 통해서, 대신 폴리곤 꼭짓점 0번에서 부채꼴로
+ * 삼각분할(fan triangulation)한다. 오목 다각형에선 이 방식이 폴리곤
+ * 바깥으로 삐져나온 삼각형을 만들 수 있지만(STEP 13 roomGeometry.ts
+ * 주석 참고), 볼록 다각형에서는 어느 꼭짓점에서 부채꼴을 펼치든 항상
+ * 폴리곤 안에 완전히 들어맞는다 — 그래서 CONVEX_DIAGONAL_SHAPES에만 쓴다.
+ */
+function FloorFan({ polygon, color }: { polygon: Point[]; color: string }) {
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    const positions = new Float32Array(polygon.length * 3);
+    polygon.forEach((p, i) => {
+      positions[i * 3] = toM(p.x);
+      positions[i * 3 + 1] = 0;
+      positions[i * 3 + 2] = toM(p.z);
+    });
+    const indices: number[] = [];
+    for (let i = 1; i < polygon.length - 1; i++) indices.push(0, i, i + 1);
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }, [polygon]);
 
   return (
     <mesh geometry={geometry} receiveShadow>
@@ -178,7 +210,11 @@ export function RoomStudioScene3D() {
   const furniture = useRoomBuilderStore((s) => s.furniture);
 
   const floorPreset = FLOOR_STYLE_PRESETS.find((p) => p.id === floorStyleId) ?? FLOOR_STYLE_PRESETS[0];
-  const floorRects = useMemo(() => getFloorRects(roomShape, roomPolygon), [roomShape, roomPolygon]);
+  const isConvexDiagonal = CONVEX_DIAGONAL_SHAPES.includes(roomShape);
+  const floorRects = useMemo(
+    () => (isConvexDiagonal ? [] : getFloorRects(roomShape, roomPolygon)),
+    [isConvexDiagonal, roomShape, roomPolygon],
+  );
   const wallCount = roomPolygon.length;
 
   const xs = roomPolygon.map((p) => p.x);
@@ -202,9 +238,11 @@ export function RoomStudioScene3D() {
           shadow-mapSize={[1024, 1024]}
         />
 
-        {floorRects.map((r, i) => (
-          <FloorRect key={i} x0={r.x0} z0={r.z0} x1={r.x1} z1={r.z1} color={floorPreset.base} />
-        ))}
+        {isConvexDiagonal ? (
+          <FloorFan polygon={roomPolygon} color={floorPreset.base} />
+        ) : (
+          floorRects.map((r, i) => <FloorRect key={i} x0={r.x0} z0={r.z0} x1={r.x1} z1={r.z1} color={floorPreset.base} />)
+        )}
         {Array.from({ length: wallCount }, (_, i) => (
           <Wall key={i} wallIndex={i} />
         ))}

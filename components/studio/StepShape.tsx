@@ -3,7 +3,7 @@
 import { RoomPolygonPreview } from "@/components/studio/RoomPolygonPreview";
 import { ROOM_SHAPE_PRESETS, useRoomBuilderStore } from "@/lib/roomBuilderStore";
 
-/** STEP 11 — 1단계: 방 모양 프리셋 3종 카드 선택 + 큰 미리보기. */
+/** STEP 11 — 1단계: 방 모양 프리셋 7종 카드 선택 + 큰 미리보기. */
 export function StepShape({ onNext }: { onNext: () => void }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
@@ -20,7 +20,7 @@ export function StepShape({ onNext }: { onNext: () => void }) {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {ROOM_SHAPE_PRESETS.map((preset) => {
           const selected = roomShape === preset.id;
           return (
@@ -28,13 +28,13 @@ export function StepShape({ onNext }: { onNext: () => void }) {
               key={preset.id}
               type="button"
               onClick={() => selectShape(preset.id)}
-              className="flex flex-col gap-4 rounded-[22px] border p-6 text-left transition-colors"
+              className="flex flex-col gap-3 rounded-[18px] border p-4 text-left transition-colors sm:gap-4 sm:rounded-[22px] sm:p-6"
               style={{
                 borderColor: selected ? "var(--color-olive)" : "var(--color-hair)",
                 background: selected ? "var(--color-sage)" : "var(--color-panel)",
               }}
             >
-              <RoomPolygonPreview polygon={preset.defaultPolygon} className="h-[100px] w-full" strokeWidth={8} />
+              <RoomPolygonPreview polygon={preset.defaultPolygon} className="h-[76px] w-full sm:h-[92px]" strokeWidth={8} />
               <div className="flex flex-col gap-1">
                 <span className="font-kr text-lg" style={{ color: selected ? "var(--color-sage-ink)" : "var(--color-fg)" }}>
                   {preset.label}

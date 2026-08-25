@@ -2,14 +2,14 @@ import { create } from "zustand";
 import furnitureCatalogData from "../data/furniture-catalog.json";
 import { HEIGHT_SCALE, TILE_M } from "./editor3d";
 import { buildPolygon, DEFAULT_WALL_HEIGHT_CM, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "./roomDimensions";
-import { clampOpeningOffset, getFloorRects, getWallSegments, isRectInsideFloor, overlapsOtherOpening, rectsOverlap, type Rect } from "./roomGeometry";
+import { clampOpeningOffset, getWallSegments, isFootprintInsideRoom, overlapsOtherOpening, rectsOverlap, type Rect } from "./roomGeometry";
 import { DEFAULT_FLOOR_STYLE_ID, DEFAULT_WALL_COLOR_HEX, DOOR_PRESETS, WINDOW_PRESETS } from "./roomStyle";
 import type { IsoFurnitureDef } from "./types";
 
 /** 평면 좌표(cm). x=가로, z=깊이 — y는 3D 높이축이라 평면 좌표엔 안 쓴다. */
 export type Point = { x: number; z: number };
 
-export type RoomShapeId = "square" | "rectangle" | "lshape";
+export type RoomShapeId = "square" | "rectangle" | "clippedCorner" | "lshape" | "tshape" | "ushape" | "angled";
 
 export interface RoomShapePreset {
   id: RoomShapeId;
@@ -21,17 +21,19 @@ export interface RoomShapePreset {
 }
 
 /**
- * STEP 11(정밀 룸빌더 1단계 — 방 모양·크기) — 프리셋 3종.
+ * STEP 11(정밀 룸빌더 1단계 — 방 모양·크기) — 프리셋 7종. IKEA류 룸플래너의
+ * "모양 및 크기 설정하기" 화면(사각형/잘라내기/L자형/T자형/U자형/경사진)을
+ * 참고해 기존 3종(정사각형/직사각형/L자형)에 4종을 더했다.
  *
- * 좌표는 처음부터 cm 단위로 저장한다 — STEP 12(치수 조정: ft/cm 토글, 내부는
- * cm 기준 통일)가 이 값을 그대로 스케일 조정할 수 있게, 기본값도 그때 쓸
- * 150~1500cm 범위 안으로 잡았다.
+ * 좌표는 처음부터 cm 단위로 저장한다. 모든 프리셋이 시계방향(SVG 기준
+ * z가 아래로 증가)이고 첫 점은 항상 원점(0,0) — lib/roomDimensions.ts의
+ * getDraggableEdges가 "원점에 안 닿는 변의 고정 좌표 = 그 변이 담당하는
+ * 치수 필드 값"이라는 트릭을 쓰기 때문에, 이 관례를 새 프리셋에서도
+ * 반드시 지켜야 한다(원점에 닿는 변 2개만 드래그 불가로 남긴다).
  *
- * L자형은 바운딩박스 500×450cm에서 우상단 200×200cm 모서리를 잘라낸
- * 6점 폴리곤이다 — 거실+주방이 분리된 구조를 흉내낸다. 점 순서를
- * (0,0)→(300,0)→(300,200)→(500,200)→(500,450)→(0,450)로 잡아둔 건, STEP 12에서
- * 변마다 이름(mainWidth/mainDepth/notchWidth/notchDepth)을 매길 때 각 변이
- * 어느 인접 점 쌍인지 바로 알아볼 수 있게 하기 위해서다.
+ * 잘라내기·경사진 2종은 대각선 변이 있어(볼록 다각형) 나머지 5종(전부
+ * 직교/오목 다각형 가능)과 바닥·가구충돌 판정 방식이 다르다 —
+ * lib/roomGeometry.ts의 CONVEX_DIAGONAL_SHAPES 참고.
  */
 export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
   {
@@ -57,6 +59,19 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     ],
   },
   {
+    id: "clippedCorner",
+    label: "잘라내기",
+    helper: "모서리 하나를 비스듬히 자른 형태",
+    // (0,0)→(W-C,0)→(W,C)→(W,D)→(0,D). 우상단 모서리를 대각선으로 자른다.
+    defaultPolygon: [
+      { x: 0, z: 0 },
+      { x: 400, z: 0 },
+      { x: 500, z: 100 },
+      { x: 500, z: 350 },
+      { x: 0, z: 350 },
+    ],
+  },
+  {
     id: "lshape",
     label: "L자형",
     helper: "거실+주방 분리형",
@@ -67,6 +82,53 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
       { x: 500, z: 200 },
       { x: 500, z: 450 },
       { x: 0, z: 450 },
+    ],
+  },
+  {
+    id: "tshape",
+    label: "T자형",
+    helper: "넓은 거실 + 좁은 복도형 돌출부",
+    // 위쪽 넓은 바 + 아래로 뻗은 좁은 스템. (0,0)→(W,0)→(W,B)→
+    // ((W+SW)/2,B)→((W+SW)/2,B+SD)→((W-SW)/2,B+SD)→((W-SW)/2,B)→(0,B).
+    defaultPolygon: [
+      { x: 0, z: 0 },
+      { x: 500, z: 0 },
+      { x: 500, z: 250 },
+      { x: 375, z: 250 },
+      { x: 375, z: 450 },
+      { x: 125, z: 450 },
+      { x: 125, z: 250 },
+      { x: 0, z: 250 },
+    ],
+  },
+  {
+    id: "ushape",
+    label: "U자형",
+    helper: "가운데가 뚫린 안뜰형",
+    // 위쪽 가운데를 노치로 파낸 형태. (0,0)→((W-NW)/2,0)→((W-NW)/2,ND)→
+    // ((W+NW)/2,ND)→((W+NW)/2,0)→(W,0)→(W,D)→(0,D).
+    defaultPolygon: [
+      { x: 0, z: 0 },
+      { x: 150, z: 0 },
+      { x: 150, z: 150 },
+      { x: 350, z: 150 },
+      { x: 350, z: 0 },
+      { x: 500, z: 0 },
+      { x: 500, z: 400 },
+      { x: 0, z: 400 },
+    ],
+  },
+  {
+    id: "angled",
+    label: "경사진",
+    helper: "한쪽 벽이 비스듬한 다락방형",
+    // 윗변 전체가 대각선(왼쪽이 낮고 오른쪽이 깊은 한쪽 벽 전체 경사).
+    // (0,0)→(W,S)→(W,D)→(0,D).
+    defaultPolygon: [
+      { x: 0, z: 0 },
+      { x: 500, z: 120 },
+      { x: 500, z: 350 },
+      { x: 0, z: 350 },
     ],
   },
 ];
@@ -132,10 +194,10 @@ export interface PlacedStudioFurniture {
 
 /**
  * (cx,cz)에 def(rotated 방향)를 놓을 수 있는지 — 방 폴리곤을 완전히
- * 벗어나거나(isRectInsideFloor), 같은 layer의 다른 가구와 겹치면 false.
- * "floor" layer(러그 등)는 다른 layer와는 겹칠 수 있다 —
- * lib/editorStore.ts의 canPlace와 같은 규칙. excludeId는 드래그 중인
- * 자기 자신을 겹침 검사에서 뺀다.
+ * 벗어나거나(isFootprintInsideRoom — 도형에 따라 알맞은 방식으로 판정),
+ * 같은 layer의 다른 가구와 겹치면 false. "floor" layer(러그 등)는 다른
+ * layer와는 겹칠 수 있다 — lib/editorStore.ts의 canPlace와 같은 규칙.
+ * excludeId는 드래그 중인 자기 자신을 겹침 검사에서 뺀다.
  */
 export function canPlaceFurniture(
   cx: number,
@@ -149,7 +211,7 @@ export function canPlaceFurniture(
 ): boolean {
   const { widthCm, depthCm } = furnitureFootprintCm(def, rotated);
   const footprint: Rect = { x0: cx - widthCm / 2, z0: cz - depthCm / 2, x1: cx + widthCm / 2, z1: cz + depthCm / 2 };
-  if (!isRectInsideFloor(footprint, getFloorRects(roomShape, roomPolygon))) return false;
+  if (!isFootprintInsideRoom(roomShape, roomPolygon, footprint)) return false;
   const layer = def.layer ?? "object";
   return placed.every((item) => {
     if (item.id === excludeId) return true;

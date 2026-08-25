@@ -20,7 +20,6 @@ function formatWon(n: number): string {
  * lib/budget.ts가 계산한 값을 총액 + 항목별 브레이크다운으로 보여준다.
  */
 export function StepBudget({ onBack }: { onBack: () => void }) {
-  const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const wallHeightCm = useRoomBuilderStore((s) => s.wallHeightCm);
   const wallColorHex = useRoomBuilderStore((s) => s.wallColorHex);
@@ -32,7 +31,6 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
     () =>
       calculateStudioBudget({
         provider: priceProvider,
-        roomShape,
         roomPolygon,
         wallHeightCm,
         wallColorHex,
@@ -40,7 +38,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
         openings,
         furnitureItems: furniture.map((f) => ({ defId: f.defId })),
       }),
-    [roomShape, roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings, furniture],
+    [roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings, furniture],
   );
 
   return (
