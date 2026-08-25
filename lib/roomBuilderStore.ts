@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { buildPolygon, DEFAULT_WALL_HEIGHT_CM, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "./roomDimensions";
 
 /** 평면 좌표(cm). x=가로, z=깊이 — y는 3D 높이축이라 평면 좌표엔 안 쓴다. */
 export type Point = { x: number; z: number };
@@ -75,15 +76,36 @@ interface RoomBuilderState {
   /** 선택된 프리셋 id. `/studio`는 특정 하우스 타입에 안 묶이는 독립
    * 경로라, 가장 무난한 "rectangle"을 기본값으로 시작한다. */
   roomShape: RoomShapeId;
-  /** 현재 방 폴리곤(cm). STEP 12부터 치수 조정이 이 값을 직접 수정하게
-   * 되지만, 지금은 프리셋의 defaultPolygon을 그대로 쓴다. */
+  /** 현재 방 폴리곤(cm) — 항상 이 단위로만 저장한다(STEP 12). ft는 표시·
+   * 입력 시에만 변환하고, 이 값 자체를 ft로 바꿔 들고 있지 않는다. */
   roomPolygon: Point[];
+  /** 치수 입력창에 보여줄 단위. roomPolygon(cm)엔 영향 없음 — 화면 표시·
+   * 입력 파싱에만 쓰인다(lib/roomDimensions.ts). */
+  unit: RoomUnit;
+  /** 천장 높이(cm) — 어떤 프리셋을 골라도 공통으로 갖는 값이라 폴리곤과
+   * 별도 필드로 둔다. STEP 13의 문/창문 높이 제약에 쓰일 예정. */
+  wallHeightCm: number;
   /** 프리셋 카드 선택 — 폴리곤을 그 프리셋의 기본값으로 즉시 교체한다. */
   selectShape: (id: RoomShapeId) => void;
+  /** 치수 입력 필드 하나(예: "width")를 cm 값으로 갱신 — 현재 폴리곤에서
+   * 나머지 치수를 그대로 읽어와 이 필드만 바꾼 뒤 폴리곤을 다시 만든다.
+   * 범위를 벗어난 값은 buildPolygon이 알아서 clamp한다. */
+  setDimension: (fieldId: string, cm: number) => void;
+  setWallHeight: (cm: number) => void;
+  setUnit: (unit: RoomUnit) => void;
 }
 
-export const useRoomBuilderStore = create<RoomBuilderState>((set) => ({
+export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   roomShape: "rectangle",
   roomPolygon: presetById("rectangle").defaultPolygon,
+  unit: "cm",
+  wallHeightCm: DEFAULT_WALL_HEIGHT_CM,
   selectShape: (id) => set({ roomShape: id, roomPolygon: presetById(id).defaultPolygon }),
+  setDimension: (fieldId, cm) => {
+    const { roomShape, roomPolygon } = get();
+    const dims = { ...readDimensions(roomShape, roomPolygon), [fieldId]: cm };
+    set({ roomPolygon: buildPolygon(roomShape, dims) });
+  },
+  setWallHeight: (cm) => set({ wallHeightCm: Math.min(MAX_WALL_HEIGHT_CM, Math.max(MIN_WALL_HEIGHT_CM, cm)) }),
+  setUnit: (unit) => set({ unit }),
 }));
