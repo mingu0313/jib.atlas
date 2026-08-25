@@ -27,11 +27,12 @@ import type { Answer, IsoFurnitureDef } from "@/lib/types";
 
 const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 
-// EditorCanvas는 SVG라 SSR 자체는 문제없지만, 클릭 배치가 클라이언트 상태
+// STEP 12: SVG 아이소메트릭(EditorCanvas)에서 three.js 3D 씬(EditorScene3D)으로
+// 전환. WebGL 캔버스라 SSR 자체가 불가능한 데다, 클릭 배치가 클라이언트 상태
 // (zustand editorStore)에 의존해 하이드레이션 전엔 빈 배치로 그려질 뿐이라
 // 기존처럼 클라이언트 전용으로 로드해 깜빡임을 없앤다.
-const EditorCanvas = dynamic(
-  () => import("@/components/EditorCanvas").then((m) => m.EditorCanvas),
+const EditorScene3D = dynamic(
+  () => import("@/components/EditorScene3D").then((m) => m.EditorScene3D),
   { ssr: false, loading: () => <CanvasSkeleton /> },
 );
 
@@ -40,7 +41,7 @@ const TOTAL_QUESTION_COUNT = 23;
 function CanvasSkeleton() {
   return (
     <div className="flex h-[470px] w-full max-w-[860px] items-center justify-center text-sm text-muted">
-      캔버스 불러오는 중…
+      3D 씬 불러오는 중…
     </div>
   );
 }
@@ -250,7 +251,7 @@ export default function EditorPage() {
 
         {/* 중앙: 캔버스 */}
         <div className="relative flex items-center justify-center overflow-hidden bg-panel p-6 sm:p-10">
-          <EditorCanvas catalog={furnitureCatalog} />
+          <EditorScene3D catalog={furnitureCatalog} />
           <div className="absolute bottom-8 left-8 flex flex-col gap-1.5">
             <span className="label-mono text-[10px] text-olive-mid">{hintTitle}</span>
             <span className="text-[12px] text-muted">{hintBody}</span>

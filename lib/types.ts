@@ -192,6 +192,18 @@ export interface IsoFurnitureDef {
   top: string;
   left: string;
   right: string;
+  /**
+   * STEP 12(룸 에디터 3D 전환)에서 마련해둔 실제 제품 연결 자리 — 전부
+   * 선택 필드라 지금처럼 비워둬도 SVG(EditorCanvas 등)·3D(EditorScene3D)
+   * 양쪽 다 그대로 동작한다. 실제 브랜드 제품 데이터/3D 모델이 생기면
+   * furniture-catalog.json에 이 필드들만 채우면 된다(로직 변경 불필요).
+   */
+  brand?: string;
+  productName?: string;
+  priceKrw?: number;
+  purchaseUrl?: string;
+  /** 실제 제품의 GLTF/GLB 모델 URL. 없으면 3D 뷰는 비례를 맞춘 박스로 대체 렌더링한다. */
+  modelUrl?: string;
 }
 
 /** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅). */
