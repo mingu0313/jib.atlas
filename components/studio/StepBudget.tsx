@@ -16,11 +16,8 @@ function formatWon(n: number): string {
 }
 
 /**
- * STEP 14 — 4단계: 예산. 지금까지 정한 방 크기·마감재·문/창문으로
+ * STEP 14 — 5단계: 예산. 지금까지 정한 방 크기·마감재·문/창문·가구로
  * lib/budget.ts가 계산한 값을 총액 + 항목별 브레이크다운으로 보여준다.
- * 가구는 이 스튜디오에 아직 배치 기능이 없어 0원으로만 표시된다 — 나중에
- * /studio에 가구 배치가 생기면 furnitureItems만 채워 넘기면 된다
- * (calculateStudioBudget 시그니처는 이미 그걸 받게 돼 있다).
  */
 export function StepBudget({ onBack }: { onBack: () => void }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
@@ -29,6 +26,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
   const wallColorHex = useRoomBuilderStore((s) => s.wallColorHex);
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
   const openings = useRoomBuilderStore((s) => s.openings);
+  const furniture = useRoomBuilderStore((s) => s.furniture);
 
   const budget = useMemo(
     () =>
@@ -40,8 +38,9 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
         wallColorHex,
         floorStyleId,
         openings,
+        furnitureItems: furniture.map((f) => ({ defId: f.defId })),
       }),
-    [roomShape, roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings],
+    [roomShape, roomPolygon, wallHeightCm, wallColorHex, floorStyleId, openings, furniture],
   );
 
   return (
@@ -51,7 +50,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
           예상 예산이에요<span className="heading-dot">.</span>
         </h1>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          지금까지 고른 크기·마감재·문/창문을 기준으로 어림한 값이에요.
+          지금까지 고른 크기·마감재·문/창문·가구를 기준으로 어림한 값이에요.
         </p>
       </div>
 
@@ -76,8 +75,7 @@ export function StepBudget({ onBack }: { onBack: () => void }) {
       </div>
 
       <p className="text-[11px] leading-[1.7] text-faint">
-        * 실제 쇼핑몰 시세를 조사한 값이 아니라, 이 화면을 위해 대략 어림한 참고용 가격이에요. 가구는 이 스튜디오에서
-        아직 배치할 수 없어 0원으로 잡혀 있어요.
+        * 실제 쇼핑몰 시세를 조사한 값이 아니라, 이 화면을 위해 대략 어림한 참고용 가격이에요.
       </p>
 
       {/* STEP 15 역유입 — 강제 팝업이 아니라 마지막 단계 하단에 자연스럽게. */}

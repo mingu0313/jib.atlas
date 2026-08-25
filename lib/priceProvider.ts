@@ -82,7 +82,12 @@ export class MockPriceProvider implements PriceProvider {
 
   getFurnitureUnitPrice(defId: string): number {
     const def = furnitureCatalog.find((d) => d.id === defId);
-    if (!def?.category) return 0;
+    if (!def) return 0;
+    // 실제 제품 단가(IsoFurnitureDef.priceKrw, lib/types.ts)가 채워지면
+    // 그걸 그대로 쓰고, 없으면(지금은 38종 전부 비어 있다) 카테고리
+    // 평균으로 근사한다.
+    if (def.priceKrw) return def.priceKrw;
+    if (!def.category) return 0;
     return this.furniturePricePerCategory[def.category] ?? 0;
   }
 }

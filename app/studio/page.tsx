@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { StepBudget } from "@/components/studio/StepBudget";
 import { StepDimensions } from "@/components/studio/StepDimensions";
 import { StepFinish } from "@/components/studio/StepFinish";
+import { StepFurniture } from "@/components/studio/StepFurniture";
 import { StepShape } from "@/components/studio/StepShape";
 import { calculateScores } from "@/lib/scoring";
 import { matchHouseTemplate } from "@/lib/matching";
@@ -15,8 +16,8 @@ import type { Answer } from "@/lib/types";
 
 /**
  * `/studio` — 이 서비스의 유일한 룸빌더(인테리어 견적 스튜디오)다. IKEA
- * 홈디자인 플래너를 참고한 4단계 위저드: ① 모양·크기 → ② 치수 → ③ 문/창문·
- * 마감재 → ④ 예산(STEP 11~14).
+ * 홈디자인 플래너를 참고한 5단계 위저드: ① 모양·크기 → ② 치수 → ③ 문/창문·
+ * 마감재 → ④ 가구 → ⑤ 예산(STEP 11~14 + 가구 배치).
  *
  * 진단(/test → /result)을 마치고 왔든, 랜딩에서 "진단 없이 바로 꾸며보기"로
  * 곧장 왔든 같은 페이지를 쓴다 — 마운트 시 useTestStore에 완료된 진단
@@ -27,9 +28,9 @@ import type { Answer } from "@/lib/types";
  * 예전엔 진단 결과가 이 폴리곤 빌더 대신 격자+박스가구 방식인 `/editor`로
  * 갔었다 — 이제 `/result`·`/en/result`·랜딩·로그인/비번재설정 후 리다이렉트
  * 전부 여기로 통일했다. `/editor` 코드 자체(및 그 위의 "지도에 공유하기"
- * 기능)는 아직 지우지 않았다 — 이 스튜디오엔 아직 가구 배치가 없어서,
- * 가구 예산·배치까지 옮겨오기 전까진 `/atlas`의 "방 꾸미고 공유하기"만
- * 당분간 거기 남겨뒀다(app/atlas/page.tsx).
+ * 기능)는 아직 지우지 않았다 — 이 스튜디오의 가구 배치(store.furniture)는
+ * `/atlas`의 house_posts.room_items 스키마(col/row 격자 기준)와 안 맞아서,
+ * "방 꾸미고 공유하기"는 당분간 `/editor`에만 남겨뒀다(app/atlas/page.tsx).
  *
  * 단계 이동은 이 페이지 안의 로컬 state(activeStep)로만 관리한다 — 아직
  * URL로 딥링크할 필요가 없어서 쿼리 파라미터 동기화는 안 넣었다.
@@ -44,6 +45,7 @@ const STEPS = [
   { id: "shape", label: "모양·크기" },
   { id: "dimensions", label: "치수" },
   { id: "finish", label: "문/창문·마감재" },
+  { id: "furniture", label: "가구" },
   { id: "budget", label: "예산" },
 ] as const;
 
@@ -95,12 +97,12 @@ export default function StudioPage() {
       </div>
 
       <div className="mx-auto flex w-full max-w-[1100px] flex-1 flex-col gap-12 px-6 py-12 sm:px-10 sm:py-16">
-        {/* 4단계 인디케이터 — 이미 지나온 단계만 클릭해 되돌아갈 수 있다. */}
+        {/* 5단계 인디케이터 — 이미 지나온 단계만 클릭해 되돌아갈 수 있다. */}
         <ol className="flex flex-wrap items-center gap-3">
           {STEPS.map((step, i) => {
             const stepNum = i + 1;
             const active = stepNum === activeStep;
-            const reachable = stepNum <= 4;
+            const reachable = stepNum <= STEPS.length;
             const visited = stepNum < activeStep;
             return (
               <li key={step.id} className="flex items-center gap-3">
@@ -147,7 +149,8 @@ export default function StudioPage() {
         {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
         {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}
         {activeStep === 3 && <StepFinish onBack={() => setActiveStep(2)} onNext={() => setActiveStep(4)} />}
-        {activeStep === 4 && <StepBudget onBack={() => setActiveStep(3)} />}
+        {activeStep === 4 && <StepFurniture onBack={() => setActiveStep(3)} onNext={() => setActiveStep(5)} />}
+        {activeStep === 5 && <StepBudget onBack={() => setActiveStep(4)} />}
       </div>
     </main>
   );

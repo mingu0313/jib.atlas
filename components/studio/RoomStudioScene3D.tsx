@@ -2,11 +2,19 @@
 
 import { OrbitControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import * as THREE from "three";
-import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
+import { FurnitureShape } from "@/components/furniture3d";
+import { FurnitureModel } from "@/components/furnitureModel3d";
+import furnitureCatalogData from "@/data/furniture-catalog.json";
+import { HEIGHT_SCALE, TILE_M } from "@/lib/editor3d";
+import { useRoomBuilderStore, type PlacedStudioFurniture } from "@/lib/roomBuilderStore";
 import { buildWallBoxes, getFloorRects, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
+import type { IsoFurnitureDef } from "@/lib/types";
+
+const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
+const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
 /**
  * `/studio` 3단계(문/창문·마감재)의 3D 미리보기 — STEP 13. 기존
@@ -124,11 +132,50 @@ function Wall({ wallIndex }: { wallIndex: number }) {
   );
 }
 
+/** def.modelUrl이 있으면 실제 GLTF(Kenney Kit), 없으면 프로시저럴 형태로 —
+ * components/EditorScene3D.tsx의 같은 이름 헬퍼와 완전히 동일한 규칙. */
+function FurnitureVisual({ def, width, depth, height }: { def: IsoFurnitureDef; width: number; depth: number; height: number }) {
+  const shape = <FurnitureShape def={def} width={width} depth={depth} height={height} />;
+  if (!def.modelUrl) return shape;
+  return (
+    <Suspense fallback={shape}>
+      <FurnitureModel def={def} width={width} depth={depth} height={height} />
+    </Suspense>
+  );
+}
+
+/**
+ * 가구 하나. /editor(components/EditorScene3D.tsx PlacedItem)와 같은 규칙 —
+ * FurnitureVisual엔 항상 "회전 안 된" def.w/d 기준 크기를 넘기고, 실제
+ * 90도 회전은 group을 통째로 Y축으로 돌려서 처리한다(등받이처럼 방향
+ * 있는 형태도 같이 돈다). item.cx/cz는 이미 "회전 후" footprint의
+ * 중심이라(store.canPlaceFurniture가 그렇게 계산) group을 그 자리에
+ * 두면 회전 방향과 무관하게 위치가 맞는다.
+ */
+function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
+  const def = furnitureDefById.get(item.defId);
+  if (!def) return null;
+  const width = def.w * TILE_M;
+  const depth = def.d * TILE_M;
+  const height = def.h * HEIGHT_SCALE;
+  // 러그 같은 "floor" 오브젝트는 바닥 타일과 딱 겹쳐 그려져 z-fighting이
+  // 나기 쉬워 살짝 띄운다 — /editor PlacedItem과 동일.
+  const y = def.layer === "floor" ? 0.004 : 0;
+
+  return (
+    <group position={[toM(item.cx), y, toM(item.cz)]} rotation={[0, item.rotated ? Math.PI / 2 : 0, 0]}>
+      <FurnitureVisual def={def} width={width} depth={depth} height={height} />
+    </group>
+  );
+}
+
 export function RoomStudioScene3D() {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
   const wallHeightCm = useRoomBuilderStore((s) => s.wallHeightCm);
+
+  const furniture = useRoomBuilderStore((s) => s.furniture);
 
   const floorPreset = FLOOR_STYLE_PRESETS.find((p) => p.id === floorStyleId) ?? FLOOR_STYLE_PRESETS[0];
   const floorRects = useMemo(() => getFloorRects(roomShape, roomPolygon), [roomShape, roomPolygon]);
@@ -161,6 +208,11 @@ export function RoomStudioScene3D() {
         {Array.from({ length: wallCount }, (_, i) => (
           <Wall key={i} wallIndex={i} />
         ))}
+        <Suspense fallback={null}>
+          {furniture.map((item) => (
+            <FurnitureItem key={item.id} item={item} />
+          ))}
+        </Suspense>
 
         <OrbitControls
           target={[centerX, wallHeightM * 0.3, centerZ]}

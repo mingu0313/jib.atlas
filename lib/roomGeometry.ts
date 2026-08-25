@@ -118,6 +118,44 @@ export function getWallAreaM2(
   return Math.max(0, grossCm2 - openingsCm2) / 10_000;
 }
 
+export interface Rect {
+  x0: number;
+  z0: number;
+  x1: number;
+  z1: number;
+}
+
+function rectArea(r: Rect): number {
+  return Math.max(0, r.x1 - r.x0) * Math.max(0, r.z1 - r.z0);
+}
+
+function intersectRects(a: Rect, b: Rect): Rect {
+  return {
+    x0: Math.max(a.x0, b.x0),
+    z0: Math.max(a.z0, b.z0),
+    x1: Math.min(a.x1, b.x1),
+    z1: Math.min(a.z1, b.z1),
+  };
+}
+
+/**
+ * 사각형 footprint가 floorRects(축정렬 사각형들의 합집합, 서로 안 겹침 —
+ * getFloorRects가 만드는 정사각형/직사각형 1개 또는 L자형 2개)에 완전히
+ * 들어있는지. "각 꼭짓점이 어느 한 사각형 안에 있는가"로는 오목한 L자
+ * 모서리 근처에서 오탐이 날 수 있어서, 대신 footprint와 각 floorRect의
+ * 교집합 넓이를 합산해 footprint 전체 넓이와 같은지(=차집합이 없는지)
+ * 비교한다 — floorRects끼리 안 겹치니 이 합산에 이중계산 걱정이 없다.
+ */
+export function isRectInsideFloor(footprint: Rect, floorRects: Rect[]): boolean {
+  const covered = floorRects.reduce((sum, r) => sum + rectArea(intersectRects(footprint, r)), 0);
+  return covered >= rectArea(footprint) - 1; // 부동소수점 오차 1cm² 허용
+}
+
+/** 두 축정렬 사각형이 겹치는지(선만 맞닿는 건 안 겹침으로 본다). */
+export function rectsOverlap(a: Rect, b: Rect): boolean {
+  return a.x0 < b.x1 && a.x1 > b.x0 && a.z0 < b.z1 && a.z1 > b.z0;
+}
+
 export interface WallBox {
   /** 벽 시작점부터의 거리(cm) 구간 — 이 구간 x 아래 높이 구간이 실제
    * 벽체(3D 박스) 하나가 된다. */
