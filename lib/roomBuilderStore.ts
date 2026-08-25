@@ -86,6 +86,11 @@ export type OpeningKind = "door" | "window";
 export interface PlacedOpening {
   id: string;
   kind: OpeningKind;
+  /** 배치할 때 고른 프리셋 id(lib/roomStyle.ts DOOR_PRESETS/WINDOW_PRESETS) —
+   * width/height는 이미 이 프리셋 값을 복사해둔 거라 굳이 안 써도 되지만,
+   * STEP 14 예산 계산이 "이게 정확히 어느 프리셋이었는지"로 단가를 찾을 때
+   * widthCm 역매칭 없이 바로 조회하려고 남겨둔다. */
+  presetId: string;
   wallIndex: number;
   /** 벽 시작점(getWallSegments 기준)부터 opening 중심까지 거리(cm). */
   offsetCm: number;
@@ -188,6 +193,7 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
     const opening: PlacedOpening = {
       id: crypto.randomUUID(),
       kind: pendingOpening.kind,
+      presetId: pendingOpening.presetId,
       wallIndex,
       offsetCm: clamped,
       widthCm: preset.widthCm,

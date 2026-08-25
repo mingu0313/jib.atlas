@@ -16,7 +16,7 @@ const RoomStudioScene3D = dynamic(
 /** STEP 13 — 3단계: 문/창문 배치 + 벽 색상·바닥 스타일. 왼쪽은 인터랙티브
  * 2D 평면도(문/창문 배치는 여기서만 — 클릭/드래그가 3D보다 훨씬 정확하고
  * 쉽다), 오른쪽은 그 결과를 실시간 반영하는 3D 미리보기. */
-export function StepFinish({ onBack }: { onBack: () => void }) {
+export function StepFinish({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
@@ -54,17 +54,13 @@ export function StepFinish({ onBack }: { onBack: () => void }) {
         >
           ← 이전
         </button>
-        <div className="flex flex-col items-end gap-2">
-          <button
-            type="button"
-            disabled
-            title="예산 계산은 다음 단계에서 이어집니다"
-            className="rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream opacity-40"
-          >
-            다음: 예산 보기 →
-          </button>
-          <span className="text-[11px] text-faint">예산 단계는 곧 추가돼요.</span>
-        </div>
+        <button
+          type="button"
+          onClick={onNext}
+          className="rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream transition hover:bg-fg"
+        >
+          다음: 예산 보기 →
+        </button>
       </div>
     </div>
   );

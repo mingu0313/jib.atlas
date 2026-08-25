@@ -96,6 +96,28 @@ export function getFloorRects(shape: RoomShapeId, polygon: Point[]): { x0: numbe
   return [{ x0: Math.min(...xs), z0: Math.min(...zs), x1: Math.max(...xs), z1: Math.max(...zs) }];
 }
 
+/** 바닥 면적(m²) — getFloorRects로 쪼갠 사각형들의 넓이 합. STEP 14 예산
+ * 계산(바닥재 = 단가 × 면적)에 쓴다. */
+export function getFloorAreaM2(shape: RoomShapeId, polygon: Point[]): number {
+  const cm2 = getFloorRects(shape, polygon).reduce((sum, r) => sum + (r.x1 - r.x0) * (r.z1 - r.z0), 0);
+  return cm2 / 10_000;
+}
+
+/**
+ * 벽 면적(m²) — 벽 전체(둘레 × 천장높이)에서 문/창문이 차지하는 면적을
+ * 뺀, 실제로 페인트가 필요한 순 면적. STEP 14 예산 계산(벽 페인트 = 단가
+ * × 면적)에 쓴다.
+ */
+export function getWallAreaM2(
+  polygon: Point[],
+  wallHeightCm: number,
+  openings: { widthCm: number; heightCm: number }[],
+): number {
+  const grossCm2 = getWallSegments(polygon).reduce((sum, w) => sum + w.length * wallHeightCm, 0);
+  const openingsCm2 = openings.reduce((sum, o) => sum + o.widthCm * o.heightCm, 0);
+  return Math.max(0, grossCm2 - openingsCm2) / 10_000;
+}
+
 export interface WallBox {
   /** 벽 시작점부터의 거리(cm) 구간 — 이 구간 x 아래 높이 구간이 실제
    * 벽체(3D 박스) 하나가 된다. */
