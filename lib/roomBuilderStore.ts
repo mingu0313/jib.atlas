@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import { buildPolygon, DEFAULT_WALL_HEIGHT_CM, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "./roomDimensions";
+import { clampOpeningOffset, getWallSegments, overlapsOtherOpening } from "./roomGeometry";
+import { DEFAULT_FLOOR_STYLE_ID, DEFAULT_WALL_COLOR_HEX, DOOR_PRESETS, WINDOW_PRESETS } from "./roomStyle";
 
 /** 평면 좌표(cm). x=가로, z=깊이 — y는 3D 높이축이라 평면 좌표엔 안 쓴다. */
 export type Point = { x: number; z: number };
@@ -72,6 +74,27 @@ function presetById(id: RoomShapeId): RoomShapePreset {
   return preset;
 }
 
+export type OpeningKind = "door" | "window";
+
+/**
+ * 벽에 배치된 문/창문 하나. 원 스펙은 doors[]/windows[]로 배열을 나누라고
+ * 했지만, 실제로는 "어느 벽(wallIndex)의 어디(offsetCm)에 폭(widthCm)짜리
+ * 무엇(kind)이 있는가"가 완전히 같은 모양이라 kind로 구분되는 단일 배열
+ * (openings)로 합쳤다 — door/window 각각 별도의 추가·이동·삭제 로직을
+ * 중복해서 만들지 않기 위해서다.
+ */
+export interface PlacedOpening {
+  id: string;
+  kind: OpeningKind;
+  wallIndex: number;
+  /** 벽 시작점(getWallSegments 기준)부터 opening 중심까지 거리(cm). */
+  offsetCm: number;
+  widthCm: number;
+  heightCm: number;
+  /** 창문만 — 바닥에서 창턱까지 높이(cm). 문은 항상 바닥부터 시작(0). */
+  sillHeightCm?: number;
+}
+
 interface RoomBuilderState {
   /** 선택된 프리셋 id. `/studio`는 특정 하우스 타입에 안 묶이는 독립
    * 경로라, 가장 무난한 "rectangle"을 기본값으로 시작한다. */
@@ -93,6 +116,31 @@ interface RoomBuilderState {
   setDimension: (fieldId: string, cm: number) => void;
   setWallHeight: (cm: number) => void;
   setUnit: (unit: RoomUnit) => void;
+
+  /** 벽에 배치된 문/창문 전부. */
+  openings: PlacedOpening[];
+  /** 팔레트에서 고른, 다음 벽 클릭 때 배치될 프리셋 — /editor의
+   * selectedDefId와 같은 "선택 → 클릭으로 배치" 관례를 따른다. 같은
+   * 프리셋을 다시 누르면 선택 해제. */
+  pendingOpening: { kind: OpeningKind; presetId: string } | null;
+  /** 마지막 배치 시도가 실패(벽이 너무 짧음/다른 opening과 겹침)했는지 —
+   * 힌트 문구 전환에 쓴다. */
+  openingWarn: boolean;
+  selectOpeningPreset: (kind: OpeningKind, presetId: string) => void;
+  /** 벽(wallIndex) 위 offsetCm 근처에 pendingOpening을 배치 시도. */
+  placeOpeningOnWall: (wallIndex: number, offsetCm: number) => void;
+  /** 같은 벽 안에서 opening을 offsetCm으로 옮긴다 — 다른 opening과
+   * 겹치게 되면 조용히 무시(마지막 유효 위치 유지). */
+  moveOpening: (id: string, offsetCm: number) => void;
+  removeOpening: (id: string) => void;
+
+  /** 벽 색상(hex) — 프리셋 스와치도 자유 컬러피커도 결국 이 값 하나를
+   * 바꾼다. 특정 하우스 타입에 안 묶인 중립 기본값(웜 화이트)에서 시작. */
+  wallColorHex: string;
+  setWallColor: (hex: string) => void;
+  /** 바닥 스타일 프리셋 id. */
+  floorStyleId: string;
+  setFloorStyle: (id: string) => void;
 }
 
 export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
@@ -108,4 +156,59 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   },
   setWallHeight: (cm) => set({ wallHeightCm: Math.min(MAX_WALL_HEIGHT_CM, Math.max(MIN_WALL_HEIGHT_CM, cm)) }),
   setUnit: (unit) => set({ unit }),
+
+  openings: [],
+  pendingOpening: null,
+  openingWarn: false,
+  selectOpeningPreset: (kind, presetId) =>
+    set((state) => ({
+      pendingOpening:
+        state.pendingOpening?.kind === kind && state.pendingOpening.presetId === presetId
+          ? null
+          : { kind, presetId },
+      openingWarn: false,
+    })),
+  placeOpeningOnWall: (wallIndex, offsetCm) => {
+    const { pendingOpening, roomPolygon, openings } = get();
+    if (!pendingOpening) return;
+    const preset =
+      pendingOpening.kind === "door"
+        ? DOOR_PRESETS.find((p) => p.id === pendingOpening.presetId)
+        : WINDOW_PRESETS.find((p) => p.id === pendingOpening.presetId);
+    const wall = getWallSegments(roomPolygon)[wallIndex];
+    if (!preset || !wall || wall.length < preset.widthCm) {
+      set({ openingWarn: true });
+      return;
+    }
+    const clamped = clampOpeningOffset(offsetCm, preset.widthCm, wall.length);
+    if (overlapsOtherOpening(openings, wallIndex, clamped, preset.widthCm)) {
+      set({ openingWarn: true });
+      return;
+    }
+    const opening: PlacedOpening = {
+      id: crypto.randomUUID(),
+      kind: pendingOpening.kind,
+      wallIndex,
+      offsetCm: clamped,
+      widthCm: preset.widthCm,
+      heightCm: preset.heightCm,
+      ...(pendingOpening.kind === "window" ? { sillHeightCm: (preset as (typeof WINDOW_PRESETS)[number]).sillHeightCm } : {}),
+    };
+    set({ openings: [...openings, opening], openingWarn: false });
+  },
+  moveOpening: (id, offsetCm) =>
+    set((state) => {
+      const target = state.openings.find((o) => o.id === id);
+      const wall = target ? getWallSegments(state.roomPolygon)[target.wallIndex] : undefined;
+      if (!target || !wall) return state;
+      const clamped = clampOpeningOffset(offsetCm, target.widthCm, wall.length);
+      if (overlapsOtherOpening(state.openings, target.wallIndex, clamped, target.widthCm, id)) return state;
+      return { openings: state.openings.map((o) => (o.id === id ? { ...o, offsetCm: clamped } : o)) };
+    }),
+  removeOpening: (id) => set((state) => ({ openings: state.openings.filter((o) => o.id !== id) })),
+
+  wallColorHex: DEFAULT_WALL_COLOR_HEX,
+  setWallColor: (hex) => set({ wallColorHex: hex }),
+  floorStyleId: DEFAULT_FLOOR_STYLE_ID,
+  setFloorStyle: (id) => set({ floorStyleId: id }),
 }));

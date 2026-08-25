@@ -15,7 +15,7 @@ const UNIT_OPTIONS: { id: RoomUnit; label: string }[] = [
  * 실제 저장은 항상 cm(roomPolygon)이다 — 토글해도 값이 반올림 오차로
  * 계속 깎여나가지 않는다(lib/roomDimensions.ts 주석 참고).
  */
-export function StepDimensions({ onBack }: { onBack: () => void }) {
+export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const unit = useRoomBuilderStore((s) => s.unit);
@@ -94,17 +94,13 @@ export function StepDimensions({ onBack }: { onBack: () => void }) {
         >
           ← 이전
         </button>
-        <div className="flex flex-col items-end gap-2">
-          <button
-            type="button"
-            disabled
-            title="문/창문 배치는 다음 단계에서 이어집니다"
-            className="rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream opacity-40"
-          >
-            다음: 문/창문·마감재 →
-          </button>
-          <span className="text-[11px] text-faint">문/창문·마감재, 예산 단계는 곧 추가돼요.</span>
-        </div>
+        <button
+          type="button"
+          onClick={onNext}
+          className="rounded-full bg-olive px-8 py-4 text-[13px] font-semibold text-cream transition hover:bg-fg"
+        >
+          다음: 문/창문·마감재 →
+        </button>
       </div>
     </div>
   );

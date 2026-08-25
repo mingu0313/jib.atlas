@@ -3,13 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { StepDimensions } from "@/components/studio/StepDimensions";
+import { StepFinish } from "@/components/studio/StepFinish";
 import { StepShape } from "@/components/studio/StepShape";
 
 /**
  * `/studio` — 진단과 무관한 독립 룸빌더 진입 경로(STEP 15). IKEA 홈디자인
  * 플래너를 참고한 4단계 위저드로 간다: ① 모양·크기 → ② 치수 → ③ 문/창문·
- * 마감재 → ④ 예산. 지금은 ①(STEP 11)·②(STEP 12)만 구현 — 나머지는 자리만
- * 잡아두고 각 단계 하단에 "곧 추가돼요"로 비활성 처리한다.
+ * 마감재 → ④ 예산. 지금은 ①(STEP 11)·②(STEP 12)·③(STEP 13)만 구현 —
+ * ④는 자리만 잡아두고 3단계 하단에 "곧 추가돼요"로 비활성 처리한다.
  *
  * 기존 `/editor`(진단 매칭 → 고정 격자 3D 방, lib/editorStore.ts)는 그대로
  * 두고 완전히 별도로 만든 새 store(lib/roomBuilderStore.ts)를 쓴다 — 집
@@ -56,13 +57,13 @@ export default function StudioPage() {
         </Link>
       </div>
 
-      <div className="mx-auto flex w-full max-w-[880px] flex-1 flex-col gap-12 px-6 py-12 sm:px-10 sm:py-16">
+      <div className="mx-auto flex w-full max-w-[1100px] flex-1 flex-col gap-12 px-6 py-12 sm:px-10 sm:py-16">
         {/* 4단계 인디케이터 — 이미 지나온 단계만 클릭해 되돌아갈 수 있다. */}
         <ol className="flex flex-wrap items-center gap-3">
           {STEPS.map((step, i) => {
             const stepNum = i + 1;
             const active = stepNum === activeStep;
-            const reachable = stepNum <= 2; // ③④는 아직 없음
+            const reachable = stepNum <= 3; // ④는 아직 없음
             const visited = stepNum < activeStep;
             return (
               <li key={step.id} className="flex items-center gap-3">
@@ -87,7 +88,8 @@ export default function StudioPage() {
         </ol>
 
         {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
-        {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} />}
+        {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}
+        {activeStep === 3 && <StepFinish onBack={() => setActiveStep(2)} />}
       </div>
     </main>
   );

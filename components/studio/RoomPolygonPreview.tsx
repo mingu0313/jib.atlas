@@ -1,9 +1,11 @@
 import type { Point } from "@/lib/roomBuilderStore";
+import { getPolygonViewBox } from "@/lib/roomGeometry";
 
 /**
- * roomPolygon(cm)을 top-down SVG로 그리는 미리보기. 카드 미니 프리뷰(STEP 11)와
- * 아래 큰 프리뷰가 같은 컴포넌트를 크기(className)만 다르게 재사용한다.
- * STEP 12~13에서 이 자리가 치수 라벨·문/창문 배치 캔버스로 확장될 예정.
+ * roomPolygon(cm)을 top-down SVG로 그리는 "정적" 미리보기(클릭/드래그 없음).
+ * 카드 미니 프리뷰(STEP 11)와 1·2단계의 큰 프리뷰가 같은 컴포넌트를
+ * 크기(className)만 다르게 재사용한다. 문/창문을 배치·이동하는 3단계는
+ * 이 컴포넌트가 아니라 별도의 인터랙티브 캔버스(RoomPlanCanvas, STEP 13)를 쓴다.
  */
 export function RoomPolygonPreview({
   polygon,
@@ -16,15 +18,7 @@ export function RoomPolygonPreview({
    * 프리뷰는 상대적으로 얇아 보이게 폴리곤 크기에 맞춰 호출부가 조정한다. */
   strokeWidth?: number;
 }) {
-  const xs = polygon.map((p) => p.x);
-  const zs = polygon.map((p) => p.z);
-  const minX = Math.min(...xs);
-  const maxX = Math.max(...xs);
-  const minZ = Math.min(...zs);
-  const maxZ = Math.max(...zs);
-  const span = Math.max(maxX - minX, maxZ - minZ, 1);
-  const pad = span * 0.12;
-  const viewBox = `${minX - pad} ${minZ - pad} ${maxX - minX + pad * 2} ${maxZ - minZ + pad * 2}`;
+  const viewBox = getPolygonViewBox(polygon);
   const points = polygon.map((p) => `${p.x},${p.z}`).join(" ");
 
   return (
