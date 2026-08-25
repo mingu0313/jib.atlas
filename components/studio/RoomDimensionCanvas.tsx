@@ -3,7 +3,21 @@
 import type { Point } from "@/lib/roomBuilderStore";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { formatLength, getDraggableEdges, readDimensions } from "@/lib/roomDimensions";
-import { getPolygonViewBox, getWallSegments } from "@/lib/roomGeometry";
+import { getWallSegments } from "@/lib/roomGeometry";
+
+/**
+ * 이 프레임의 기준 크기(cm) — RoomPolygonPreview·다른 캔버스들과 달리
+ * "지금 폴리곤 바운딩박스에 맞춰 매번 다시 줌"하지 않는다. 그렇게 하면
+ * 방을 키워도 뷰가 같이 줌아웃해서 화면상 크기가 거의 안 변해 보이는
+ * 문제가 있었다(치수를 드래그하는데 "실시간으로 커지는" 느낌이 없다는
+ * 피드백). 대신 이 고정 기준(전형적인 방 크기 300~800cm를 넉넉히 덮는
+ * 900cm) 프레임 안에서 폴리곤을 그리니까, 드래그로 커지고 작아지는 게
+ * 화면에 그대로 보인다 — 900cm를 넘어서는 드물게 큰 방(최대 1500cm)만
+ * 그때 가서 프레임도 같이 늘어난다(Math.max로 아래로는 다시 안 줄어듦
+ * 없이 매 렌더 새로 계산 — 그 정도 대형 방을 다시 줄이면 프레임도 같이
+ * 줄어들지만, 흔치 않은 경우라 감내한다).
+ */
+const REFERENCE_SPAN_CM = 900;
 
 /** 클릭/포인터 클라이언트 좌표(px)를 이 svg의 viewBox 좌표계(cm)로 —
  * RoomPlanCanvas·RoomFurnitureCanvas와 동일한 변환. */
@@ -38,15 +52,22 @@ export function RoomDimensionCanvas({ className }: { className?: string }) {
   const dims = readDimensions(roomShape, roomPolygon);
   const walls = getWallSegments(roomPolygon);
   const draggableByEdge = new Map(getDraggableEdges(roomShape, dims).map((e) => [e.edgeIndex, e]));
-  const viewBox = getPolygonViewBox(roomPolygon, 0.22); // 라벨이 바깥에 붙으니 기본보다 넉넉한 여백
   const floorPoints = roomPolygon.map((p) => `${p.x},${p.z}`).join(" ");
 
+  // 폴리곤은 항상 원점(0,0)에 고정해 그려서(buildPolygon 관례) 바운딩박스
+  // 최솟값은 늘 0 — 최댓값만 보면 된다.
   const xs = roomPolygon.map((p) => p.x);
   const zs = roomPolygon.map((p) => p.z);
-  const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 1);
-  const labelOffset = span * 0.09;
-  const handleR = span * 0.013;
-  const wallStroke = span * 0.014;
+  const actualSpan = Math.max(Math.max(...xs), Math.max(...zs), 1);
+  const refSpan = Math.max(REFERENCE_SPAN_CM, actualSpan);
+  const pad = refSpan * 0.16;
+  const viewBox = `${-pad} ${-pad} ${refSpan + pad * 2} ${refSpan + pad * 2}`;
+
+  // 라벨·핸들·선 두께는 refSpan(고정 기준) 기준 — 실제 방 크기(actualSpan)에
+  // 비례시키면 방이 작아질수록 벽도 얇아져 보이는 이상한 효과가 생긴다.
+  const labelOffset = refSpan * 0.09;
+  const handleR = refSpan * 0.013;
+  const wallStroke = refSpan * 0.014;
 
   return (
     <svg viewBox={viewBox} className={className}>
@@ -110,7 +131,7 @@ export function RoomDimensionCanvas({ className }: { className?: string }) {
             y={midZ}
             textAnchor="middle"
             dominantBaseline="middle"
-            fontSize={span * 0.034}
+            fontSize={refSpan * 0.034}
             fill="var(--color-fg)"
             style={{ fontFamily: "var(--font-mono)", pointerEvents: "none" }}
           >
