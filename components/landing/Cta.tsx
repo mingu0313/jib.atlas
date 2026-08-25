@@ -40,6 +40,14 @@ export function Cta() {
           >
             진단 시작하기 ↗
           </Link>
+          {/* STEP 15 — 진단과 무관한 독립 룸빌더 진입. primary보다 눈에
+           * 덜 띄게 텍스트 링크로만, 위치도 primary 바로 아래로 종속시킨다. */}
+          <Link
+            href="/studio"
+            className="text-[12px] text-cream/70 underline underline-offset-4 transition hover:text-cream"
+          >
+            진단 없이 바로 꾸며보기 →
+          </Link>
         </div>
       </div>
     </section>
