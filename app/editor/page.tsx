@@ -54,6 +54,8 @@ export default function EditorPage() {
   const items = useEditorStore((s) => s.items);
   const selectedDefId = useEditorStore((s) => s.selectedDefId);
   const selectDef = useEditorStore((s) => s.selectDef);
+  const rotated = useEditorStore((s) => s.rotated);
+  const toggleRotate = useEditorStore((s) => s.toggleRotate);
   const warn = useEditorStore((s) => s.warn);
   const resetPlacement = useEditorStore((s) => s.reset);
   const syncTemplate = useEditorStore((s) => s.syncTemplate);
@@ -109,7 +111,11 @@ export default function EditorPage() {
   // 경우) 기본 배치로 새로 시작한다. 서버에서 다 불러온 뒤에만 실행해야
   // 아직 안 불러온 이전 배치를 잘못 지우지 않는다.
   useEffect(() => {
-    if (status === "ready") syncTemplate(topMatch.template.id);
+    // topMatch.template.rooms는 template.id에 종속된 값이라(같은 id면 항상
+    // 같은 rooms) 의도적으로 deps에서 뺐다 — 매 렌더 새 배열 참조로 매번
+    // 다시 도는 걸 막는다.
+    if (status === "ready") syncTemplate(topMatch.template.id, topMatch.template.rooms);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, topMatch.template.id, syncTemplate]);
 
   const answeredCount = Object.keys(answers).length;
@@ -150,10 +156,11 @@ export default function EditorPage() {
   const selectedDef = selectedDefId ? (furnitureCatalog.find((d) => d.id === selectedDefId) ?? null) : null;
 
   const hintTitle = warn ? "놓을 수 없는 자리" : selectedDef ? "타일을 클릭하세요" : "가구를 선택하세요";
+  const dims = selectedDef ? (rotated ? `${selectedDef.d}×${selectedDef.w}` : `${selectedDef.w}×${selectedDef.d}`) : "";
   const hintBody = warn
-    ? "다른 가구와 겹치거나 방을 벗어납니다."
+    ? "다른 가구와 겹치거나, 그 방에 놓을 수 없는 가구이거나, 방을 벗어납니다."
     : selectedDef
-      ? `${selectedDef.label} · ${selectedDef.w}×${selectedDef.d} 타일`
+      ? `${selectedDef.label} · ${dims} 타일${rotated ? " (회전됨)" : ""}`
       : "왼쪽 팔레트에서 가구를 고르면 놓을 수 있는 자리가 밝아집니다.";
 
   const axisRows = AXES.map((axis) => ({
@@ -181,7 +188,7 @@ export default function EditorPage() {
           </span>
           <button
             type="button"
-            onClick={resetPlacement}
+            onClick={() => resetPlacement(topMatch.template.rooms)}
             className="rounded-full border border-hair px-[22px] py-[11px] text-[12px] text-[#5f5f57] transition hover:border-olive hover:text-fg"
           >
             초기화
@@ -251,10 +258,22 @@ export default function EditorPage() {
 
         {/* 중앙: 캔버스 */}
         <div className="relative flex items-center justify-center overflow-hidden bg-panel p-6 sm:p-10">
-          <EditorScene3D catalog={furnitureCatalog} />
-          <div className="absolute bottom-8 left-8 flex flex-col gap-1.5">
-            <span className="label-mono text-[10px] text-olive-mid">{hintTitle}</span>
-            <span className="text-[12px] text-muted">{hintBody}</span>
+          <EditorScene3D catalog={furnitureCatalog} rooms={topMatch.template.rooms} />
+          <div className="absolute bottom-8 left-8 flex items-end gap-3">
+            <div className="flex flex-col gap-1.5">
+              <span className="label-mono text-[10px] text-olive-mid">{hintTitle}</span>
+              <span className="text-[12px] text-muted">{hintBody}</span>
+            </div>
+            {selectedDef && (
+              <button
+                type="button"
+                onClick={toggleRotate}
+                className="rounded-full border border-hair px-4 py-2 text-[11px] text-[#5f5f57] transition hover:border-olive hover:text-fg"
+                title="선택한 가구를 90도 돌려서 놓기 — 폭이 좁은 방에 세로로 넣을 때 씁니다."
+              >
+                ↻ 회전{rotated ? "됨" : ""}
+              </button>
+            )}
           </div>
         </div>
 

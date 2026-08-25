@@ -530,6 +530,61 @@ components/FloorPlan.tsx(/result 페이지의 2D 평면도 미리보기)만 이
 있는지 먼저 보고해줘. 그리고 나서 구현해.
 ```
 
+# 구현 결과
+
+엣지 케이스부터 스크립트로 훑었다: 30개 템플릿 전부 방 5~7개, 가장 작은
+방(현관)도 면적 2500 단위. 저장 스키마는 프롬프트가 제안한 roomIndex
+없이 갔다 — 전체 방의 바운딩 박스를 하나의 공유 타일 격자로 잡고(방마다
+좌표계를 새로 잡지 않음), 그 위에 각 방을 부분 사각형으로 얹는 방식. 그
+러면 PlacedFurniture(id/defId/col/row)가 STEP 12 이전과 완전히 동일하게
+유지되고, "이 칸이 어느 방인지"는 저장할 필요 없이 lib/roomLayout3d.ts의
+roomContaining()으로 매번 다시 계산한다.
+
+한 일:
+1. `lib/roomLayout3d.ts`(신규): HouseTemplate.rooms(400×300 평면도 좌표,
+   components/FloorPlan.tsx와 공유하는 그 데이터)를 PLAN_UNIT_M=0.025로
+   미터 환산해 TILE_M 격자에 얹는다. 방 폭/깊이는 시작·끝 좌표를 각각
+   반올림하지 않고 원본 width/height를 직접 반올림해서 구한다 — 처음엔
+   전자로 짰다가 카운터가 들어가야 할 3.57타일짜리 방이 반올림 오차로
+   3타일로 깎이는 버그를 발견해서 고쳤다.
+2. `lib/types.ts`: `IsoFurnitureDef.allowedRoomTypes?`(이 가구를 놓을 수
+   있는 방 타입), `PlacedFurniture.rotated?`(90도 회전 여부) 추가.
+   `data/furniture-catalog.json`의 9개 가구 전부에 allowedRoomTypes를
+   채웠다(예: wardrobe는 bedroom/masterBedroom/kidsRoom만, bed는 그
+   셋에 livingRoom도 추가 — 침실이 아예 없는 원룸형 템플릿 대비).
+3. `lib/editorStore.ts`: `canPlace`가 roomRects(+옵션 rotated)를 받아
+   방 타입·경계까지 확인하도록 확장. `buildDefaultPlacement(rooms)`가
+   하드코딩 6개 자리(DEFAULT_PLACED_DEFS)를 대신해 방 타입별 기본 가구를
+   자동 배치 — 각 방을 좌상단부터 훑다가 가로로 안 들어가면 세로로 돌려
+   보고(rotated), 그래도 안 들어가면 건너뛴다.
+4. 자동 배치를 30개 템플릿 전부에 돌려서 검증하는 스크립트를 임시로
+   만들어 확인 — 처음엔 주방 30개 중 16개가 카운터(4타일 폭)를 못 넣어
+   "EMPTY" 상태였다. 회전으로 3개 구제, 나머지 13개는 그 주방 자체가
+   3×3타일(≈2.1m×2.1m)이라 회전해도 4타일이 안 들어가는 진짜 크기
+   문제였다 — counter의 폭을 4→3타일로 줄여서 전부 해결(리빙룸 히어로
+   미니 창 등 다른 곳은 counter를 안 써서 영향 없음). 침실/안방/아이방이
+   아예 없는 원룸형 템플릿(t11/t22/t23/t28/t29) 5개는 거실에 침대를
+   대신 놓는 fallback도 추가 — 없으면 "진단 결과에 잘 곳이 없는" 이상한
+   상태가 된다. 최종적으로 30개 템플릿 전부 방 타입·경계·겹침 위반 0건.
+5. `components/EditorScene3D.tsx`: 고정 RW×RD 대신 `rooms` prop을 받아
+   매 템플릿마다 다른 모양으로 렌더링. 방마다 자기 자신의 두 변(왼쪽·
+   뒤)에만 벽을 그리는 방식이라(STEP 12 단일 방 관례를 방마다 적용),
+   인접한 두 방은 한쪽이 그 벽을 그려서 자연히 칸막이가 되고 겹치는
+   벽이 생기지 않는다. 방마다 이름표(현관/거실/주방 등, 항상 표시)도
+   붙였다 — "하우스 타입마다 방 구조가 다르다"는 걸 눈으로 보이게.
+6. `app/editor/page.tsx`: "회전" 버튼 추가(선택된 가구를 90도 돌려서
+   놓기 — 좁은 방 대응). `components/EditorCanvas.tsx`(STEP 12부터 이미
+   안 쓰이던 SVG 캔버스)는 새 canPlace 시그니처와 안 맞아 삭제.
+
+검증: 30개 템플릿 전부에 대해 buildDefaultPlacement를 실제로 돌려
+방 경계·타입·겹침을 스크립트로 확인(0건). Playwright로 여러 템플릿
+전환 스크린샷 확인 — 템플릿마다 방 개수·모양이 실제로 다르게 그려짐
+(t1 5개 방 vs t17 7개 방 등). 침실 없는 원룸형 템플릿에서 거실에 침대가
+자동으로 들어가는 것, 침실 자체가 없으면 옷장을 어디에도 못 놓는 것
+(전 타일 스캔으로 확인)까지 프로그램적으로 검증. `npx tsc --noEmit` /
+`npx vitest run`(11 passed) / eslint / `npm run build` / `npm run
+pages:build`(Cloudflare) 전부 통과.
+
 ---
 
 ## STEP 14. 가구를 박스 대신 실제 가구처럼

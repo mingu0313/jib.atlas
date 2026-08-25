@@ -1,11 +1,11 @@
 [
-  { "id": "sofa", "label": "소파", "en": "SOFA", "w": 3, "d": 1, "h": 40, "top": "#767e5c", "left": "#646b4c", "right": "#545a3f" },
-  { "id": "lounge", "label": "라운지 체어", "en": "LOUNGE", "w": 2, "d": 2, "h": 38, "top": "#a2947e", "left": "#8b7d69", "right": "#756957" },
-  { "id": "ctable", "label": "다이닝 테이블", "en": "TABLE", "w": 3, "d": 2, "h": 26, "top": "#b39c7c", "left": "#9b8567", "right": "#836f55" },
-  { "id": "counter", "label": "카운터", "en": "COUNTER", "w": 4, "d": 1, "h": 48, "top": "#868f72", "left": "#727a5f", "right": "#60674f" },
-  { "id": "bar", "label": "바 카운터", "en": "BAR", "w": 3, "d": 1, "h": 52, "top": "#9c8168", "left": "#856c55", "right": "#6f5a46" },
-  { "id": "desk", "label": "책상", "en": "DESK", "w": 2, "d": 1, "h": 32, "top": "#7f886a", "left": "#6b7358", "right": "#5a6149" },
-  { "id": "wardrobe", "label": "옷장", "en": "WARDROBE", "w": 1, "d": 2, "h": 88, "top": "#6a7455", "left": "#5a6246", "right": "#4b523a" },
-  { "id": "plant", "label": "화분", "en": "PLANT", "w": 1, "d": 1, "h": 60, "top": "#6d8055", "left": "#5c6d47", "right": "#4d5c3b" },
-  { "id": "bed", "label": "침대", "en": "BED", "w": 3, "d": 2, "h": 38, "top": "#8d97a0", "left": "#78828a", "right": "#666f76" }
+  { "id": "sofa", "label": "소파", "en": "SOFA", "w": 3, "d": 1, "h": 40, "top": "#767e5c", "left": "#646b4c", "right": "#545a3f", "allowedRoomTypes": ["livingRoom"] },
+  { "id": "lounge", "label": "라운지 체어", "en": "LOUNGE", "w": 2, "d": 2, "h": 38, "top": "#a2947e", "left": "#8b7d69", "right": "#756957", "allowedRoomTypes": ["livingRoom", "study", "terrace", "balcony", "garden"] },
+  { "id": "ctable", "label": "다이닝 테이블", "en": "TABLE", "w": 3, "d": 2, "h": 26, "top": "#b39c7c", "left": "#9b8567", "right": "#836f55", "allowedRoomTypes": ["diningRoom", "livingRoom", "kitchen"] },
+  { "id": "counter", "label": "카운터", "en": "COUNTER", "w": 3, "d": 1, "h": 48, "top": "#868f72", "left": "#727a5f", "right": "#60674f", "allowedRoomTypes": ["kitchen"] },
+  { "id": "bar", "label": "바 카운터", "en": "BAR", "w": 3, "d": 1, "h": 52, "top": "#9c8168", "left": "#856c55", "right": "#6f5a46", "allowedRoomTypes": ["kitchen", "livingRoom"] },
+  { "id": "desk", "label": "책상", "en": "DESK", "w": 2, "d": 1, "h": 32, "top": "#7f886a", "left": "#6b7358", "right": "#5a6149", "allowedRoomTypes": ["study", "bedroom", "masterBedroom", "livingRoom", "workshop"] },
+  { "id": "wardrobe", "label": "옷장", "en": "WARDROBE", "w": 1, "d": 2, "h": 88, "top": "#6a7455", "left": "#5a6246", "right": "#4b523a", "allowedRoomTypes": ["bedroom", "masterBedroom", "kidsRoom"] },
+  { "id": "plant", "label": "화분", "en": "PLANT", "w": 1, "d": 1, "h": 60, "top": "#6d8055", "left": "#5c6d47", "right": "#4d5c3b", "allowedRoomTypes": ["livingRoom", "bedroom", "masterBedroom", "kidsRoom", "kitchen", "entrance", "study", "terrace", "balcony", "garden", "gym", "workshop", "diningRoom"] },
+  { "id": "bed", "label": "침대", "en": "BED", "w": 3, "d": 2, "h": 38, "top": "#8d97a0", "left": "#78828a", "right": "#666f76", "allowedRoomTypes": ["bedroom", "masterBedroom", "kidsRoom", "livingRoom"] }
 ]

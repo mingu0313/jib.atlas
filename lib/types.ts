@@ -193,6 +193,12 @@ export interface IsoFurnitureDef {
   left: string;
   right: string;
   /**
+   * STEP 13(하우스 타입별 3D 방 구조)에서 추가 — 이 가구를 놓을 수 있는
+   * 방 종류. 없으면(undefined) 모든 방에 놓을 수 있다고 본다.
+   * lib/roomLayout3d.ts의 roomContaining()이 참조한다.
+   */
+  allowedRoomTypes?: RoomType[];
+  /**
    * STEP 12(룸 에디터 3D 전환)에서 마련해둔 실제 제품 연결 자리 — 전부
    * 선택 필드라 지금처럼 비워둬도 SVG(EditorCanvas 등)·3D(EditorScene3D)
    * 양쪽 다 그대로 동작한다. 실제 브랜드 제품 데이터/3D 모델이 생기면
@@ -206,12 +212,16 @@ export interface IsoFurnitureDef {
   modelUrl?: string;
 }
 
-/** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅). */
+/** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅).
+ * rotated가 true면 실제 footprint는 def.w/d를 맞바꾼(d×w) 것 — STEP 13에서
+ * 추가. 작은 방(예: 3타일 폭 주방)에 가로로는 안 들어가는 가구를 세로로
+ * 돌려서라도 넣을 수 있게 한다. */
 export interface PlacedFurniture {
   id: string;
   defId: string;
   col: number;
   row: number;
+  rotated?: boolean;
 }
 
 /** matchHouseTemplate()이 반환하는 개별 매칭 결과. */

@@ -1,23 +1,25 @@
-import { RD, RW, WH } from "./iso";
-
 /**
- * 룸 에디터 3D 뷰(components/EditorScene3D.tsx)의 좌표계 — STEP 12.
- * lib/iso.ts와 같은 격자(RW×RD 타일, 벽 높이 WH)를 그대로 공유하되, SVG
- * 아이소메트릭 투영식(ixy/up) 대신 실제 미터 단위 three.js 씬으로 옮긴다.
- * lib/iso.ts·components/EditorCanvas.tsx(SVG)는 랜딩 히어로 미니 창·공유
- * 카드·아틀라스 카드가 계속 쓰고 있어 그대로 두고 건드리지 않는다.
+ * 룸 에디터 3D 뷰(components/EditorScene3D.tsx)가 쓰는 배율 상수.
  *
- * 배율(TILE_M/HEIGHT_SCALE)은 눈으로 맞춘 근사치다 — 예를 들어 소파
- * (w=3,d=1)가 실제 3인 소파 폭 200cm대와 비슷하게, 옷장(h=88)이 실제
- * 옷장 높이 2m 안팎으로 보이도록 손으로 조정했다. cm 단위 실측값은 아니다.
- * 실제 제품 데이터(IsoFurnitureDef.modelUrl 등, lib/types.ts 참고)가 들어오면
- * 그 제품의 GLTF를 이 좌표계 위에 실측 치수로 올리는 식으로 정밀화한다.
+ * STEP 12에서는 lib/iso.ts의 고정 격자(RW×RD, 벽높이 WH)를 그대로 미터로
+ * 옮겼지만, STEP 13부터는 방 구조 자체가 하우스 타입마다 달라져서
+ * (lib/roomLayout3d.ts가 HouseTemplate.rooms를 타일 격자로 변환) 방
+ * 크기·벽 위치를 여기서 상수로 고정해두지 않는다. 남는 건 두 층위의
+ * 배율뿐이다: 타일 하나가 실제로 몇 미터인지(TILE_M), 가구 h 필드가
+ * 몇 미터인지(HEIGHT_SCALE). lib/iso.ts(SVG 아이소메트릭)는 완전히
+ * 별개 좌표계라 이 상수들과 무관하다 — 랜딩 히어로 미니 창·공유 카드·
+ * 아틀라스 카드는 계속 그쪽을 쓴다.
+ *
+ * 배율은 눈으로 맞춘 근사치다(w=3,d=1 소파가 실제 3인 소파 폭 200cm대와
+ * 비슷하게, 옷장(h=88)이 실제 옷장 높이 2m 안팎으로 보이도록). cm 단위
+ * 실측값은 아니다. 실제 제품 데이터(IsoFurnitureDef.modelUrl 등,
+ * lib/types.ts 참고)가 들어오면 그 제품의 실측 치수로 개별 정밀화한다.
  */
 export const TILE_M = 0.7;
 export const HEIGHT_SCALE = 0.023;
 
-export const ROOM_W = RW * TILE_M;
-export const ROOM_D = RD * TILE_M;
-export const ROOM_H = WH * HEIGHT_SCALE;
-
-export { RD, RW };
+/**
+ * 층고 — 하우스 타입(2D 평면도)엔 높이 정보가 없어서 전 템플릿 공통
+ * 고정값을 쓴다. room.size(S/M/L)별로 다르게 하는 건 이후 과제.
+ */
+export const ROOM_H = 2.5;
