@@ -27,11 +27,14 @@ import type { Answer } from "@/lib/types";
  * useEffect). 없으면 중립 기본값(직사각형·웜화이트·원목)으로 시작한다.
  *
  * 예전엔 진단 결과가 이 폴리곤 빌더 대신 격자+박스가구 방식인 `/editor`로
- * 갔었다 — 이제 `/result`·`/en/result`·랜딩·로그인/비번재설정 후 리다이렉트
- * 전부 여기로 통일했다. `/editor` 코드 자체(및 그 위의 "지도에 공유하기"
- * 기능)는 아직 지우지 않았다 — 이 스튜디오의 가구 배치(store.furniture)는
- * `/atlas`의 house_posts.room_items 스키마(col/row 격자 기준)와 안 맞아서,
- * "방 꾸미고 공유하기"는 당분간 `/editor`에만 남겨뒀다(app/atlas/page.tsx).
+ * 갔었다 — 이제 `/result`·`/en/result`·랜딩·로그인/비번재설정 후 리다이렉트·
+ * `/atlas`의 "방 꾸미고 공유하기" 버튼(app/atlas/page.tsx) 전부 여기로
+ * 통일했다. `/editor` 코드 자체(및 그 위의 "지도에 공유하기" 기능)는 아직
+ * 지우지 않았다 — 이 스튜디오의 가구 배치(store.furniture)는 `/atlas`의
+ * house_posts.room_items 스키마(col/row 격자 기준)와 안 맞아서, 실제
+ * "지도에 공유하기" 액션(house_posts insert)은 아직 `/editor`에만 있다.
+ * 즉 지금은 `/studio`에서 방을 꾸밀 순 있어도 그걸 지도에 올리는 버튼은
+ * 없다 — room_items로의 변환(또는 스키마 확장)은 별도 작업으로 남겨뒀다.
  *
  * 단계 이동은 이 페이지 안의 로컬 state(activeStep)로만 관리한다 — 아직
  * URL로 딥링크할 필요가 없어서 쿼리 파라미터 동기화는 안 넣었다.

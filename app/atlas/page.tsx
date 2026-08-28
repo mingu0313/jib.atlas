@@ -13,12 +13,21 @@ type PostRow = HousePost & { house_photos: HousePhoto[] };
 
 /**
  * 집 아틀라스 갤러리 — 유저들이 등록한 집을 모아 보여주는 "지도" 메인 페이지.
- * STEP 9 + 콜드스타트 해결(STEP 10): 실사진뿐 아니라 /editor에서 클릭 한 번
- * 으로 올린 "방 미리보기"(room_items) 게시물도 같은 갤러리에 섞여 나온다 —
- * 업로드 마찰 없는 콘텐츠로 갤러리가 안 비어보이게 하는 게 목적이다.
- * 서버 컴포넌트라 로그인 여부와 무관하게(house_posts는 public read 정책)
- * 첫 렌더에 목록이 채워진다. ?template=t3 쿼리로 유형별 탐색을 기본
- * 화면 경험으로 둔다(등록보다 구경이 먼저).
+ * STEP 9 + 콜드스타트 해결(STEP 10): 실사진뿐 아니라 예전엔 /editor에서
+ * 클릭 한 번으로 올린 "방 미리보기"(room_items) 게시물도 같은 갤러리에
+ * 섞여 나왔다 — 업로드 마찰 없는 콘텐츠로 갤러리가 안 비어보이게 하는 게
+ * 목적이다. 서버 컴포넌트라 로그인 여부와 무관하게(house_posts는 public
+ * read 정책) 첫 렌더에 목록이 채워진다. ?template=t3 쿼리로 유형별 탐색을
+ * 기본 화면 경험으로 둔다(등록보다 구경이 먼저).
+ *
+ * "방 꾸미고 공유하기" 버튼은 /editor(격자+박스가구, room_items 스키마)
+ * 대신 이제 /studio(폴리곤 룸빌더)로 보낸다 — /editor는 진단이 매칭한
+ * 하우스 타입 전용이라 진단 없이 못 들어가고, /studio는 진단 여부와 무관
+ * 하게 바로 방을 꾸밀 수 있어서 이 진입점엔 더 맞는다. 다만 /studio의
+ * 가구 배치(자유 x/z cm 좌표)는 아직 이 페이지의 room_items 스키마(col/row
+ * 격자)로 변환되지 않는다 — 그래서 "공유하기"(house_posts insert, 아래
+ * RoomIsoCard가 그리는 미리보기)는 지금은 /editor에만 있고 /studio 쪽엔
+ * 아직 없다. /studio에 실제 공유 버튼을 붙이는 건 별도 작업으로 남겨뒀다.
  */
 export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
   const { template } = await searchParams;
@@ -61,7 +70,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/editor"
+            href="/studio"
             className="rounded-full border border-hair px-6 py-3 text-[12px] font-semibold text-fg transition hover:border-olive hover:text-olive"
           >
             방 꾸미고 공유하기
@@ -127,7 +136,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
             </p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/editor"
+                href="/studio"
                 className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg"
               >
                 방 꾸미고 공유하기
