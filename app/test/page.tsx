@@ -190,22 +190,28 @@ export default function TestPage() {
             })}
           </div>
 
-          <div className="flex items-center gap-[26px]">
+          <div className="flex items-center gap-3 sm:gap-[26px]">
             <button
               type="button"
               onClick={() => setIndex((i) => Math.max(0, i - 1))}
               disabled={index === 0}
-              className="text-[13px] text-muted transition hover:text-fg disabled:opacity-0"
+              className="shrink-0 text-[13px] text-muted transition hover:text-fg disabled:opacity-0"
             >
               ← 이전
             </button>
-            <span className="flex items-center gap-[7px]">
+            {/* 23문항짜리 필 대시 23개 — 원래 폭(비활성 8px·활성 28px, gap 7px)
+                합이 358px+라 390px짜리 모바일 화면에선 "← 이전" 버튼과 합쳐
+                뷰포트 밖으로 넘쳐 가로 스크롤이 생겼다(실측: scrollWidth 421 vs
+                clientWidth 390). sm 미만에서만 더 작은 폭·간격을 써서 총합을
+                줄인다 — 데스크톱(sm 이상) 값은 원래 8/28/7px 그대로. */}
+            <span className="flex min-w-0 items-center gap-1 sm:gap-[7px]">
               {allQuestions.map((q, i) => (
                 <span
                   key={q.id}
-                  className="h-[3px] rounded-full transition-all duration-250"
+                  className={`h-[3px] shrink-0 rounded-full transition-all duration-250 ${
+                    i === index ? "w-5 sm:w-7" : "w-1.5 sm:w-2"
+                  }`}
                   style={{
-                    width: i === index ? 28 : 8,
                     background:
                       i < index ? "var(--color-olive)" : i === index ? "var(--color-olive-mid)" : "var(--color-hair)",
                   }}

@@ -407,7 +407,17 @@ function MeasurementLabels() {
   );
 }
 
-export function RoomStudioScene3D() {
+/**
+ * `visible`: StudioPreviewPanel이 "2D/3D 보기" 탭 중 지금 3D 탭이 실제로
+ * 화면에 보이는지 알려준다(display:none이어도 이 컴포넌트 자체는 항상
+ * 마운트돼 있다 — 카메라 각도를 잃지 않으려고, 위 모듈 주석 참고). 안 보일
+ * 땐 `frameloop="never"`로 렌더 루프를 완전히 멈춘다 — 안 그러면 화면에
+ * 안 보이는 WebGL 씬이 계속 매 프레임 그려지며 GPU/배터리를 갉아먹는다
+ * (모바일에서 특히 체감되는 끊김의 흔한 원인). 다시 보이게 되면
+ * `frameloop="always"`로 즉시 재개 — 씬 자체(카메라·가구 배치)는 멈춰
+ * 있던 동안 그대로 보존돼 있어 재개 시 티가 안 난다.
+ */
+export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
@@ -460,7 +470,7 @@ export function RoomStudioScene3D() {
 
   return (
     <div className="h-[420px] w-full overflow-hidden rounded-[18px]">
-      <Canvas shadows>
+      <Canvas shadows frameloop={visible ? "always" : "never"}>
         <color attach="background" args={["#EDE8DF"]} />
         <ambientLight intensity={0.85} color="#F4F1EA" />
         <directionalLight

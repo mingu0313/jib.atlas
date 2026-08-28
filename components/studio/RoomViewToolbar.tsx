@@ -147,14 +147,19 @@ export function RoomViewToolbar() {
               <button
                 type="button"
                 onClick={() => selectTab(tab.mode)}
-                className="flex items-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-semibold transition-colors"
+                title={tab.label}
+                className="flex items-center gap-1 rounded-full px-2.5 py-2 text-[12px] font-semibold transition-colors sm:gap-1.5 sm:px-3"
                 style={{
                   background: active ? ACCENT : "transparent",
                   color: active ? "#FFF" : "var(--color-muted)",
                 }}
               >
                 {tab.icon}
-                {tab.label}
+                {/* 라벨은 sm(640px) 이상에서만 — 좁은 화면(모바일)에서 3탭+
+                    구분선+아이콘 버튼 2개가 한 줄에 다 안 들어가 "상/단/뷰"
+                    식으로 한 글자씩 줄바꿈되던 문제(실기기 스크린샷으로 확인)
+                    를 아이콘만 남기는 걸로 해결 — title 속성이 대신 설명한다. */}
+                <span className="hidden sm:inline">{tab.label}</span>
                 {tab.mode === "side" && (
                   <span
                     role="button"

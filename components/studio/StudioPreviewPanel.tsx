@@ -123,9 +123,11 @@ export function StudioPreviewPanel({ step }: { step: number }) {
 
       {/* 3D는 항상 마운트해두고 표시만 토글 — 리마운트되면 카메라 각도가 사라진다.
           하단 뷰 전환 툴바(STEP 16)도 같은 relative 박스 안에서 캔버스 위에
-          떠 있어야 하니 3D 표시 토글과 한 wrapper로 묶는다. */}
+          떠 있어야 하니 3D 표시 토글과 한 wrapper로 묶는다. visible={false}일
+          땐 RoomStudioScene3D가 렌더 루프 자체를 멈춘다(안 보이는 WebGL 씬이
+          계속 프레임을 그리며 배터리·GPU를 쓰는 걸 막는 모바일 최적화). */}
       <div className="relative" style={{ display: mode === "3d" ? "block" : "none" }}>
-        <RoomStudioScene3D />
+        <RoomStudioScene3D visible={mode === "3d"} />
         <RoomViewToolbar />
       </div>
       <div style={{ display: mode === "2d" ? "block" : "none" }}>{plan2D}</div>
