@@ -6,6 +6,7 @@ import { RoomDimensionCanvas } from "@/components/studio/RoomDimensionCanvas";
 import { RoomFurnitureCanvas } from "@/components/studio/RoomFurnitureCanvas";
 import { RoomPlanCanvas } from "@/components/studio/RoomPlanCanvas";
 import { RoomPolygonPreview } from "@/components/studio/RoomPolygonPreview";
+import { RoomViewToolbar } from "@/components/studio/RoomViewToolbar";
 import { getFloorAreaM2 } from "@/lib/roomGeometry";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
 
@@ -120,9 +121,12 @@ export function StudioPreviewPanel({ step }: { step: number }) {
         </div>
       </div>
 
-      {/* 3D는 항상 마운트해두고 표시만 토글 — 리마운트되면 카메라 각도가 사라진다. */}
-      <div style={{ display: mode === "3d" ? "block" : "none" }}>
+      {/* 3D는 항상 마운트해두고 표시만 토글 — 리마운트되면 카메라 각도가 사라진다.
+          하단 뷰 전환 툴바(STEP 16)도 같은 relative 박스 안에서 캔버스 위에
+          떠 있어야 하니 3D 표시 토글과 한 wrapper로 묶는다. */}
+      <div className="relative" style={{ display: mode === "3d" ? "block" : "none" }}>
         <RoomStudioScene3D />
+        <RoomViewToolbar />
       </div>
       <div style={{ display: mode === "2d" ? "block" : "none" }}>{plan2D}</div>
     </div>

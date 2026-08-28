@@ -17,6 +17,18 @@ export function getWallSegments(polygon: Point[]): WallSegment[] {
   });
 }
 
+/** 벽의 바깥쪽 방향(정규화 벡터). 우리 폴리곤은 항상 시계방향(z가 아래로
+ * 증가하는 평면 기준)이라 (dz,-dx)가 바깥쪽이다 — RoomDimensionCanvas 치수
+ * 라벨·RoomPlanCanvas 삭제 툴바가 각자 인라인으로 쓰던 것과 같은 관례
+ * (정사각형 윗변으로 검산됨). STEP 16 카메라 프리셋·측정 라벨이 새로
+ * 이 헬퍼를 공유한다. */
+export function getWallOutwardNormal(wall: WallSegment): Point {
+  const dx = wall.end.x - wall.start.x;
+  const dz = wall.end.z - wall.start.z;
+  const len = Math.max(wall.length, 1);
+  return { x: dz / len, z: -dx / len };
+}
+
 /** point를 (start→end) 선분 위로 투영해 start로부터의 거리(cm)를 준다.
  * 선분 밖으로 나가면 양 끝으로 clamp한다 — SVG 클릭/드래그 좌표를 벽을
  * 따라가는 offset으로 바꾸는 데 쓴다. */

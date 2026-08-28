@@ -1,15 +1,17 @@
 "use client";
 
-import { OrbitControls } from "@react-three/drei";
-import { Canvas } from "@react-three/fiber";
-import { Suspense, useMemo } from "react";
+import { Billboard, CameraControls, Text } from "@react-three/drei";
+import { Canvas, useFrame } from "@react-three/fiber";
+import { Suspense, useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 import { FurnitureShape } from "@/components/furniture3d";
 import { FurnitureModel } from "@/components/furnitureModel3d";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
+import { computeCameraPose } from "@/lib/cameraPresets";
 import { HEIGHT_SCALE, TILE_M } from "@/lib/editor3d";
+import { formatLength } from "@/lib/roomDimensions";
 import { useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
-import { buildWallBoxes, CONVEX_DIAGONAL_SHAPES, getFloorRects, getWallSegments } from "@/lib/roomGeometry";
+import { buildWallBoxes, CONVEX_DIAGONAL_SHAPES, getFloorRects, getWallOutwardNormal, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
 import type { IsoFurnitureDef } from "@/lib/types";
 
@@ -201,6 +203,99 @@ function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
   );
 }
 
+/** 벽 색상 박스와 같은 강도로 fov를 트윈하는 시간 상수(초) — 위치·타깃
+ * 보간(smoothTime)과 같은 250~400ms 창 안에서 같이 움직여야 "위치는
+ * 스르륵, 화각은 뚝" 하는 어색한 전환이 안 생긴다. */
+const FOV_SMOOTH_TIME = 0.3;
+
+/**
+ * STEP 16 — 항공/상단/사이드 세 카메라 프리셋을 부드럽게 오간다.
+ * `CameraControls` 인스턴스 하나를 계속 재사용해서(카메라를 진짜
+ * OrthographicCamera로 스왑하지 않음 — lib/cameraPresets.ts 모듈 설명
+ * 참고) `setLookAt`이 위치·타깃을, 이 컴포넌트의 `useFrame`이 fov를 같은
+ * 호흡으로 트윈한다. 상단/사이드뷰는 "프리셋 샷"이라 자유 오빗을
+ * 잠그고(controls.enabled=false), 항공뷰에서만 기존과 같은 오빗 제약
+ * (min/maxDistance, min/maxPolarAngle)을 되살린다.
+ */
+function CameraRig() {
+  const controlsRef = useRef<CameraControls>(null);
+  const hasFramedOnce = useRef(false);
+
+  const viewMode = useRoomBuilderStore((s) => s.viewMode);
+  const sideViewWallId = useRoomBuilderStore((s) => s.sideViewWallId);
+  const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
+  const wallHeightCm = useRoomBuilderStore((s) => s.wallHeightCm);
+
+  const pose = useMemo(
+    () => computeCameraPose(viewMode, roomPolygon, wallHeightCm, sideViewWallId),
+    [viewMode, roomPolygon, wallHeightCm, sideViewWallId],
+  );
+
+  const xs = roomPolygon.map((p) => p.x);
+  const zs = roomPolygon.map((p) => p.z);
+  const orbitSpan = toM(Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...zs) - Math.min(...zs), 1));
+
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    // 첫 프레이밍은 트랜지션 없이 즉시 스냅(마운트 직후 "날아오는" 연출은
+    // 원치 않음) — 그 다음부터의 뷰 전환·치수 변경은 전부 부드럽게 보간.
+    controls.setLookAt(...pose.position, ...pose.target, hasFramedOnce.current);
+    hasFramedOnce.current = true;
+    controls.enabled = viewMode === "aerial";
+  }, [pose, viewMode]);
+
+  useFrame((state, delta) => {
+    const camera = state.camera;
+    if (!(camera instanceof THREE.PerspectiveCamera)) return;
+    if (Math.abs(camera.fov - pose.fov) < 0.01) return;
+    camera.fov = THREE.MathUtils.damp(camera.fov, pose.fov, 1 / FOV_SMOOTH_TIME, delta);
+    camera.updateProjectionMatrix();
+  });
+
+  return (
+    <CameraControls
+      ref={controlsRef}
+      smoothTime={FOV_SMOOTH_TIME}
+      minDistance={orbitSpan * 0.8}
+      maxDistance={orbitSpan * 3}
+      minPolarAngle={Math.PI / 6}
+      maxPolarAngle={Math.PI / 2.2}
+    />
+  );
+}
+
+/** 측정 오버레이(STEP 16) — roomPolygon 각 변 바깥쪽에 실측 길이 라벨을
+ * 3D 공간 위에 띄운다. `Billboard`로 항상 카메라를 향하게 해서 항공/상단/
+ * 사이드 어느 뷰에서도 읽힌다. 표시 단위는 store.unit(ft/cm) 그대로 —
+ * roomPolygon(cm) 자체는 건드리지 않는다. */
+const LABEL_OFFSET_CM = 20;
+
+function MeasurementLabels() {
+  const visible = useRoomBuilderStore((s) => s.measurementVisible);
+  const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
+  const unit = useRoomBuilderStore((s) => s.unit);
+  if (!visible) return null;
+
+  return (
+    <>
+      {getWallSegments(roomPolygon).map((wall) => {
+        const n = getWallOutwardNormal(wall);
+        const midX = (wall.start.x + wall.end.x) / 2 + n.x * LABEL_OFFSET_CM;
+        const midZ = (wall.start.z + wall.end.z) / 2 + n.z * LABEL_OFFSET_CM;
+        return (
+          <Billboard key={wall.index} position={[toM(midX), 0.08, toM(midZ)]}>
+            <Text fontSize={0.14} color="#3A382F" anchorX="center" anchorY="middle" outlineWidth={0.006} outlineColor="#F5F1E8">
+              {formatLength(wall.length, unit)}
+              {unit}
+            </Text>
+          </Billboard>
+        );
+      })}
+    </>
+  );
+}
+
 export function RoomStudioScene3D() {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
@@ -227,7 +322,9 @@ export function RoomStudioScene3D() {
 
   return (
     <div className="h-[420px] w-full overflow-hidden rounded-[18px]">
-      <Canvas shadows camera={{ position: [centerX + spanW * 1.3, wallHeightM * 1.8, centerZ + spanD * 1.5], fov: 34 }}>
+      {/* 초기 position은 대충 던져도 된다 — CameraRig가 마운트 직후
+          트랜지션 없이 정확한 항공뷰 프리셋으로 즉시 스냅한다(아래). */}
+      <Canvas shadows camera={{ position: [spanW, wallHeightM * 1.8, spanD], fov: 34 }}>
         <color attach="background" args={["#EDE8DF"]} />
         <ambientLight intensity={0.85} color="#F4F1EA" />
         <directionalLight
@@ -251,14 +348,9 @@ export function RoomStudioScene3D() {
             <FurnitureItem key={item.id} item={item} />
           ))}
         </Suspense>
+        <MeasurementLabels />
 
-        <OrbitControls
-          target={[centerX, wallHeightM * 0.3, centerZ]}
-          minDistance={Math.max(spanW, spanD) * 0.8}
-          maxDistance={Math.max(spanW, spanD) * 3}
-          minPolarAngle={Math.PI / 6}
-          maxPolarAngle={Math.PI / 2.2}
-        />
+        <CameraRig />
       </Canvas>
     </div>
   );

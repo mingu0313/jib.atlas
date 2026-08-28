@@ -2,6 +2,7 @@ import { create } from "zustand";
 import furnitureCatalogData from "../data/furniture-catalog.json";
 import { HEIGHT_SCALE, TILE_M } from "./editor3d";
 import { buildPolygon, DEFAULT_WALL_HEIGHT_CM, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "./roomDimensions";
+import type { RoomViewMode } from "./cameraPresets";
 import { clampOpeningOffset, getWallSegments, isFootprintInsideRoom, overlapsOtherOpening, rectsOverlap, type Rect } from "./roomGeometry";
 import { DEFAULT_FLOOR_STYLE_ID, DEFAULT_WALL_COLOR_HEX, DOOR_PRESETS, WINDOW_PRESETS } from "./roomStyle";
 import type { IsoFurnitureDef } from "./types";
@@ -324,6 +325,23 @@ interface RoomBuilderState {
    * "놓기 전"에만 되던 회전(furnitureRotated)과 달리, 이미 놓인 가구를
    * 지우고 다시 놓지 않아도 방향을 바꿀 수 있게 해준다. */
   rotateFurniture: (id: string) => void;
+
+  /** STEP 16 — 3D 프리뷰의 카메라 뷰 모드. "aerial"(기본, 자유 오빗) /
+   * "top"(진짜 위→아래, 사실상 평면도 역할) / "side"(선택한 벽 정면).
+   * 위치·화각 계산은 lib/cameraPresets.ts computeCameraPose가 한다 —
+   * 여긴 "지금 뭘 보기로 했는지"만 들고 있는다. */
+  viewMode: RoomViewMode;
+  setViewMode: (mode: RoomViewMode) => void;
+  /** 사이드뷰가 바라볼 벽 — getWallSegments(roomPolygon) 인덱스를
+   * 문자열로 저장(String(wallIndex)). 방에 안정적인 "벽 id"가 따로 없어서
+   * (모양을 바꾸면 폴리곤 자체가 재생성됨) 인덱스를 그대로 쓴다 —
+   * lib/cameraPresets.ts resolveSideWallIndex가 범위를 벗어난 값을
+   * 안전하게 clamp해준다. */
+  sideViewWallId: string | null;
+  setSideViewWallId: (id: string | null) => void;
+  /** 측정 오버레이(각 변 길이 라벨) 표시 여부. */
+  measurementVisible: boolean;
+  toggleMeasurement: () => void;
 }
 
 export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
@@ -490,4 +508,11 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       }
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, rotated: nextRotated } : f)) };
     }),
+
+  viewMode: "aerial",
+  setViewMode: (mode) => set({ viewMode: mode }),
+  sideViewWallId: null,
+  setSideViewWallId: (id) => set({ sideViewWallId: id }),
+  measurementVisible: false,
+  toggleMeasurement: () => set((state) => ({ measurementVisible: !state.measurementVisible })),
 }));

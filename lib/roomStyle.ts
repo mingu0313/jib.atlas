@@ -34,16 +34,26 @@ export interface WallColorPreset {
   hex: string;
 }
 
-/** 특정 하우스 타입에 안 묶인 중립 팔레트(STEP 15 요구사항) — 실제
- * app/globals.css 올리브/세이지 톤과 어울리는 페인트 색 6가지. 첫 번째
- * (웜 화이트)가 /studio 기본값이다. */
+/** 특정 하우스 타입에 안 묶인 중립 팔레트(STEP 15 요구사항, STEP 16에서
+ * 6→11 확장) — 실제로 벽에 칠할 법한 웜뉴트럴 페인트 톤 위주 + 코퍼 계열
+ * 2가지(테라코타/카퍼)로 밝은 순→어두운 순 큐레이션. app/globals.css의
+ * 올리브/세이지 브랜드 톤과는 별개(그건 UI 브랜드고 이건 방 벽 색이다) —
+ * 다만 채도를 낮춰 브랜드 톤과 부딪히지 않게 맞췄다. 첫 번째(웜 화이트)가
+ * /studio 기본값이다. STEP 16의 플로팅 팔레트(RoomViewToolbar)와
+ * StepFinish의 WallColorPicker가 이 배열 하나를 공유한다 — 색상 목록이
+ * 두 군데서 따로 놀지 않도록. */
 export const WALL_COLOR_PRESETS: WallColorPreset[] = [
-  { id: "warm-white", label: "웜 화이트", hex: "#F3F1EA" },
-  { id: "greige", label: "그레이지", hex: "#D9D2C4" },
-  { id: "sage", label: "세이지", hex: "#C9D3A8" },
-  { id: "deep-olive", label: "딥 올리브", hex: "#6B6A4E" },
-  { id: "terracotta", label: "테라코타", hex: "#C57A57" },
-  { id: "charcoal", label: "차콜", hex: "#3A382F" },
+  { id: "warm-white", label: "웜 화이트", hex: "#F5F1E8" },
+  { id: "linen", label: "리넨", hex: "#EFE7D8" },
+  { id: "oatmeal", label: "오트밀", hex: "#E4D9C4" },
+  { id: "greige", label: "그레이지", hex: "#D7CBB8" },
+  { id: "warm-gray", label: "웜 그레이", hex: "#C9C0B2" },
+  { id: "taupe", label: "타우프", hex: "#B7A98F" },
+  { id: "mocha", label: "모카", hex: "#A08D74" },
+  { id: "clay", label: "클레이", hex: "#BC8F6D" },
+  { id: "terracotta", label: "테라코타", hex: "#C3714A" },
+  { id: "copper", label: "카퍼", hex: "#B5673E" },
+  { id: "dark-roast", label: "다크 로스트", hex: "#4A3E30" },
 ];
 
 export interface FloorStylePreset {
