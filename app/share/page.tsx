@@ -1,24 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useSyncExternalStore } from "react";
-import { ShareCard } from "@/components/ShareCard";
-import { captureCardPng, downloadBlob } from "@/lib/shareImage";
+import { useState, useSyncExternalStore } from "react";
+import { AXES, type AxisScores } from "@/lib/types";
+import { downloadBlob } from "@/lib/shareImage";
 import { matchHouseTemplate } from "@/lib/matching";
-import { generatePersona } from "@/lib/persona";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import type { Answer } from "@/lib/types";
+import type { ShareCardRatio } from "@/components/shareCard/ShareCardImage";
 
 const TOTAL_QUESTION_COUNT = 23; // 라이프스타일 15 + MBTI 8
 
 type ExportStatus = "idle" | "capturing" | "error";
 
-// 파일 공유(Web Share API) 존재 여부는 서버(SSR)와 클라이언트에서 다르게
-// 평가되는 순수한 환경 값이라 useEffect+setState보다 useSyncExternalStore가
-// 맞다 — 하이드레이션 시 서버 스냅샷(false)을 쓰고, 곧바로 클라이언트
-// 스냅샷으로 갈아끼워 하이드레이션 불일치 경고 없이 반영된다. 값이 마운트
-// 중 바뀔 일이 없어 subscribe는 아무 것도 구독하지 않는 no-op이다.
 function subscribeToNothing() {
   return () => {};
 }
@@ -29,22 +24,26 @@ function getServerShareCapabilitySnapshot() {
   return false;
 }
 
+/** axisScores를 /api/share-card 쿼리 파라미터로 직렬화한다. */
+function axisScoreParams(axisScores: AxisScores): string {
+  return AXES.map((axis) => `${axis}=${Math.round(axisScores[axis])}`).join("&");
+}
+
 /**
- * 공유 카드 — DESIGN-HANDOFF-V2.md "4. 공유 카드". `/result/share`가 아니라
- * 문서의 라우트 표대로 최상위 `/share`로 옮겼다.
+ * 공유 카드 — 서버사이드 PNG(ImageResponse/satori, app/api/share-card/route.tsx)를
+ * 그대로 <img>로 미리보고 다운로드한다. "공유카드 리디자인" 스펙대로 카드
+ * 자체는 풀블리드(각진 모서리)로 뽑고, 라운드는 이 페이지의 미리보기
+ * 컨테이너에만 준다.
  *
- * 바이럴 전략 1순위: 카드를 화면 캡처에 맡기지 않고 실제 PNG로 내보낸다.
- * 파일 공유(Web Share API Level 2)를 지원하는 브라우저(대부분의 모바일)는
- * 카톡/인스타 스토리로 바로 공유하는 시트를 띄우고, 그 외에는 다운로드로
- * 폴백한다.
+ * 이전엔 DOM(components/ShareCard.tsx)을 html-to-image로 캡처했지만, 그
+ * 방식은 웹폰트 로딩 타이밍에 따라 결과가 흔들리고 서버에서 미리 만들어
+ * 캐시할 수도 없었다 — 지금은 서버가 고정 PNG를 내려주므로 브라우저는
+ * fetch→Blob만 하면 된다(다운로드도 공유도 같은 fetch 결과를 재사용).
  */
 export default function SharePage() {
   const answers = useTestStore((state) => state.answers);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [ratio, setRatio] = useState<ShareCardRatio>("9x16");
   const [status, setStatus] = useState<ExportStatus>("idle");
-  // 실제 지원 여부는 File을 쥐여줘야 정확히 판정하는 브라우저(사파리 등)가
-  // 있어서, 여기선 API 존재 여부로만 1차 판정하고 클릭 시 handleShare가
-  // canShare로 다시 확인한다 — 없으면 조용히 다운로드로 폴백한다.
   const canShareFiles = useSyncExternalStore(
     subscribeToNothing,
     getShareCapabilitySnapshot,
@@ -70,16 +69,21 @@ export default function SharePage() {
   }));
   const { axisScores } = calculateScores(answerList);
   const [topMatch] = matchHouseTemplate(axisScores);
-  const persona = generatePersona(axisScores);
-  const typeNum = topMatch.template.id.replace(/^t/, "").padStart(2, "0");
-  const fileName = `jib-atlas-${typeNum}-${persona.name.replace(/\s+/g, "")}.png`;
+  const typeCode = topMatch.template.id.replace(/^t/, "").padStart(3, "0");
+  const cardUrl = `/api/share-card?typeId=${topMatch.template.id}&ratio=${ratio}&${axisScoreParams(axisScores)}`;
+  const fileName = `jib-atlas-${typeCode}-${ratio}.png`;
+
+  async function fetchCardBlob(): Promise<Blob> {
+    const res = await fetch(cardUrl);
+    if (!res.ok) throw new Error("이미지를 만들지 못했어요.");
+    return res.blob();
+  }
 
   async function handleDownload() {
-    if (!cardRef.current || status === "capturing") return;
+    if (status === "capturing") return;
     setStatus("capturing");
     try {
-      const blob = await captureCardPng(cardRef.current);
-      downloadBlob(blob, fileName);
+      downloadBlob(await fetchCardBlob(), fileName);
       setStatus("idle");
     } catch {
       setStatus("error");
@@ -87,16 +91,16 @@ export default function SharePage() {
   }
 
   async function handleShare() {
-    if (!cardRef.current || status === "capturing") return;
+    if (status === "capturing") return;
     setStatus("capturing");
     try {
-      const blob = await captureCardPng(cardRef.current);
+      const blob = await fetchCardBlob();
       const file = new File([blob], fileName, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: "jib.atlas",
-          text: `나는 ${topMatch.template.name} · ${persona.name}였어요`,
+          text: `나는 ${topMatch.template.name}였어요`,
         });
       } else {
         downloadBlob(blob, fileName);
@@ -121,13 +125,33 @@ export default function SharePage() {
         </h2>
       </div>
 
-      <div ref={cardRef} className="w-full" style={{ maxWidth: 440 }}>
-        <ShareCard
-          typeNum={typeNum}
-          templateName={topMatch.template.name}
-          personaName={persona.name}
-          axisScores={axisScores}
-        />
+      <div className="flex gap-2 rounded-full bg-panel p-1.5">
+        {(
+          [
+            { value: "9x16", label: "인스타 스토리" },
+            { value: "1x1", label: "카톡 · 피드" },
+          ] as const
+        ).map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setRatio(option.value)}
+            className={`rounded-full px-5 py-2.5 text-[13px] font-semibold transition ${
+              ratio === option.value ? "bg-olive text-cream" : "text-muted hover:text-fg"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      {/* 라운드는 이 미리보기 컨테이너에만 — 실제 PNG는 풀블리드다. */}
+      <div
+        className="w-full overflow-hidden rounded-[28px] shadow-[0_40px_90px_-44px_rgba(18,18,15,0.34)]"
+        style={{ maxWidth: ratio === "9x16" ? 380 : 440 }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- 서버가 만든 PNG를 그대로 보여준다 */}
+        <img key={cardUrl} src={cardUrl} alt={`${topMatch.template.name} 공유 카드`} className="block w-full" />
       </div>
 
       <div className="flex flex-col items-center gap-4">

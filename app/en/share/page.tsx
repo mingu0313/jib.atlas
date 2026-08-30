@@ -1,16 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState, useSyncExternalStore } from "react";
+import { useState, useSyncExternalStore } from "react";
 import houseTemplatesEnData from "@/data/house-templates.en.json";
-import { ShareCard } from "@/components/ShareCard";
-import { captureCardPng, downloadBlob } from "@/lib/shareImage";
+import { AXES, type AxisScores } from "@/lib/types";
+import { downloadBlob } from "@/lib/shareImage";
 import { matchHouseTemplate } from "@/lib/matching";
-import { generatePersonaEn } from "@/lib/persona";
 import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
-import { AXIS_LABELS_EN } from "@/lib/types";
 import type { Answer, HouseTemplate } from "@/lib/types";
+import type { ShareCardRatio } from "@/components/shareCard/ShareCardImage";
 
 const houseTemplatesEn = houseTemplatesEnData as HouseTemplate[];
 
@@ -28,11 +27,15 @@ function getServerShareCapabilitySnapshot() {
   return false;
 }
 
-/** 영문 공유 카드 페이지(`/en/share`) — STEP 11. app/share/page.tsx와 동일한 로직,
- * 매칭/페르소나만 영문 함수·데이터로 바꾸고 ShareCard에 axisLabels=AXIS_LABELS_EN을 넘긴다. */
+function axisScoreParams(axisScores: AxisScores): string {
+  return AXES.map((axis) => `${axis}=${Math.round(axisScores[axis])}`).join("&");
+}
+
+/** 영문 공유 카드 페이지(`/en/share`) — app/share/page.tsx와 동일한 로직,
+ * 매칭만 영문 데이터로 바꾸고 /api/share-card에 lang=en을 넘긴다. STEP 11. */
 export default function EnglishSharePage() {
   const answers = useTestStore((state) => state.answers);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const [ratio, setRatio] = useState<ShareCardRatio>("9x16");
   const [status, setStatus] = useState<ExportStatus>("idle");
   const canShareFiles = useSyncExternalStore(
     subscribeToNothing,
@@ -59,16 +62,21 @@ export default function EnglishSharePage() {
   }));
   const { axisScores } = calculateScores(answerList);
   const [topMatch] = matchHouseTemplate(axisScores, houseTemplatesEn);
-  const persona = generatePersonaEn(axisScores);
-  const typeNum = topMatch.template.id.replace(/^t/, "").padStart(2, "0");
-  const fileName = `jib-atlas-${typeNum}-${persona.name.replace(/\s+/g, "")}.png`;
+  const typeCode = topMatch.template.id.replace(/^t/, "").padStart(3, "0");
+  const cardUrl = `/api/share-card?typeId=${topMatch.template.id}&ratio=${ratio}&lang=en&${axisScoreParams(axisScores)}`;
+  const fileName = `jib-atlas-${typeCode}-${ratio}.png`;
+
+  async function fetchCardBlob(): Promise<Blob> {
+    const res = await fetch(cardUrl);
+    if (!res.ok) throw new Error("Couldn't make the image.");
+    return res.blob();
+  }
 
   async function handleDownload() {
-    if (!cardRef.current || status === "capturing") return;
+    if (status === "capturing") return;
     setStatus("capturing");
     try {
-      const blob = await captureCardPng(cardRef.current);
-      downloadBlob(blob, fileName);
+      downloadBlob(await fetchCardBlob(), fileName);
       setStatus("idle");
     } catch {
       setStatus("error");
@@ -76,16 +84,16 @@ export default function EnglishSharePage() {
   }
 
   async function handleShare() {
-    if (!cardRef.current || status === "capturing") return;
+    if (status === "capturing") return;
     setStatus("capturing");
     try {
-      const blob = await captureCardPng(cardRef.current);
+      const blob = await fetchCardBlob();
       const file = new File([blob], fileName, { type: "image/png" });
       if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({
           files: [file],
           title: "jib.atlas",
-          text: `I'm the ${topMatch.template.name} · ${persona.name}`,
+          text: `I'm the ${topMatch.template.name}`,
         });
       } else {
         downloadBlob(blob, fileName);
@@ -109,14 +117,32 @@ export default function EnglishSharePage() {
         </h2>
       </div>
 
-      <div ref={cardRef} className="w-full" style={{ maxWidth: 440 }}>
-        <ShareCard
-          typeNum={typeNum}
-          templateName={topMatch.template.name}
-          personaName={persona.name}
-          axisScores={axisScores}
-          axisLabels={AXIS_LABELS_EN}
-        />
+      <div className="flex gap-2 rounded-full bg-panel p-1.5">
+        {(
+          [
+            { value: "9x16", label: "Instagram Story" },
+            { value: "1x1", label: "KakaoTalk · Feed" },
+          ] as const
+        ).map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => setRatio(option.value)}
+            className={`rounded-full px-5 py-2.5 text-[13px] font-semibold transition ${
+              ratio === option.value ? "bg-olive text-cream" : "text-muted hover:text-fg"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+
+      <div
+        className="w-full overflow-hidden rounded-[28px] shadow-[0_40px_90px_-44px_rgba(18,18,15,0.34)]"
+        style={{ maxWidth: ratio === "9x16" ? 380 : 440 }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element -- shows the server-rendered PNG as-is */}
+        <img key={cardUrl} src={cardUrl} alt={`${topMatch.template.name} share card`} className="block w-full" />
       </div>
 
       <div className="flex flex-col items-center gap-4">
