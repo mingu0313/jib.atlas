@@ -3,7 +3,7 @@ import houseTemplatesData from "@/data/house-templates.json";
 import houseTemplatesEnData from "@/data/house-templates.en.json";
 import { ShareCardImage, CARD_SIZES, type ShareCardRatio } from "@/components/shareCard/ShareCardImage";
 import { loadShareCardFonts } from "@/lib/shareCard/fonts";
-import { buildRoomBandDataUri } from "@/lib/shareCard/roomBand";
+import { loadHousePhotoDataUri, pickHousePhotoFile } from "@/lib/shareCard/housePhoto";
 import { generatePersona, generatePersonaEn } from "@/lib/persona";
 import { AXES, AXIS_LABELS, AXIS_LABELS_EN, type AxisScores, type HouseTemplate } from "@/lib/types";
 
@@ -19,10 +19,6 @@ import { AXES, AXIS_LABELS, AXIS_LABELS_EN, type AxisScores, type HouseTemplate 
 
 const TEMPLATES_KO = houseTemplatesData as HouseTemplate[];
 const TEMPLATES_EN = houseTemplatesEnData as HouseTemplate[];
-
-// 아이소메트릭 룸은 유형과 무관하게 항상 같은 데모 배치(DEFAULT_PLACED_DEFS)라
-// 요청마다 다시 만들 필요 없이 모듈 스코프에서 한 번만 만든다.
-const ROOM_IMAGE_DATA_URI = buildRoomBandDataUri();
 
 function parseRatio(value: string | null): ShareCardRatio {
   return value === "1x1" ? "1x1" : "9x16";
@@ -56,8 +52,18 @@ export async function GET(request: Request) {
   const persona = lang === "en" ? generatePersonaEn(axisScores) : generatePersona(axisScores);
   const { width, height } = CARD_SIZES[ratio];
 
+  const photoFile = pickHousePhotoFile(template.id, template.scoreProfile);
+
   try {
-    const fonts = await loadShareCardFonts(origin);
+    const [fonts, photoDataUri] = await Promise.all([
+      loadShareCardFonts(origin),
+      // 사진은 못 구해도 카드 자체는 완성돼야 하니 실패를 여기서 삼키고
+      // null로 흡수한다 — ShareCardImage가 밴드를 빈 배경으로 그린다.
+      loadHousePhotoDataUri(origin, photoFile).catch((err) => {
+        console.error("[share-card] 사진 로딩 실패", err);
+        return null;
+      }),
+    ]);
     return new ImageResponse(
       (
         <ShareCardImage
@@ -68,7 +74,7 @@ export async function GET(request: Request) {
           description={persona.description}
           axisScores={axisScores}
           axisLabels={lang === "en" ? AXIS_LABELS_EN : AXIS_LABELS}
-          roomImageDataUri={ROOM_IMAGE_DATA_URI}
+          photoDataUri={photoDataUri}
         />
       ),
       {

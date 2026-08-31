@@ -80,7 +80,7 @@ export function ShareCardImage({
   description,
   axisScores,
   axisLabels,
-  roomImageDataUri,
+  photoDataUri,
 }: {
   ratio: ShareCardRatio;
   /** 1-based 유형 순번. */
@@ -90,7 +90,9 @@ export function ShareCardImage({
   description: string;
   axisScores: AxisScores;
   axisLabels: Record<Axis, string>;
-  roomImageDataUri: string;
+  /** 실제 집 사진(lib/shareCard/housePhoto.ts) — fetch 실패 등으로 못
+   * 구했으면 null, 이때 밴드는 imagePlaceholder 배경만 보여준다. */
+  photoDataUri: string | null;
 }) {
   const { width, height } = CARD_SIZES[ratio];
   const isSquare = ratio === "1x1";
@@ -194,8 +196,9 @@ export function ShareCardImage({
           </div>
         )}
 
-        {/* 이미지 밴드 — 3D 룸 대역. 실패할 수 없는 인라인 data URI라
-            #EAE5DA 배경은 항상 보이는 하한선일 뿐 실제로 드러날 일은 없다. */}
+        {/* 이미지 밴드 — 실제 집 사진(lib/shareCard/housePhoto.ts). photoDataUri를
+            못 구했으면(사진 fetch 실패) img를 아예 안 그려서 imagePlaceholder
+            배경만 남는다 — 깨진 이미지 아이콘이 뜨지 않는다. */}
         <div
           style={{
             display: "flex",
@@ -206,8 +209,10 @@ export function ShareCardImage({
             backgroundColor: COLORS.imagePlaceholder,
           }}
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- satori가 읽는 JSX 트리라 next/image가 아니라 이 img 자체가 렌더 대상 */}
-          <img src={roomImageDataUri} alt="" width={width} height={bandHeight} style={{ objectFit: "cover" }} />
+          {photoDataUri && (
+            // eslint-disable-next-line @next/next/no-img-element -- satori가 읽는 JSX 트리라 next/image가 아니라 이 img 자체가 렌더 대상
+            <img src={photoDataUri} alt="" width={width} height={bandHeight} style={{ objectFit: "cover" }} />
+          )}
         </div>
 
         {/* 지표 */}
