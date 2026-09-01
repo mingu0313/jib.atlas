@@ -56,9 +56,9 @@ export default function EnglishSharePage() {
     );
   }
 
-  const answerList: Answer[] = Object.entries(answers).map(([questionId, value]) => ({
+  const answerList: Answer[] = Object.entries(answers).map(([questionId, optionId]) => ({
     questionId,
-    value,
+    optionId,
   }));
   const { axisScores } = calculateScores(answerList);
   const [topMatch] = matchHouseTemplate(axisScores, houseTemplatesEn);

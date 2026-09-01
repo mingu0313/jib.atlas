@@ -3,33 +3,28 @@
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import houseTemplatesData from "@/data/house-templates.json";
 import lifestyleQuestionsData from "@/data/lifestyle-questions.json";
 import mbtiQuestionsData from "@/data/mbti-questions.json";
+import { BinaryQuestionCard, type BinaryDisplayOption } from "@/components/quiz/BinaryQuestionCard";
+import { DiagnosisLoader } from "@/components/quiz/DiagnosisLoader";
 import { useTestStore } from "@/lib/store";
-import { AXIS_LABELS } from "@/lib/types";
-import type { Axis, MbtiIndicator, MbtiQuestion, Question } from "@/lib/types";
+import type { BinaryQuestion, MbtiBinaryQuestion, MbtiIndicator, OptionId } from "@/lib/types";
 
 /**
- * 퀴즈 페이지 — DESIGN-HANDOFF-V2.md "2. 퀴즈" + jib-atlas-v2-preview.html의
- * 실제 마크업(좌 40fr 사진+대형 넘버, 우 60fr 카테고리+질문+카드형 선택지+
- * 필 대시 인디케이터)을 그대로 따른다.
+ * 퀴즈 페이지 — 2단계 진단(빠른 15문항 → 결과, 선택적으로 정밀 8문항 →
+ * 결과 갱신) 중 문항을 실제로 답하는 화면. 밸런스게임형/이미지 선택형
+ * 이지선다로 답한다(기존 5점 리커트 대체).
  *
- * 문서의 "문항 5개·4지선다·직접 점수"는 프리뷰 프로토타입의 QS 배열
- * (축마다 1문항)이 정본이지만, 실제 앱은 이 프로젝트가 v1 때부터 써온
- * 23문항(라이프스타일 15 + MBTI 8, lib/scoring.ts의 5점 리커트+리버스
- * 스코어링)을 그대로 쓴다 — 문서도 "실제 앱에서는 프로토타입 로컬 구현
- * 대신 lib/scoring.ts 사용"이라고 명시한다. 선택지가 5개라 문서의 2×2
- * 카드 그리드를 2열 그리드로 유지하고 마지막 5번째 카드만 2칸을 채운다.
- *
- * 좌측 사진은 QS 배열이 축마다 실제로 매칭해둔 photo(카테고리 5개 = 사진
- * 5장)를 그대로 재사용한다: nature→type-serene, sociability→type-social,
- * minimalism→type-precision, activity→type-open, openness→quiz-structure.
- * MBTI 8문항엔 대응 사진이 없어서(QS에 MBTI 항목 자체가 없음), 지표별로
- * 같은 5장을 돌려 쓴다.
+ * `lifestyleQuestions`(빠른 진단, 15개)와 `mbtiQuestions`(정밀 모드, 8개)를
+ * 이어붙인 `allQuestions` 하나를 순서대로 진행하는 건 기존과 같다 — 15번째
+ * 문항을 답하는 순간 곧장 MBTI로 넘기지 않고 로딩 화면 → `/result`로 보내고,
+ * "더 정밀하게 보기"로 다시 들어오면 새로고침 재개 로직이 자동으로 16번째
+ * 문항(MBTI 시작)부터 이어가게 한다.
  */
 
-const lifestyleQuestions = lifestyleQuestionsData as Question[];
-const mbtiQuestions = mbtiQuestionsData as MbtiQuestion[];
+const lifestyleQuestions = lifestyleQuestionsData as BinaryQuestion[];
+const mbtiQuestions = mbtiQuestionsData as MbtiBinaryQuestion[];
 
 const INDICATOR_LABELS: Record<MbtiIndicator, string> = {
   EI: "에너지 방향",
@@ -38,45 +33,49 @@ const INDICATOR_LABELS: Record<MbtiIndicator, string> = {
   JP: "생활 양식",
 };
 
-const AXIS_PHOTO: Record<Axis, string> = {
-  nature: "/photos/type-serene.jpg",
-  sociability: "/photos/type-social.jpg",
-  minimalism: "/photos/type-precision.jpg",
-  activity: "/photos/type-open.jpg",
-  openness: "/photos/quiz-structure.jpg",
+type QuizItem = {
+  id: string;
+  format: "balance" | "image";
+  category: string;
+  prompt: string;
+  photo?: string;
+  options: [BinaryDisplayOption, BinaryDisplayOption];
 };
-
-const INDICATOR_PHOTO: Record<MbtiIndicator, string> = {
-  EI: "/photos/type-social.jpg",
-  SN: "/photos/quiz-structure.jpg",
-  TF: "/photos/type-serene.jpg",
-  JP: "/photos/type-precision.jpg",
-};
-
-type QuizItem = { id: string; text: string; category: string; photo: string };
 
 const allQuestions: QuizItem[] = [
-  ...lifestyleQuestions.map((q) => ({
+  ...lifestyleQuestions.map((q): QuizItem => ({
     id: q.id,
-    text: q.text,
-    category: AXIS_LABELS[q.axis],
-    photo: AXIS_PHOTO[q.axis],
+    format: q.format,
+    category: q.category,
+    prompt: q.prompt,
+    photo: q.photo,
+    options: q.options,
   })),
-  ...mbtiQuestions.map((q) => ({
+  ...mbtiQuestions.map((q): QuizItem => ({
     id: q.id,
-    text: q.text,
+    format: "balance",
     category: INDICATOR_LABELS[q.indicator],
-    photo: INDICATOR_PHOTO[q.indicator],
+    prompt: q.prompt,
+    options: q.options,
   })),
 ];
 
-const LIKERT_LABELS = ["전혀 아니다", "아니다", "보통이다", "그렇다", "매우 그렇다"];
+const QUICK_COUNT = lifestyleQuestions.length; // 15
+const HOUSE_TEMPLATE_COUNT = houseTemplatesData.length; // 30
+
+const QUICK_LOADING_MESSAGES = [
+  "5가지 성향을 분석하는 중…",
+  `${HOUSE_TEMPLATE_COUNT}가지 집 유형과 비교하는 중…`,
+  "당신에게 맞는 집을 찾았어요!",
+];
+const PRECISION_LOADING_MESSAGES = ["정밀도 업데이트 중…"];
 
 export default function TestPage() {
   const router = useRouter();
   const answers = useTestStore((state) => state.answers);
   const setAnswer = useTestStore((state) => state.setAnswer);
   const [index, setIndex] = useState(0);
+  const [loading, setLoading] = useState<"quick" | "precision" | null>(null);
 
   // 새로고침 등으로 다시 들어왔을 때, 이미 응답한 문항 다음부터 이어서 시작한다.
   useEffect(() => {
@@ -91,14 +90,28 @@ export default function TestPage() {
   const totalCount = allQuestions.length;
   const currentQuestion = allQuestions[index];
 
-  function handleAnswer(value: number) {
-    setAnswer(currentQuestion.id, value);
-    if (index === totalCount - 1) {
-      window.scrollTo(0, 0);
-      router.push("/result");
+  function handleAnswer(optionId: OptionId) {
+    setAnswer(currentQuestion.id, optionId);
+    if (index === QUICK_COUNT - 1) {
+      setLoading("quick"); // 빠른 진단 완주 — 결과로 보내기 전 브랜드 로딩
+    } else if (index === totalCount - 1) {
+      setLoading("precision"); // 정밀 모드 완료 — 더 짧은 로딩
     } else {
       setIndex((i) => i + 1);
     }
+  }
+
+  if (loading) {
+    return (
+      <DiagnosisLoader
+        messages={loading === "quick" ? QUICK_LOADING_MESSAGES : PRECISION_LOADING_MESSAGES}
+        durationMs={loading === "quick" ? 2600 : 1200}
+        onDone={() => {
+          window.scrollTo(0, 0);
+          router.push("/result");
+        }}
+      />
+    );
   }
 
   if (!currentQuestion) return null;
@@ -106,32 +119,35 @@ export default function TestPage() {
   const stepLabel = String(index + 1).padStart(2, "0");
 
   return (
-    <main className="grid grid-cols-1 lg:min-h-screen lg:grid-cols-[40fr_60fr]">
-      {/* 좌: 사진 + 대형 넘버 */}
-      <div className="relative hidden overflow-hidden rounded-r-[36px] bg-photo-bg lg:block">
-        <Image
-          key={currentQuestion.id}
-          src={currentQuestion.photo}
-          alt=""
-          fill
-          sizes="40vw"
-          priority={index === 0}
-          className="object-cover"
-          style={{ filter: "grayscale(0.32) contrast(0.94) brightness(1.04)" }}
-        />
-        <div
-          className="pointer-events-none absolute inset-0"
-          style={{ background: "linear-gradient(200deg, rgba(247,246,242,0.10), rgba(230,226,214,0.55))" }}
-        />
-        <div className="absolute bottom-11 left-12 flex flex-col gap-1">
-          <span className="font-display text-[132px] leading-[0.86]" style={{ color: "rgba(255,255,255,0.85)" }}>
-            {stepLabel}
-          </span>
-          <span className="label-mono text-[10px]" style={{ color: "rgba(44,55,20,0.55)" }}>
-            {currentQuestion.category}
-          </span>
+    <main className={`grid grid-cols-1 lg:min-h-screen ${currentQuestion.photo ? "lg:grid-cols-[40fr_60fr]" : ""}`}>
+      {/* 좌: 사진 + 대형 넘버 — 이미지 선택형 문항은 옵션 사진 두 장이 이미
+          화면의 시각 정보라 이 패널을 안 쓴다. */}
+      {currentQuestion.photo && (
+        <div className="relative hidden overflow-hidden rounded-r-[36px] bg-photo-bg lg:block">
+          <Image
+            key={currentQuestion.id}
+            src={currentQuestion.photo}
+            alt=""
+            fill
+            sizes="40vw"
+            priority={index === 0}
+            className="object-cover"
+            style={{ filter: "grayscale(0.32) contrast(0.94) brightness(1.04)" }}
+          />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{ background: "linear-gradient(200deg, rgba(247,246,242,0.10), rgba(230,226,214,0.55))" }}
+          />
+          <div className="absolute bottom-11 left-12 flex flex-col gap-1">
+            <span className="font-display text-[132px] leading-[0.86]" style={{ color: "rgba(255,255,255,0.85)" }}>
+              {stepLabel}
+            </span>
+            <span className="label-mono text-[10px]" style={{ color: "rgba(44,55,20,0.55)" }}>
+              {currentQuestion.category}
+            </span>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* 우: 질문 + 선택지 */}
       <div className="flex flex-col px-6 py-9 sm:px-10 lg:px-[60px] lg:py-9">
@@ -141,7 +157,7 @@ export default function TestPage() {
           </span>
           <div className="flex items-center gap-5">
             <span className="label-mono text-[10px] text-faint">
-              {index + 1} of {totalCount}
+              {index < QUICK_COUNT ? `${index + 1} of ${QUICK_COUNT}` : `정밀 ${index - QUICK_COUNT + 1} of ${totalCount - QUICK_COUNT}`}
             </span>
             <button
               type="button"
@@ -156,39 +172,16 @@ export default function TestPage() {
         <div className="flex flex-1 flex-col justify-center gap-[46px] pt-10" style={{ maxWidth: 780 }}>
           <div className="flex flex-col gap-[26px]">
             <span className="label-mono text-[11px] text-olive-mid">{currentQuestion.category}</span>
-            <h2 className="font-kr text-[clamp(28px,3.6vw,58px)] leading-[1.22] tracking-[-0.028em] text-fg">
-              {currentQuestion.text}
+            <h2 className="font-kr text-[clamp(26px,3.2vw,48px)] leading-[1.22] tracking-[-0.028em] text-fg">
+              {currentQuestion.prompt}
             </h2>
           </div>
 
-          <div className="grid grid-cols-2 gap-3.5">
-            {LIKERT_LABELS.map((label, i) => {
-              const value = i + 1;
-              const selected = answers[currentQuestion.id] === value;
-              return (
-                <button
-                  key={value}
-                  type="button"
-                  onClick={() => handleAnswer(value)}
-                  className={`flex items-center gap-[18px] rounded-[18px] border p-[26px] text-left transition-all duration-150 hover:border-olive hover:bg-panel ${
-                    i === 4 ? "col-span-2" : ""
-                  }`}
-                  style={{
-                    borderColor: selected ? "var(--color-olive)" : "var(--color-hair)",
-                    background: selected ? "var(--color-sage)" : "var(--color-card)",
-                  }}
-                >
-                  <span
-                    className="label-mono text-[11px]"
-                    style={{ color: selected ? "var(--color-olive)" : "var(--color-dim)" }}
-                  >
-                    {String(value).padStart(2, "0")}
-                  </span>
-                  <span className="text-[15px] font-medium text-fg">{label}</span>
-                </button>
-              );
-            })}
-          </div>
+          <BinaryQuestionCard
+            format={currentQuestion.format}
+            options={currentQuestion.options}
+            onSelect={handleAnswer}
+          />
 
           <div className="flex items-center gap-3 sm:gap-[26px]">
             <button
@@ -199,18 +192,15 @@ export default function TestPage() {
             >
               ← 이전
             </button>
-            {/* 23문항짜리 필 대시 23개 — 원래 폭(비활성 8px·활성 28px, gap 7px)
-                합이 358px+라 390px짜리 모바일 화면에선 "← 이전" 버튼과 합쳐
-                뷰포트 밖으로 넘쳐 가로 스크롤이 생겼다(실측: scrollWidth 421 vs
-                clientWidth 390). sm 미만에서만 더 작은 폭·간격을 써서 총합을
-                줄인다 — 데스크톱(sm 이상) 값은 원래 8/28/7px 그대로. */}
+            {/* 진행 인디케이터 — 빠른 진단(15)과 정밀 모드(8) 사이에 살짝
+                넓은 틈을 둬서 두 단계가 나뉘어 있다는 걸 보여준다. */}
             <span className="flex min-w-0 items-center gap-1 sm:gap-[7px]">
               {allQuestions.map((q, i) => (
                 <span
                   key={q.id}
                   className={`h-[3px] shrink-0 rounded-full transition-all duration-250 ${
                     i === index ? "w-5 sm:w-7" : "w-1.5 sm:w-2"
-                  }`}
+                  } ${i === QUICK_COUNT ? "ml-2 sm:ml-3" : ""}`}
                   style={{
                     background:
                       i < index ? "var(--color-olive)" : i === index ? "var(--color-olive-mid)" : "var(--color-hair)",

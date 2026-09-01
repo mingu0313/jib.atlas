@@ -1,92 +1,164 @@
 [
   {
     "id": "q1",
-    "axis": "sociability",
-    "text": "친구나 가족을 집에 자주 초대해서 시간을 보내고 싶다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "사교성",
+    "prompt": "둘 중 더 끌리는 집은?",
+    "photo": "/photos/type-social.jpg",
+    "options": [
+      { "id": "A", "label": "친구들을 자주 불러서 집들이하는 집", "axisWeights": { "sociability": 2 } },
+      { "id": "B", "label": "혼자 조용히 쉴 수 있는 아늑한 집", "axisWeights": { "sociability": -2 } }
+    ]
   },
   {
     "id": "q2",
-    "axis": "sociability",
-    "text": "주방/거실이 분리되기보다 하나로 이어져서 사람들과 어울리는 공간이면 좋겠다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "사교성",
+    "prompt": "주방과 거실 구조, 어느 쪽이 더 좋아요?",
+    "photo": "/photos/axis-social.jpg",
+    "options": [
+      { "id": "A", "label": "하나로 트여서 다 같이 어울리는 구조", "axisWeights": { "sociability": 2 } },
+      { "id": "B", "label": "각자의 공간이 분리된 구조", "axisWeights": { "sociability": -2 } }
+    ]
   },
   {
     "id": "q3",
-    "axis": "sociability",
-    "text": "혼자만의 조용한 공간보다 함께 쓰는 넓은 공용 공간이 더 중요하다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "생활 습관",
+    "prompt": "메신저 답장은 보통 어떻게 해요?",
+    "photo": "/photos/hero-court.jpg",
+    "options": [
+      { "id": "A", "label": "메시지 오면 거의 바로 답장해요", "axisWeights": { "sociability": 1 } },
+      { "id": "B", "label": "몰아서 확인하고 늦게 답장해요", "axisWeights": { "sociability": -1 } }
+    ]
   },
   {
     "id": "q4",
-    "axis": "minimalism",
-    "text": "물건을 최소한으로 두고 깔끔하게 비워진 공간을 선호한다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "미니멀",
+    "prompt": "둘 중 더 끌리는 공간은?",
+    "photo": "/photos/axis-minimal.jpg",
+    "options": [
+      { "id": "A", "label": "물건을 최소한만 두고 비워둔 공간", "axisWeights": { "minimalism": 2 } },
+      { "id": "B", "label": "좋아하는 소품들로 채운 공간", "axisWeights": { "minimalism": -2 } }
+    ]
   },
   {
     "id": "q5",
-    "axis": "minimalism",
-    "text": "수납공간이 넉넉해서 물건을 눈에 안 띄게 정리할 수 있으면 좋겠다.",
-    "reverseScored": false
+    "format": "image",
+    "category": "미니멀",
+    "prompt": "더 끌리는 사진을 골라주세요.",
+    "options": [
+      { "id": "A", "label": "군더더기 없이 비워둔 미니멀 공간", "imagePath": "/photos/axis-minimal.jpg", "axisWeights": { "minimalism": 2 } },
+      { "id": "B", "label": "원목 가구와 소품이 가득한 아늑한 공간", "imagePath": "/photos/cta-cabin.jpg", "axisWeights": { "minimalism": -2 } }
+    ]
   },
   {
     "id": "q6",
-    "axis": "minimalism",
-    "text": "좋아하는 소품이나 가구로 공간을 꾸미고 채우는 걸 즐긴다.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "생활 습관",
+    "prompt": "신발은 어떻게 정리하는 편이에요?",
+    "photo": "/photos/editor-studio.jpg",
+    "options": [
+      { "id": "A", "label": "벗자마자 바로 신발장에 넣어요", "axisWeights": { "minimalism": 1 } },
+      { "id": "B", "label": "일단 벗어두고 나중에 몰아서 정리해요", "axisWeights": { "minimalism": -1 } }
+    ]
   },
   {
     "id": "q7",
-    "axis": "activity",
-    "text": "집에서 운동, DIY, 작업 같은 활동적인 취미를 할 공간이 필요하다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "활동성",
+    "prompt": "집에서 보내는 시간, 어느 쪽에 더 가까워요?",
+    "photo": "/photos/axis-activity.jpg",
+    "options": [
+      { "id": "A", "label": "집에서도 운동하거나 몸을 움직이고 싶어요", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "최대한 편하게 누워서 쉬고 싶어요", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q8",
-    "axis": "activity",
-    "text": "집은 쉬고 회복하는 공간이지, 뭔가를 하는 공간은 아니다.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "활동성",
+    "prompt": "주말엔 보통 어떻게 보내요?",
+    "photo": "/photos/hero-open.jpg",
+    "options": [
+      { "id": "A", "label": "밖에 나가서 활동적으로 보내요", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "집에서 여유롭게 보내요", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q9",
-    "axis": "activity",
-    "text": "다목적으로 쓸 수 있는 방(홈짐, 작업실 등)이 있으면 좋겠다.",
-    "reverseScored": false
+    "format": "image",
+    "category": "활동성",
+    "prompt": "더 끌리는 사진을 골라주세요.",
+    "options": [
+      { "id": "A", "label": "운동기구를 둔 활동적인 공간", "imagePath": "/photos/axis-activity.jpg", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "느긋하게 쉬기 좋은 차분한 공간", "imagePath": "/photos/type-serene.jpg", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q10",
-    "axis": "openness",
-    "text": "벽으로 나뉜 아늑한 방보다 탁 트인 개방형 구조를 좋아한다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "개방성",
+    "prompt": "둘 중 더 끌리는 구조는?",
+    "photo": "/photos/quiz-structure.jpg",
+    "options": [
+      { "id": "A", "label": "벽 없이 탁 트인 오픈플랜 구조", "axisWeights": { "openness": 2 } },
+      { "id": "B", "label": "방마다 아늑하게 나뉜 구조", "axisWeights": { "openness": -2 } }
+    ]
   },
   {
     "id": "q11",
-    "axis": "openness",
-    "text": "새로운 스타일이나 독특한 구조의 공간에 끌린다.",
-    "reverseScored": false
+    "format": "image",
+    "category": "개방성",
+    "prompt": "더 끌리는 사진을 골라주세요.",
+    "options": [
+      { "id": "A", "label": "탁 트인 오픈 공간", "imagePath": "/photos/axis-open.jpg", "axisWeights": { "openness": 2 } },
+      { "id": "B", "label": "격자로 나뉜 아늑한 구조", "imagePath": "/photos/quiz-structure.jpg", "axisWeights": { "openness": -2 } }
+    ]
   },
   {
     "id": "q12",
-    "axis": "openness",
-    "text": "익숙하고 안정적인 전통적 구조가 더 편안하다.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "생활 습관",
+    "prompt": "여행 갈 때 짐은 어떻게 싸요?",
+    "photo": "/photos/quote-wall.jpg",
+    "options": [
+      { "id": "A", "label": "미리 리스트를 짜서 계획적으로 싸요", "axisWeights": { "openness": -1 } },
+      { "id": "B", "label": "일단 떠나서 즉흥적으로 챙겨요", "axisWeights": { "openness": 1 } }
+    ]
   },
   {
     "id": "q13",
-    "axis": "nature",
-    "text": "넓은 창문과 채광이 인테리어에서 가장 중요한 요소다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "자연친화",
+    "prompt": "둘 중 더 끌리는 창밖 풍경은?",
+    "photo": "/photos/axis-nature.jpg",
+    "options": [
+      { "id": "A", "label": "나무와 초록이 보이는 풍경", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "편의시설이 가까운 도심 풍경", "axisWeights": { "nature": -2 } }
+    ]
   },
   {
     "id": "q14",
-    "axis": "nature",
-    "text": "발코니나 테라스에서 시간을 보내는 걸 좋아한다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "자연친화",
+    "prompt": "베란다나 마당이 있다면?",
+    "photo": "/photos/type-serene.jpg",
+    "options": [
+      { "id": "A", "label": "식물을 가꾸는 공간으로 쓰고 싶어요", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "실용적인 수납 공간으로 쓰고 싶어요", "axisWeights": { "nature": -2 } }
+    ]
   },
   {
     "id": "q15",
-    "axis": "nature",
-    "text": "실내 식물이나 자연 소재(우드, 스톤 등)로 공간을 채우고 싶다.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "자연친화",
+    "prompt": "둘 중 더 끌리는 마감재는?",
+    "photo": "/photos/type-open.jpg",
+    "options": [
+      { "id": "A", "label": "원목, 패브릭 같은 자연 소재", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "관리하기 편한 심플한 마감재", "axisWeights": { "nature": -2 } }
+    ]
   }
 ]

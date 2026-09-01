@@ -2,49 +2,73 @@
   {
     "id": "m1",
     "indicator": "EI",
-    "text": "새로운 사람들을 만나면 오히려 에너지가 충전되는 느낌이다.",
-    "direction": "E"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "새로운 사람들을 만나면 오히려 에너지가 충전돼요", "poleWeight": 2 },
+      { "id": "B", "label": "사람을 많이 만난 날은 혼자만의 시간이 필요해요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m2",
     "indicator": "EI",
-    "text": "사람을 많이 만난 날은 혼자만의 시간을 보내야 에너지가 회복된다.",
-    "direction": "I"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "낯선 사람과도 먼저 말을 거는 편이에요", "poleWeight": 2 },
+      { "id": "B", "label": "친한 사람들과만 깊게 어울리는 편이에요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m3",
     "indicator": "SN",
-    "text": "익숙한 방식보다 새로운 가능성이나 아이디어에 더 끌린다.",
-    "direction": "N"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "지금 눈앞의 현실적인 부분부터 생각해요", "poleWeight": 2 },
+      { "id": "B", "label": "미래의 가능성이나 아이디어에 먼저 끌려요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m4",
     "indicator": "SN",
-    "text": "추상적인 아이디어보다 구체적이고 실제적인 정보를 더 신뢰한다.",
-    "direction": "S"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "구체적이고 실용적인 것에 더 관심이 가요", "poleWeight": 2 },
+      { "id": "B", "label": "새롭고 독특한 컨셉에 더 끌려요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m5",
     "indicator": "TF",
-    "text": "물건을 정리하거나 버릴지 판단할 때 효율/기능 같은 논리적 기준을 우선한다.",
-    "direction": "T"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "결정할 땐 논리와 효율을 먼저 따져요", "poleWeight": 2 },
+      { "id": "B", "label": "결정할 땐 사람들 마음을 먼저 생각해요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m6",
     "indicator": "TF",
-    "text": "물건에 담긴 추억이나 감정적 애착 때문에 쉽게 버리지 못한다.",
-    "direction": "F"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "객관적인 기준으로 판단하는 게 중요해요", "poleWeight": 2 },
+      { "id": "B", "label": "그 사람 입장에 공감하는 게 더 중요해요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m7",
     "indicator": "JP",
-    "text": "계획을 세우고 정해진 방식대로 정돈된 상태를 유지하는 걸 좋아한다.",
-    "direction": "J"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "미리 계획을 세우고 그대로 움직이는 게 편해요", "poleWeight": 2 },
+      { "id": "B", "label": "상황에 따라 유연하게 바꾸는 게 편해요", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m8",
     "indicator": "JP",
-    "text": "즉흥적으로 움직이고 상황에 따라 유연하게 바꾸는 걸 좋아한다.",
-    "direction": "P"
+    "prompt": "둘 중 나에게 더 가까운 쪽은?",
+    "options": [
+      { "id": "A", "label": "정해진 루틴대로 사는 게 안정감을 줘요", "poleWeight": 2 },
+      { "id": "B", "label": "즉흥적으로 일정이 바뀌는 것도 재밌어요", "poleWeight": -2 }
+    ]
   }
 ]

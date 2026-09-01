@@ -13,13 +13,37 @@ export type Axis =
   | "openness"
   | "nature";
 
-/** 라이프스타일 진단 문항 (5점 리커트 척도로 응답) */
-export interface Question {
+/**
+ * 이지선다 문항의 옵션 하나. A/B 두 옵션은 서로 독립적으로 축 가중치를
+ * 갖는다(한쪽을 반전시킨 게 아님) — "의외성" 문항처럼 A/B가 서로 다른
+ * 축 조합을 건드려야 하는 경우(예: A는 minimalism만, B는 activity만)를
+ * 표현하려면 단일 벡터+반전으로는 불가능하기 때문. 대부분의 "직접" 문항은
+ * 그냥 대칭 가중치(A: {sociability:2}, B: {sociability:-2})를 쓰면 된다.
+ */
+export interface AxisWeightedOption {
+  id: OptionId;
+  /** 밸런스게임형 문구. */
+  label?: string;
+  /** 이미지 선택형 사진 경로. */
+  imagePath?: string;
+  /** 이 옵션을 고르면 각 축에 더해지는 부호 있는 가중치. */
+  axisWeights: Partial<Record<Axis, number>>;
+}
+
+/** 라이프스타일 진단 문항 — 두 옵션 중 하나를 고르는 이지선다. */
+export interface BinaryQuestion {
   id: string;
-  axis: Axis;
-  text: string;
-  /** true면 (6 - 응답값)으로 뒤집은 후 축 점수를 계산한다. */
-  reverseScored: boolean;
+  format: "balance" | "image";
+  /** 표시용 카테고리 라벨. 의외성 문항은 축 이름 대신 자체 라벨을 쓴다. */
+  category: string;
+  prompt: string;
+  options: [AxisWeightedOption, AxisWeightedOption];
+  /**
+   * 퀴즈 화면 왼쪽에 뜨는 분위기용 사진(문항 본문과 무관, 카테고리 톤만
+   * 맞춘 것). format이 "image"인 문항은 옵션 사진 두 장이 이미 화면의
+   * 시각 정보라 이 필드를 안 쓴다(비워둠).
+   */
+  photo?: string;
 }
 
 /** MBTI 4개 지표. */
@@ -28,20 +52,31 @@ export type MbtiIndicator = "EI" | "SN" | "TF" | "JP";
 /** 각 지표에서 문항이 가리킬 수 있는 극. */
 export type MbtiPole = "E" | "I" | "S" | "N" | "T" | "F" | "J" | "P";
 
-/** MBTI 보조 진단 문항 (5점 리커트 척도로 응답) */
-export interface MbtiQuestion {
-  id: string;
-  indicator: MbtiIndicator;
-  text: string;
-  /** 5점(매우 그렇다) 응답 시 가리키는 극. */
-  direction: MbtiPole;
+/** 이지선다 옵션 id. */
+export type OptionId = "A" | "B";
+
+/** MBTI 보조 진단 문항의 옵션 하나. poleWeight는 이 지표의 "첫 번째 극"
+ * (INDICATOR_POLES의 [0], 즉 E/S/T/J)으로 향하는 부호 있는 강도 —
+ * 음수면 반대 극(I/N/F/P)으로 향한다. */
+export interface MbtiBinaryOption {
+  id: OptionId;
+  label?: string;
+  poleWeight: number;
 }
 
-/** 문항 하나에 대한 응답. Question.id 또는 MbtiQuestion.id를 참조한다. */
+/** MBTI 보조 진단 문항 — 전부 밸런스게임형(추상적 성향 문항이라 이미지
+ * 대조가 억지스러워서 이미지 선택형은 안 씀). */
+export interface MbtiBinaryQuestion {
+  id: string;
+  indicator: MbtiIndicator;
+  prompt: string;
+  options: [MbtiBinaryOption, MbtiBinaryOption];
+}
+
+/** 문항 하나에 대한 응답. BinaryQuestion.id 또는 MbtiBinaryQuestion.id를 참조한다. */
 export interface Answer {
   questionId: string;
-  /** 5점 리커트 척도 응답값 (1~5) */
-  value: number;
+  optionId: OptionId;
 }
 
 /** 5축 각각의 0~100 스케일 점수. */

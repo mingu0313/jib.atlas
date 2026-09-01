@@ -2,49 +2,73 @@
   {
     "id": "m1",
     "indicator": "EI",
-    "text": "Meeting new people actually energizes me.",
-    "direction": "E"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "Meeting new people actually energizes me", "poleWeight": 2 },
+      { "id": "B", "label": "After a social day, I need time alone to recharge", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m2",
     "indicator": "EI",
-    "text": "After a day full of people, I need time alone to recharge.",
-    "direction": "I"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "I tend to strike up conversation with strangers", "poleWeight": 2 },
+      { "id": "B", "label": "I keep close bonds with just a few people", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m3",
     "indicator": "SN",
-    "text": "I'm drawn to new possibilities and ideas more than familiar ways of doing things.",
-    "direction": "N"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "I start from what's practical and in front of me", "poleWeight": 2 },
+      { "id": "B", "label": "I'm drawn to future possibilities and ideas first", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m4",
     "indicator": "SN",
-    "text": "I trust concrete, practical information more than abstract ideas.",
-    "direction": "S"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "I care more about concrete, practical things", "poleWeight": 2 },
+      { "id": "B", "label": "I'm drawn to new, unusual concepts", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m5",
     "indicator": "TF",
-    "text": "When deciding whether to keep or toss something, I lead with logic — efficiency and function.",
-    "direction": "T"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "I weigh logic and efficiency first when deciding", "poleWeight": 2 },
+      { "id": "B", "label": "I think about people's feelings first when deciding", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m6",
     "indicator": "TF",
-    "text": "I have a hard time letting go of things because of the memories or feelings attached to them.",
-    "direction": "F"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "Judging by objective standards matters to me", "poleWeight": 2 },
+      { "id": "B", "label": "Empathizing with the person involved matters more", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m7",
     "indicator": "JP",
-    "text": "I like making plans and keeping things organized in a set, predictable way.",
-    "direction": "J"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "I like planning ahead and sticking to it", "poleWeight": 2 },
+      { "id": "B", "label": "I like staying flexible and adapting as I go", "poleWeight": -2 }
+    ]
   },
   {
     "id": "m8",
     "indicator": "JP",
-    "text": "I like moving spontaneously and adapting flexibly as things come up.",
-    "direction": "P"
+    "prompt": "Which is closer to you?",
+    "options": [
+      { "id": "A", "label": "A fixed routine gives me a sense of stability", "poleWeight": 2 },
+      { "id": "B", "label": "Spontaneous changes of plan are fun too", "poleWeight": -2 }
+    ]
   }
 ]

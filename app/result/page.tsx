@@ -2,32 +2,33 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import lifestyleQuestionsData from "@/data/lifestyle-questions.json";
 import { FloorPlan } from "@/components/FloorPlan";
 import { generateExplanation } from "@/lib/explain";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona, getRarityTier } from "@/lib/persona";
 import { radarDots, radarLabelPoint, radarRing, radarShape } from "@/lib/radar";
-import { calculateScores } from "@/lib/scoring";
+import { calculatePrecision, calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { AXES, AXIS_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
 import type { Answer } from "@/lib/types";
 
 /**
- * 결과 페이지 — DESIGN-HANDOFF-V2.md "3. 결과" + jib-atlas-v2-preview.html
- * 마크업 그대로. 채점·매칭·캐릭터명은 지시대로 lib/scoring.ts,
+ * 결과 페이지 — 채점·매칭·캐릭터명은 지시대로 lib/scoring.ts,
  * lib/matching.ts, lib/persona.ts를 쓴다.
  *
- * 문서의 h1(Instrument Serif, 영문 유형명)은 실제 데이터(data/house-templates.json)에
- * 영문명이 없어서 Gowun Batang 국문 유형명으로 대체했다 — 지어낸 영문 고유명을
- * 사실인 것처럼 내세우지 않기 위해서다(House Types 섹션의 "무드 태그"와 달리
- * 이 이름은 유저의 실제 매칭 결과라 정확도가 더 중요하다).
+ * 2단계 진단 지원: 빠른 진단(라이프스타일 15문항)만 마쳐도 이 화면에
+ * 들어올 수 있다 — calculateScores는 순수 함수라 15개만 담긴 답변으로도
+ * 완전히 유효한 결과를 낸다(MBTI 관련 항목은 중립 50으로 블렌드). 정밀
+ * 모드(+8문항)를 마치고 다시 오면 같은 함수를 23개 전체로 다시 호출한
+ * 결과가 그대로 갱신된 결과다 — 별도의 델타 계산은 없다. `calculatePrecision`
+ * 으로 "지금 이 결과가 얼마나 확정됐는지"를 실측 %로 보여준다.
  *
  * "이런 구조도 어울려요"(2·3순위 매칭)·"나만의 인테리어"(평면도) 두 섹션은
- * v2 문서에 없는, 기존에 추가돼 있던 실제 기능이라 v2 토큰으로 재도장만
- * 하고 그대로 유지했다.
+ * 기존 기능 그대로 유지했다.
  */
 
-const TOTAL_QUESTION_COUNT = 23; // 라이프스타일 15 + MBTI 8
+const QUICK_COUNT = lifestyleQuestionsData.length; // 15 — 빠른 진단 완주 기준
 
 export default function ResultPage() {
   const router = useRouter();
@@ -35,7 +36,7 @@ export default function ResultPage() {
   const reset = useTestStore((state) => state.reset);
 
   const answeredCount = Object.keys(answers).length;
-  if (answeredCount < TOTAL_QUESTION_COUNT) {
+  if (answeredCount < QUICK_COUNT) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <h1 className="font-kr text-xl">아직 결과가 없어요</h1>
@@ -47,11 +48,13 @@ export default function ResultPage() {
     );
   }
 
-  const answerList: Answer[] = Object.entries(answers).map(([questionId, value]) => ({
+  const answerList: Answer[] = Object.entries(answers).map(([questionId, optionId]) => ({
     questionId,
-    value,
+    optionId,
   }));
   const { axisScores, mbtiType } = calculateScores(answerList);
+  const precision = Math.round(calculatePrecision(answerList));
+  const isPrecise = precision >= 100;
   const matches = matchHouseTemplate(axisScores);
   const topMatch = matches[0];
   const explanation = generateExplanation(axisScores, topMatch.template);
@@ -59,6 +62,9 @@ export default function ResultPage() {
   const persona = generatePersona(axisScores);
   const rarity = getRarityTier(topMatch.similarity);
   const similarity = Math.round(topMatch.similarity);
+
+  const [spectrumAxis] = persona.topAxes;
+  const spectrumValue = Math.round(axisScores[spectrumAxis]);
 
   const typeNum = topMatch.template.id.replace(/^t/, "").padStart(2, "0");
   const roomTags = Array.from(new Set(topMatch.template.rooms.map((room) => ROOM_TYPE_LABELS[room.type]))).slice(
@@ -87,12 +93,28 @@ export default function ResultPage() {
         <span className="label-mono rounded-full bg-sage px-3.5 py-1.5 text-[10px] text-sage-ink">
           {rarity} · {similarity}%
         </span>
+        {isPrecise ? (
+          <span className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-muted">
+            정밀도 100%
+          </span>
+        ) : (
+          <Link
+            href="/test"
+            className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-olive-mid transition hover:border-olive hover:bg-panel"
+          >
+            정밀도 약 {precision}% · 더 정밀하게 보기 →
+          </Link>
+        )}
       </div>
 
       <h1 className="font-kr mt-5 text-[clamp(40px,8vw,130px)] leading-[0.98] tracking-[-0.03em]">
         {topMatch.template.name}
         <span className="heading-dot">.</span>
       </h1>
+
+      <p className="mt-3 text-[15px] text-muted">
+        당신은 <span className="font-semibold text-fg">{spectrumValue}%</span> {AXIS_LABELS[spectrumAxis]}형이에요
+      </p>
 
       <div className="mt-[70px] grid grid-cols-1 items-start gap-14 lg:grid-cols-[52fr_48fr] lg:gap-[70px]">
         {/* 좌 */}
@@ -170,9 +192,15 @@ export default function ResultPage() {
                   />
                 );
               })}
-              <polygon points={radarShape(axisScores)} fill="rgba(65,82,31,0.14)" stroke="#41521f" strokeWidth={2} />
+              <polygon
+                points={radarShape(axisScores)}
+                fill="rgba(65,82,31,0.14)"
+                stroke="#41521f"
+                strokeWidth={2}
+                className="transition-all duration-500"
+              />
               {dots.map((d) => (
-                <circle key={d.axis} cx={d.x} cy={d.y} r={4} fill="#6f8036" />
+                <circle key={d.axis} cx={d.x} cy={d.y} r={4} fill="#6f8036" className="transition-all duration-500" />
               ))}
               {/* 정점에 어떤 축인지 이름을 안 붙여놔서 육각형만 봐선 뭐가 뭔지 알 수
                   없다는 피드백 — 각 정점 바깥에 축 이름을 붙인다. */}
@@ -205,7 +233,7 @@ export default function ResultPage() {
                 <span className="text-[13px] text-[#5f5f57]">{row.ko}</span>
                 <span className="relative block h-[3px] bg-[rgba(18,18,15,0.08)]">
                   <span
-                    className="absolute top-0 left-0 h-[3px]"
+                    className="absolute top-0 left-0 h-[3px] transition-all duration-500"
                     style={{ background: row.color, width: `${row.val}%` }}
                   />
                 </span>
@@ -216,7 +244,7 @@ export default function ResultPage() {
         </div>
       </div>
 
-      {/* ── 이런 구조도 어울려요 (2·3순위 매칭) — v2 문서 밖 기존 기능, 토큰만 교체 ── */}
+      {/* ── 이런 구조도 어울려요 (2·3순위 매칭) ── */}
       <section className="mt-[100px] border-t border-hair pt-[90px]">
         <div className="mb-10 flex flex-col gap-3">
           <span className="label-mono text-[10px] text-olive-mid">Also Matched</span>
@@ -235,7 +263,7 @@ export default function ResultPage() {
         </div>
       </section>
 
-      {/* ── 나만의 인테리어 — v2 문서 밖 기존 기능, 토큰만 교체 ── */}
+      {/* ── 나만의 인테리어 ── */}
       <section className="relative mt-[90px] overflow-hidden rounded-[36px] bg-olive px-6 py-16 sm:px-10 lg:px-16 lg:py-[110px]">
         <div className="relative grid grid-cols-1 items-center gap-12 lg:grid-cols-2 lg:gap-16">
           <div className="flex flex-col gap-[26px]">

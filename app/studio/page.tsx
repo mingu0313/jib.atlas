@@ -75,7 +75,7 @@ export default function StudioPage() {
     // 직접 걷어냈으면(autoApplyDismissed) 다시 덮어쓰지 않는다.
     if (matchedTemplate || autoApplyDismissed) return;
     if (Object.keys(answers).length < TOTAL_QUESTION_COUNT) return; // 진단 미완료 — 중립 기본값 유지
-    const answerList: Answer[] = Object.entries(answers).map(([questionId, value]) => ({ questionId, value }));
+    const answerList: Answer[] = Object.entries(answers).map(([questionId, optionId]) => ({ questionId, optionId }));
     const { axisScores } = calculateScores(answerList);
     const [topMatch] = matchHouseTemplate(axisScores);
     const defaults = getStudioDefaults(topMatch.template);

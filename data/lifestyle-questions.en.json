@@ -1,92 +1,164 @@
 [
   {
     "id": "q1",
-    "axis": "sociability",
-    "text": "I'd love to have friends or family over often and spend time together at home.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Sociability",
+    "prompt": "Which home appeals to you more?",
+    "photo": "/photos/type-social.jpg",
+    "options": [
+      { "id": "A", "label": "A home where friends drop by often", "axisWeights": { "sociability": 2 } },
+      { "id": "B", "label": "A quiet home just for yourself", "axisWeights": { "sociability": -2 } }
+    ]
   },
   {
     "id": "q2",
-    "axis": "sociability",
-    "text": "I'd rather the kitchen and living room flow into one space where people can hang out, instead of being separated.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Sociability",
+    "prompt": "Which kitchen/living layout do you prefer?",
+    "photo": "/photos/axis-social.jpg",
+    "options": [
+      { "id": "A", "label": "One open space where everyone hangs out", "axisWeights": { "sociability": 2 } },
+      { "id": "B", "label": "Separate spaces for each person", "axisWeights": { "sociability": -2 } }
+    ]
   },
   {
     "id": "q3",
-    "axis": "sociability",
-    "text": "A big shared space we all use together matters more to me than a quiet space just for myself.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Lifestyle Habit",
+    "prompt": "How do you usually reply to messages?",
+    "photo": "/photos/hero-court.jpg",
+    "options": [
+      { "id": "A", "label": "Almost instantly, as soon as they come in", "axisWeights": { "sociability": 1 } },
+      { "id": "B", "label": "In batches, later than most people", "axisWeights": { "sociability": -1 } }
+    ]
   },
   {
     "id": "q4",
-    "axis": "minimalism",
-    "text": "I prefer a clean, empty space with as few things around as possible.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Minimalism",
+    "prompt": "Which space appeals to you more?",
+    "photo": "/photos/axis-minimal.jpg",
+    "options": [
+      { "id": "A", "label": "A space kept empty, with only the essentials", "axisWeights": { "minimalism": 2 } },
+      { "id": "B", "label": "A space filled with things you love", "axisWeights": { "minimalism": -2 } }
+    ]
   },
   {
     "id": "q5",
-    "axis": "minimalism",
-    "text": "I'd love generous storage so I can keep things out of sight and tidy.",
-    "reverseScored": false
+    "format": "image",
+    "category": "Minimalism",
+    "prompt": "Pick the photo that appeals to you more.",
+    "options": [
+      { "id": "A", "label": "A minimal space, cleared of clutter", "imagePath": "/photos/axis-minimal.jpg", "axisWeights": { "minimalism": 2 } },
+      { "id": "B", "label": "A cozy space full of wood and objects", "imagePath": "/photos/cta-cabin.jpg", "axisWeights": { "minimalism": -2 } }
+    ]
   },
   {
     "id": "q6",
-    "axis": "minimalism",
-    "text": "I enjoy filling and decorating a space with objects and furniture I love.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "Lifestyle Habit",
+    "prompt": "What do you do with your shoes at the door?",
+    "photo": "/photos/editor-studio.jpg",
+    "options": [
+      { "id": "A", "label": "Put them away right away", "axisWeights": { "minimalism": 1 } },
+      { "id": "B", "label": "Leave them out and sort later", "axisWeights": { "minimalism": -1 } }
+    ]
   },
   {
     "id": "q7",
-    "axis": "activity",
-    "text": "I need a space at home for active hobbies like exercise, DIY, or hands-on projects.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Activity",
+    "prompt": "Which is closer to how you spend time at home?",
+    "photo": "/photos/axis-activity.jpg",
+    "options": [
+      { "id": "A", "label": "I like staying active, even indoors", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "I want to lie down and rest as much as possible", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q8",
-    "axis": "activity",
-    "text": "Home is a place to rest and recover, not a place to do things.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "Activity",
+    "prompt": "How do you usually spend weekends?",
+    "photo": "/photos/hero-open.jpg",
+    "options": [
+      { "id": "A", "label": "Out and about, staying active", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "At home, taking it easy", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q9",
-    "axis": "activity",
-    "text": "I'd love a multi-purpose room I can use for different things (a home gym, a workshop, etc.).",
-    "reverseScored": false
+    "format": "image",
+    "category": "Activity",
+    "prompt": "Pick the photo that appeals to you more.",
+    "options": [
+      { "id": "A", "label": "An active space with workout gear", "imagePath": "/photos/axis-activity.jpg", "axisWeights": { "activity": 2 } },
+      { "id": "B", "label": "A calm space made for unwinding", "imagePath": "/photos/type-serene.jpg", "axisWeights": { "activity": -2 } }
+    ]
   },
   {
     "id": "q10",
-    "axis": "openness",
-    "text": "I prefer a wide-open layout over a cozy space divided by walls.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Openness",
+    "prompt": "Which layout appeals to you more?",
+    "photo": "/photos/quiz-structure.jpg",
+    "options": [
+      { "id": "A", "label": "A wide open plan, no walls in the way", "axisWeights": { "openness": 2 } },
+      { "id": "B", "label": "Rooms cozily divided from each other", "axisWeights": { "openness": -2 } }
+    ]
   },
   {
     "id": "q11",
-    "axis": "openness",
-    "text": "I'm drawn to new styles or unconventional layouts.",
-    "reverseScored": false
+    "format": "image",
+    "category": "Openness",
+    "prompt": "Pick the photo that appeals to you more.",
+    "options": [
+      { "id": "A", "label": "A wide, open space", "imagePath": "/photos/axis-open.jpg", "axisWeights": { "openness": 2 } },
+      { "id": "B", "label": "A cozy, gridded structure", "imagePath": "/photos/quiz-structure.jpg", "axisWeights": { "openness": -2 } }
+    ]
   },
   {
     "id": "q12",
-    "axis": "openness",
-    "text": "A familiar, traditional layout feels more comfortable to me.",
-    "reverseScored": true
+    "format": "balance",
+    "category": "Lifestyle Habit",
+    "prompt": "How do you pack for a trip?",
+    "photo": "/photos/quote-wall.jpg",
+    "options": [
+      { "id": "A", "label": "I make a list ahead of time", "axisWeights": { "openness": -1 } },
+      { "id": "B", "label": "I just go and figure it out on the way", "axisWeights": { "openness": 1 } }
+    ]
   },
   {
     "id": "q13",
-    "axis": "nature",
-    "text": "Big windows and natural light are the most important part of a space for me.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Nature",
+    "prompt": "Which view out the window appeals to you more?",
+    "photo": "/photos/axis-nature.jpg",
+    "options": [
+      { "id": "A", "label": "Trees and greenery", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "A city view close to conveniences", "axisWeights": { "nature": -2 } }
+    ]
   },
   {
     "id": "q14",
-    "axis": "nature",
-    "text": "I love spending time on a balcony or terrace.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Nature",
+    "prompt": "If you had a balcony or yard, what would you do with it?",
+    "photo": "/photos/type-serene.jpg",
+    "options": [
+      { "id": "A", "label": "Fill it with plants", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "Use it as practical storage", "axisWeights": { "nature": -2 } }
+    ]
   },
   {
     "id": "q15",
-    "axis": "nature",
-    "text": "I want to fill my space with houseplants or natural materials like wood and stone.",
-    "reverseScored": false
+    "format": "balance",
+    "category": "Nature",
+    "prompt": "Which finish appeals to you more?",
+    "photo": "/photos/type-open.jpg",
+    "options": [
+      { "id": "A", "label": "Natural materials like wood and fabric", "axisWeights": { "nature": 2 } },
+      { "id": "B", "label": "Simple, low-maintenance finishes", "axisWeights": { "nature": -2 } }
+    ]
   }
 ]
