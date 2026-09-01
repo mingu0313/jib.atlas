@@ -24,9 +24,9 @@ const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
 /**
- * `/studio` 3단계(문/창문·마감재)의 3D 미리보기 — STEP 13. 기존
- * EditorScene3D(격자 템플릿 전용)와는 완전히 별개 컴포넌트다: 여기선
- * roomPolygon(cm, 임의 축정렬 폴리곤)을 그대로 3D로 옮긴다.
+ * `/studio` 3단계(문/창문·마감재)의 3D 미리보기 — STEP 13. 예전 격자
+ * 템플릿 전용 룸 에디터(`/editor`, 삭제됨)와는 완전히 별개 컴포넌트다:
+ * 여기선 roomPolygon(cm, 임의 축정렬 폴리곤)을 그대로 3D로 옮긴다.
  *
  * cm → m 변환은 CM_TO_M 하나로 통일(TILE_M 격자와 무관하게 이 컴포넌트
  * 안에서만 쓰는 축척). 벽은 lib/roomGeometry.ts의 buildWallBoxes가
@@ -193,7 +193,7 @@ function Wall({ wallIndex }: { wallIndex: number }) {
 }
 
 /** def.modelUrl이 있으면 실제 GLTF(Kenney Kit), 없으면 프로시저럴 형태로 —
- * components/EditorScene3D.tsx의 같은 이름 헬퍼와 완전히 동일한 규칙. */
+ * components/furnitureModel3d.tsx / furniture3d.tsx 자체 규칙을 그대로 따른다. */
 function FurnitureVisual({ def, width, depth, height }: { def: IsoFurnitureDef; width: number; depth: number; height: number }) {
   const shape = <FurnitureShape def={def} width={width} depth={depth} height={height} />;
   if (!def.modelUrl) return shape;
@@ -211,7 +211,7 @@ function FurnitureVisual({ def, width, depth, height }: { def: IsoFurnitureDef; 
 const SELECTION_COLOR = "#41521f";
 
 /**
- * 가구 하나. /editor(components/EditorScene3D.tsx PlacedItem)와 같은 규칙 —
+ * 가구 하나. 예전 `/editor`(삭제됨)의 PlacedItem과 같은 규칙 —
  * FurnitureVisual엔 항상 "회전 안 된" def.w/d 기준 크기를 넘기고, 실제
  * 90도 회전은 group을 통째로 Y축으로 돌려서 처리한다(등받이처럼 방향
  * 있는 형태도 같이 돈다). item.cx/cz는 이미 "회전 후" footprint의

@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
-  const next = searchParams.get("next") ?? "/editor";
+  const next = searchParams.get("next") ?? "/studio";
 
   if (code) {
     const supabase = await createClient();

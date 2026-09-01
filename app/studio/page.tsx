@@ -29,12 +29,14 @@ import type { Answer } from "@/lib/types";
  * 예전엔 진단 결과가 이 폴리곤 빌더 대신 격자+박스가구 방식인 `/editor`로
  * 갔었다 — 이제 `/result`·`/en/result`·랜딩·로그인/비번재설정 후 리다이렉트·
  * `/atlas`의 "방 꾸미고 공유하기" 버튼(app/atlas/page.tsx) 전부 여기로
- * 통일했다. `/editor` 코드 자체(및 그 위의 "지도에 공유하기" 기능)는 아직
- * 지우지 않았다 — 이 스튜디오의 가구 배치(store.furniture)는 `/atlas`의
- * house_posts.room_items 스키마(col/row 격자 기준)와 안 맞아서, 실제
- * "지도에 공유하기" 액션(house_posts insert)은 아직 `/editor`에만 있다.
- * 즉 지금은 `/studio`에서 방을 꾸밀 순 있어도 그걸 지도에 올리는 버튼은
- * 없다 — room_items로의 변환(또는 스키마 확장)은 별도 작업으로 남겨뒀다.
+ * 통일했고, 아무도 안 쓰던 `/editor` 코드 자체(및 그 위에 있던 "지도에
+ * 공유하기" 기능, lib/editorStore.ts, app/api/layout/route.ts)는 삭제했다.
+ * 이 스튜디오의 가구 배치(store.furniture)는 `/atlas`의 house_posts.room_items
+ * 스키마(col/row 격자 기준)와 형태가 달라서(store.furniture는 cx/cz 자유
+ * 좌표), `/editor`가 하던 "지도에 공유하기"(house_posts insert) 액션은
+ * `/studio`에 아직 없다 — room_items로의 변환(또는 스키마 확장)은 별도
+ * 작업으로 남겨뒀다. 지금 `/atlas`에 실제로 글을 올리는 유일한 경로는
+ * `/atlas/new`(실사진 업로드)뿐이다.
  *
  * 단계 이동은 이 페이지 안의 로컬 state(activeStep)로만 관리한다 — 아직
  * URL로 딥링크할 필요가 없어서 쿼리 파라미터 동기화는 안 넣었다.

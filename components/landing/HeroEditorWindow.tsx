@@ -1,4 +1,4 @@
-import { DEFAULT_PLACED_DEFS } from "@/lib/editorStore";
+import { DEFAULT_PLACED_DEFS } from "@/lib/heroPreviewLayout";
 import { buildIsoBoxes, TILES, WALL_COL0, WALL_ROW0 } from "@/lib/iso";
 
 /**
@@ -6,10 +6,10 @@ import { buildIsoBoxes, TILES, WALL_COL0, WALL_ROW0 } from "@/lib/iso";
  * "1. 랜딩 > Hero": width 330px, rotate(-1.4deg), data-px="-0.17",
  * 신호등 3점 + 모노 ROOM EDITOR 헤더 + 아이소메트릭 SVG.
  *
- * 실제 /editor(components/EditorCanvas.tsx)와 완전히 같은 lib/iso.ts 좌표계·
- * 기본 배치(lib/editorStore.ts의 DEFAULT_PLACED_DEFS)를 재사용하고, viewBox만
- * 좁혀 전체 10×8 방의 왼쪽 위 일부만 창 안에 보이게 크롭한다 — 두 군데가
- * 서로 다른 방을 그리지 않도록.
+ * 실제 룸빌더(`/studio`)와는 별개의 예시 화면이다 — lib/iso.ts 좌표계와
+ * 고정 기본 배치(lib/heroPreviewLayout.ts의 DEFAULT_PLACED_DEFS)만 재사용해
+ * 랜딩 전용 아이소메트릭 미니뷰를 그린다. viewBox는 전체 10×8 방의 왼쪽
+ * 위 일부만 창 안에 보이도록 좁혀둔 것.
  */
 
 const BOXES = buildIsoBoxes(

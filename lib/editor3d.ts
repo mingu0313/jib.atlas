@@ -1,9 +1,8 @@
 /**
- * 룸 에디터 3D 뷰(components/EditorScene3D.tsx)가 쓰는 배율 상수.
+ * 룸 에디터 3D 뷰(components/studio/RoomStudioScene3D.tsx)가 쓰는 배율 상수.
  *
  * STEP 12에서는 lib/iso.ts의 고정 격자(RW×RD, 벽높이 WH)를 그대로 미터로
- * 옮겼지만, STEP 13부터는 방 구조 자체가 하우스 타입마다 달라져서
- * (lib/roomLayout3d.ts가 HouseTemplate.rooms를 타일 격자로 변환) 방
+ * 옮겼지만, STEP 13부터는 방 구조 자체가 하우스 타입마다 달라져서 방
  * 크기·벽 위치를 여기서 상수로 고정해두지 않는다. 남는 건 두 층위의
  * 배율뿐이다: 타일 하나가 실제로 몇 미터인지(TILE_M), 가구 h 필드가
  * 몇 미터인지(HEIGHT_SCALE). lib/iso.ts(SVG 아이소메트릭)는 완전히
@@ -17,20 +16,3 @@
  */
 export const TILE_M = 0.7;
 export const HEIGHT_SCALE = 0.023;
-
-/**
- * 층고 — 하우스 타입(2D 평면도)엔 높이 정보가 없어서 전 템플릿 공통
- * 고정값을 쓴다. room.size(S/M/L)별로 다르게 하는 건 이후 과제.
- */
-export const ROOM_H = 2.5;
-
-/**
- * 격자 좌표(col,row, 저장되는 값 그대로) → 3D 월드 좌표. 렌더링 시점에만
- * 쓰는 순수 변환 — 저장 데이터(PlacedFurniture)는 항상 (col,row)고, 3D
- * 좌표를 저장한 적도 저장할 계획도 없다. STEP 15 — EditorScene3D의
- * PlacedItem이 이 함수 하나로 좌표를 구하게 해서, 렌더링 방식이 또
- * 바뀌어도(예: 다른 3D 좌표계) 여길 갈아끼우면 끝나게 한다.
- */
-export function gridToWorld(col: number, row: number, w: number, d: number): [number, number, number] {
-  return [(col + w / 2) * TILE_M, 0, (row + d / 2) * TILE_M];
-}

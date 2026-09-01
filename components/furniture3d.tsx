@@ -4,8 +4,10 @@ import { RoundedBox } from "@react-three/drei";
 import type { IsoFurnitureDef } from "@/lib/types";
 
 /**
- * STEP 14 — 룸 에디터 3D 뷰(EditorScene3D.tsx)의 가구를 단색 박스 하나가
- * 아니라 실제 가구 형태(다리·등받이·팔걸이·상판 등)로 그린다.
+ * STEP 14 — 룸 에디터 3D 뷰(당시 EditorScene3D.tsx, 이후 `/editor` 삭제와
+ * 함께 정리됨. 지금은 components/studio/RoomStudioScene3D.tsx가 이 컴포넌트를
+ * 쓴다)의 가구를 단색 박스 하나가 아니라 실제 가구 형태(다리·등받이·팔걸이·
+ * 상판 등)로 그린다.
  *
  * 방식: 외부 3D 모델(GLTF)을 새로 붙이지 않고 three.js 기본 도형(박스·
  * 실린더)을 여러 개 조합하는 프로시저럴 지오메트리로 간다 — 실제 브랜드
@@ -18,8 +20,8 @@ import type { IsoFurnitureDef } from "@/lib/types";
  * 원점(바닥 중심, y=0)에 그린다 — 가구 폭(width)은 로컬 +X, 깊이(depth)는
  * 로컬 +Z. 실제로 90도 돌아간 가구는 도형을 다시 계산하지 않고, 이
  * 컴포넌트를 감싼 부모 group을 통째로 Y축으로 90도 돌린다
- * (components/EditorScene3D.tsx의 PlacedItem 참고) — 등받이·헤드보드처럼
- * 방향이 있는 부분도 따로 처리할 필요 없이 같이 돌아간다.
+ * (components/studio/RoomStudioScene3D.tsx의 PlacedItem 참고) — 등받이·
+ * 헤드보드처럼 방향이 있는 부분도 따로 처리할 필요 없이 같이 돌아간다.
  */
 
 interface ShapeProps {

@@ -197,8 +197,8 @@ export interface PlacedStudioFurniture {
  * (cx,cz)에 def(rotated 방향)를 놓을 수 있는지 — 방 폴리곤을 완전히
  * 벗어나거나(isFootprintInsideRoom — 도형에 따라 알맞은 방식으로 판정),
  * 같은 layer의 다른 가구와 겹치면 false. "floor" layer(러그 등)는 다른
- * layer와는 겹칠 수 있다 — lib/editorStore.ts의 canPlace와 같은 규칙.
- * excludeId는 드래그 중인 자기 자신을 겹침 검사에서 뺀다.
+ * layer와는 겹칠 수 있다(예전 격자 에디터, `/editor`, 삭제됨의 canPlace와
+ * 같은 규칙). excludeId는 드래그 중인 자기 자신을 겹침 검사에서 뺀다.
  */
 export function canPlaceFurniture(
   cx: number,

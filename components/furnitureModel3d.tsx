@@ -10,7 +10,7 @@ import type { IsoFurnitureDef } from "@/lib/types";
  * STEP 15 — Kenney Furniture Kit(CC0) GLTF 가구 렌더링. def.modelUrl이
  * 있는 항목만 이 컴포넌트를 쓰고, 없는 항목은 계속
  * components/furniture3d.tsx의 프로시저럴 형태(STEP 14)로 그린다
- * (components/EditorScene3D.tsx의 FurnitureVisual 참고).
+ * (components/studio/RoomStudioScene3D.tsx의 FurnitureVisual 참고).
  *
  * 배치 격자(w×d×h, 곧 canPlace가 쓰는 그 값)는 이 컴포넌트가 절대 못
  * 바꾼다 — 모델의 실제 실측 크기를 재서(measureFootprint) 그 격자 칸

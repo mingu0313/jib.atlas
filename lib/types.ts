@@ -223,13 +223,16 @@ export interface IsoFurnitureDef {
   right: string;
   /**
    * STEP 13(하우스 타입별 3D 방 구조)에서 추가 — 이 가구를 놓을 수 있는
-   * 방 종류. 없으면(undefined) 모든 방에 놓을 수 있다고 본다.
-   * lib/roomLayout3d.ts의 roomContaining()이 참조한다.
+   * 방 종류. 없으면(undefined) 모든 방에 놓을 수 있다고 본다. 이 필드를
+   * 실제로 검사하던 격자 기반 룸 에디터(`/editor`, lib/roomLayout3d.ts의
+   * roomContaining())는 삭제됐다 — `/studio`(lib/roomBuilderStore.ts의
+   * canPlaceFurniture)는 자유 좌표 배치라 이 필드를 아직 안 본다. 데이터엔
+   * 남아있지만 지금은 어디서도 안 읽는 값이다.
    */
   allowedRoomTypes?: RoomType[];
   /**
    * STEP 12(룸 에디터 3D 전환)에서 마련해둔 실제 제품 연결 자리 — 전부
-   * 선택 필드라 지금처럼 비워둬도 SVG(EditorCanvas 등)·3D(EditorScene3D)
+   * 선택 필드라 지금처럼 비워둬도 SVG·3D(components/studio/RoomStudioScene3D.tsx)
    * 양쪽 다 그대로 동작한다. 실제 브랜드 제품 데이터/3D 모델이 생기면
    * furniture-catalog.json에 이 필드들만 채우면 된다(로직 변경 불필요).
    */
@@ -253,8 +256,8 @@ export interface IsoFurnitureDef {
   materialOverride?: Record<string, import("./furniturePalette").PaletteKey>;
   /**
    * "floor"면 러그처럼 바닥에 까는 오브젝트 — 다른 layer의 가구와 겹칠 수
-   * 있다(lib/editorStore.ts의 canPlace가 layer가 다르면 겹침을 허용한다).
-   * 없으면 "object"(기존 동작과 동일, 전부 서로 겹칠 수 없음).
+   * 있다(lib/roomBuilderStore.ts의 canPlaceFurniture가 layer가 다르면 겹침을
+   * 허용한다). 없으면 "object"(기존 동작과 동일, 전부 서로 겹칠 수 없음).
    */
   layer?: "floor" | "object";
 }
