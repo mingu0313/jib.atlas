@@ -157,12 +157,6 @@ export default function ResultPage() {
             >
               이 집 꾸미러 가기
             </Link>
-            <Link
-              href="/share"
-              className="rounded-full bg-sage px-[34px] py-5 text-[14px] font-semibold text-sage-ink transition hover:bg-olive hover:text-cream"
-            >
-              공유 카드 보기
-            </Link>
             <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
               다시 진단하기
             </button>

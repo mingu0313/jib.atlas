@@ -152,12 +152,6 @@ export default function EnglishResultPage() {
             >
               Decorate this room
             </Link>
-            <Link
-              href="/en/share"
-              className="rounded-full bg-sage px-[34px] py-5 text-[14px] font-semibold text-sage-ink transition hover:bg-olive hover:text-cream"
-            >
-              View share card
-            </Link>
             <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
               Retake the quiz
             </button>

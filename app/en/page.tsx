@@ -25,8 +25,8 @@ export const metadata = {
  * 섹션(FiveAxes/HouseTypes/Quote/EditorPreview/Cta)은 프로즈가 워낙 길어서
  * 이번 STEP엔 그대로 옮기지 않았다 — 대신 퀴즈로 바로 이어지는 짧은 히어로 +
  * 3단계 설명으로 축약했다. 전체 스크롤텔링 번역은 STEP 12 이후 과제.
- * 진단(/en/test) → 결과(/en/result) → 공유(/en/share)로 이어지는 핵심
- * 루프는 전부 완역돼 있다.
+ * 진단(/en/test) → 결과(/en/result)로 이어지는 핵심 루프는 전부 완역돼
+ * 있다(공유 카드 기능은 제거됨).
  */
 export default function EnglishHome() {
   return (
