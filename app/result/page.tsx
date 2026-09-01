@@ -3,12 +3,13 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import lifestyleQuestionsData from "@/data/lifestyle-questions.json";
+import mbtiQuestionsData from "@/data/mbti-questions.json";
 import { FloorPlan } from "@/components/FloorPlan";
 import { generateExplanation } from "@/lib/explain";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona, getRarityTier } from "@/lib/persona";
 import { radarDots, radarLabelPoint, radarRing, radarShape } from "@/lib/radar";
-import { calculatePrecision, calculateScores } from "@/lib/scoring";
+import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { AXES, AXIS_LABELS, ROOM_TYPE_LABELS } from "@/lib/types";
 import type { Answer } from "@/lib/types";
@@ -17,18 +18,17 @@ import type { Answer } from "@/lib/types";
  * 결과 페이지 — 채점·매칭·캐릭터명은 지시대로 lib/scoring.ts,
  * lib/matching.ts, lib/persona.ts를 쓴다.
  *
- * 2단계 진단 지원: 빠른 진단(라이프스타일 15문항)만 마쳐도 이 화면에
- * 들어올 수 있다 — calculateScores는 순수 함수라 15개만 담긴 답변으로도
- * 완전히 유효한 결과를 낸다(MBTI 관련 항목은 중립 50으로 블렌드). 정밀
- * 모드(+8문항)를 마치고 다시 오면 같은 함수를 23개 전체로 다시 호출한
- * 결과가 그대로 갱신된 결과다 — 별도의 델타 계산은 없다. `calculatePrecision`
- * 으로 "지금 이 결과가 얼마나 확정됐는지"를 실측 %로 보여준다.
+ * 단일 진단 흐름: 23문항(라이프스타일 15 + MBTI 8)을 전부 답해야 이 화면에
+ * 들어올 수 있다. 예전엔 15문항만 마쳐도 결과를 보여주고 "더 정밀하게
+ * 보기"로 나머지 8개를 추가 진행하는 2단계 구조였지만, 15문항과 23문항
+ * 매칭 결과가 실사용상 사실상 같아서 정밀 모드가 실질적 가치를 안 준다고
+ * 판단해 폐기했다 — 그때 같이 있던 정밀도% 배지도 제거했다.
  *
  * "이런 구조도 어울려요"(2·3순위 매칭)·"나만의 인테리어"(평면도) 두 섹션은
  * 기존 기능 그대로 유지했다.
  */
 
-const QUICK_COUNT = lifestyleQuestionsData.length; // 15 — 빠른 진단 완주 기준
+const TOTAL_QUESTION_COUNT = lifestyleQuestionsData.length + mbtiQuestionsData.length; // 23
 
 export default function ResultPage() {
   const router = useRouter();
@@ -36,7 +36,7 @@ export default function ResultPage() {
   const reset = useTestStore((state) => state.reset);
 
   const answeredCount = Object.keys(answers).length;
-  if (answeredCount < QUICK_COUNT) {
+  if (answeredCount < TOTAL_QUESTION_COUNT) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <h1 className="font-kr text-xl">아직 결과가 없어요</h1>
@@ -53,8 +53,6 @@ export default function ResultPage() {
     optionId,
   }));
   const { axisScores, mbtiType } = calculateScores(answerList);
-  const precision = Math.round(calculatePrecision(answerList));
-  const isPrecise = precision >= 100;
   const matches = matchHouseTemplate(axisScores);
   const topMatch = matches[0];
   const explanation = generateExplanation(axisScores, topMatch.template);
@@ -93,18 +91,6 @@ export default function ResultPage() {
         <span className="label-mono rounded-full bg-sage px-3.5 py-1.5 text-[10px] text-sage-ink">
           {rarity} · {similarity}%
         </span>
-        {isPrecise ? (
-          <span className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-muted">
-            정밀도 100%
-          </span>
-        ) : (
-          <Link
-            href="/test"
-            className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-olive-mid transition hover:border-olive hover:bg-panel"
-          >
-            정밀도 약 {precision}% · 더 정밀하게 보기 →
-          </Link>
-        )}
       </div>
 
       <h1 className="font-kr mt-5 text-[clamp(40px,8vw,130px)] leading-[0.98] tracking-[-0.03em]">

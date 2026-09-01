@@ -3,7 +3,6 @@ import mbtiQuestionsData from "../data/mbti-questions.json";
 import {
   AXES,
   type Answer,
-  type Axis,
   type AxisScores,
   type BinaryQuestion,
   type MbtiBinaryQuestion,
@@ -110,14 +109,10 @@ function calculateMbtiType(optionMap: Map<string, OptionId>): string {
 }
 
 /**
- * 라이프스타일(빠른 진단) 15문항 + MBTI(정밀 모드) 8문항에 대한 응답을 받아
- * 5축 점수(0~100)와 MBTI 4글자 타입을 계산하는 순수 함수.
- *
- * 라이프스타일 15개만 담긴 배열을 넘겨도 완전히 유효한 결과를 낸다 — MBTI
- * 관련 항목은 응답이 없으면 중립 50으로 블렌드에 들어간다(옛 리커트 시절과
- * 동일한 기본값 동작). 정밀 모드로 나머지 8개를 마저 답한 뒤 23개 전체로
- * 이 함수를 다시 호출하면 그게 곧 "재계산"이다 — 별도의 델타/병합 로직
- * 없이 같은 순수 함수를 다시 부르기만 하면 된다.
+ * 라이프스타일 15문항 + MBTI 8문항, 총 23문항 응답을 받아 5축 점수(0~100)와
+ * MBTI 4글자 타입을 계산하는 순수 함수. 단일 진단 흐름이라 항상 23개 전체가
+ * 넘어오는 걸 전제하지만, 응답이 없는 문항/축은 중립 50으로 처리하는 내부
+ * 로직 자체는 그대로라 부분 응답이 들어와도 죽지 않는다.
  */
 export function calculateScores(answers: Answer[]): ScoringResult {
   const optionMap = buildOptionMap(answers);
@@ -144,60 +139,4 @@ export function calculateScores(answers: Answer[]): ScoringResult {
     axisScores,
     mbtiType: calculateMbtiType(optionMap),
   };
-}
-
-/**
- * 블렌드 구성요소별 가중치(절댓값) — calculateScores의 블렌드 공식과 정확히
- * 같은 값을 그대로 재사용한다. calculatePrecision이 "지금까지 응답한 만큼
- * 이 축 점수가 얼마나 확정됐는지"를 이 가중치 기준으로 계산한다.
- */
-const AXIS_BLEND_WEIGHTS: Record<Axis, { lifestyle: number; mbti?: number[] }> = {
-  sociability: { lifestyle: 0.7, mbti: [0.3] },
-  openness: { lifestyle: 0.7, mbti: [0.3] },
-  minimalism: { lifestyle: 0.7, mbti: [0.3, 0.2] },
-  activity: { lifestyle: 1.0 },
-  nature: { lifestyle: 1.0 },
-};
-
-/**
- * 지금까지 응답한 문항만으로 axisScores가 최종값 대비 얼마나 "확정"됐는지를
- * 0~100 스케일로 계산한다 — 연출용 숫자가 아니라 calculateScores와 같은
- * 블렌드 가중치에서 그대로 유도한 실측값이다. 라이프스타일 15개만 답하면
- * activity/nature는 100%(애초에 MBTI 블렌드가 없음), sociability/openness는
- * 70%, minimalism은 70/120≈58.3%가 되고 5축 평균은 약 80% — MBTI 8개를
- * 마저 답하면 전부 100%가 된다.
- */
-export function calculatePrecision(answers: Answer[]): number {
-  const answeredIds = new Set(answers.map((a) => a.questionId));
-  const lifestyleAnswered = lifestyleQuestions.filter((q) => answeredIds.has(q.id)).length;
-  const lifestyleFraction = lifestyleQuestions.length === 0 ? 1 : lifestyleAnswered / lifestyleQuestions.length;
-
-  const mbtiFractionByIndicator = (indicator: MbtiIndicator) => {
-    const questions = mbtiQuestions.filter((q) => q.indicator === indicator);
-    if (questions.length === 0) return 1;
-    const answered = questions.filter((q) => answeredIds.has(q.id)).length;
-    return answered / questions.length;
-  };
-  // MBTI 블렌드 가중치는 인덱스 순서대로 EI/SN/TF/JP에 대응한다 —
-  // AXIS_BLEND_WEIGHTS[axis].mbti의 각 항목이 어떤 지표인지는
-  // calculateScores의 실제 블렌드식(eiE→sociability, snN→openness,
-  // tfF/jpJ→minimalism)과 짝을 맞춰 아래에서 축마다 명시적으로 고른다.
-  const mbtiFractionsByAxis: Record<Axis, number[]> = {
-    sociability: [mbtiFractionByIndicator("EI")],
-    openness: [mbtiFractionByIndicator("SN")],
-    minimalism: [mbtiFractionByIndicator("TF"), mbtiFractionByIndicator("JP")],
-    activity: [],
-    nature: [],
-  };
-
-  const axisPrecisions = AXES.map((axis) => {
-    const { lifestyle, mbti = [] } = AXIS_BLEND_WEIGHTS[axis];
-    const mbtiFractions = mbtiFractionsByAxis[axis];
-    const totalWeight = lifestyle + mbti.reduce((sum, w) => sum + w, 0);
-    const resolvedWeight =
-      lifestyle * lifestyleFraction + mbti.reduce((sum, w, i) => sum + w * mbtiFractions[i], 0);
-    return (resolvedWeight / totalWeight) * 100;
-  });
-
-  return axisPrecisions.reduce((sum, p) => sum + p, 0) / axisPrecisions.length;
 }

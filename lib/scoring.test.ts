@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import lifestyleQuestionsData from "../data/lifestyle-questions.json";
 import mbtiQuestionsData from "../data/mbti-questions.json";
-import { calculatePrecision, calculateScores } from "./scoring";
+import { calculateScores } from "./scoring";
 import { AXES } from "./types";
 import type { Answer, BinaryQuestion, MbtiBinaryQuestion, OptionId } from "./types";
 
@@ -55,7 +55,7 @@ describe("calculateScores", () => {
     expect(result.mbtiType).toBe("INFP");
   });
 
-  it("빠른 진단(라이프스타일 15문항)만 응답해도 완전히 유효한 결과가 나온다 — MBTI 관련 항목은 중립(50)으로 블렌드된다", () => {
+  it("라이프스타일 15문항만 응답해도(MBTI 미응답) 완전히 유효한 결과가 나온다 — MBTI 관련 항목은 중립(50)으로 블렌드된다", () => {
     const result = calculateScores(uniformAnswers("A", lifestyleQuestions));
 
     // MBTI 블렌드가 없는 두 축은 라이프스타일 값 그대로.
@@ -67,7 +67,7 @@ describe("calculateScores", () => {
     expect(result.mbtiType).toHaveLength(4);
   });
 
-  it("정밀 모드(MBTI 8문항)만으로도 축 블렌드가 반영되고, MBTI가 안 섞이는 축은 중립을 유지한다", () => {
+  it("MBTI 8문항만으로도(라이프스타일 미응답) 축 블렌드가 반영되고, MBTI가 안 섞이는 축은 중립을 유지한다", () => {
     // 라이프스타일은 하나도 응답 안 함(중립 50) — E, N, F, P를 강하게 가리키는 MBTI 응답만.
     const answers: Answer[] = [
       { questionId: "m1", optionId: "A" }, // E
@@ -93,31 +93,16 @@ describe("calculateScores", () => {
     expect(result.axisScores.nature).toBe(50);
   });
 
-  it("같은 답변 배열을 다시 넣어도(순수 함수) 항상 같은 결과가 나온다 — 빠른→정밀 재계산이 이 성질에 의존한다", () => {
-    const quickAnswers = uniformAnswers("A", lifestyleQuestions);
-    const first = calculateScores(quickAnswers);
-    const second = calculateScores(quickAnswers);
+  it("같은 답변 배열을 다시 넣어도(순수 함수) 항상 같은 결과가 나온다", () => {
+    const partialAnswers = uniformAnswers("A", lifestyleQuestions);
+    const first = calculateScores(partialAnswers);
+    const second = calculateScores(partialAnswers);
     expect(second).toEqual(first);
 
-    // 정밀 모드로 8문항을 마저 답한 뒤엔 "같은 함수를 다시 호출"하는 것만으로 재계산된다.
-    const fullAnswers = [...quickAnswers, ...uniformAnswers("A", mbtiQuestions)];
-    const precise = calculateScores(fullAnswers);
-    expect(precise.axisScores.minimalism).not.toBe(first.axisScores.minimalism);
-  });
-});
-
-describe("calculatePrecision", () => {
-  it("아무것도 안 답하면 0%, 23문항 다 답하면 100%다", () => {
-    expect(calculatePrecision([])).toBe(0);
-    expect(
-      calculatePrecision(uniformAnswers("A", [...lifestyleQuestions, ...mbtiQuestions])),
-    ).toBe(100);
-  });
-
-  it("빠른 진단(15문항)만 마치면 약 80%다 — activity/nature는 100%, minimalism이 가장 낮게 끌어내린다", () => {
-    const precision = calculatePrecision(uniformAnswers("A", lifestyleQuestions));
-    expect(precision).toBeGreaterThan(75);
-    expect(precision).toBeLessThan(85);
+    // 나머지 응답이 더 채워진 배열로 다시 호출하면 그 변화가 그대로 반영된다.
+    const fullAnswers = [...partialAnswers, ...uniformAnswers("A", mbtiQuestions)];
+    const full = calculateScores(fullAnswers);
+    expect(full.axisScores.minimalism).not.toBe(first.axisScores.minimalism);
   });
 });
 

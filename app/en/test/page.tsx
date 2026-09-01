@@ -55,22 +55,21 @@ const allQuestions: QuizItem[] = [
   })),
 ];
 
-const QUICK_COUNT = lifestyleQuestions.length; // 15
 const HOUSE_TEMPLATE_COUNT = houseTemplatesData.length; // 30
 
-const QUICK_LOADING_MESSAGES = [
+const LOADING_MESSAGES = [
   "Analyzing your 5 traits…",
   `Comparing against ${HOUSE_TEMPLATE_COUNT} house types…`,
   "Found your match!",
 ];
-const PRECISION_LOADING_MESSAGES = ["Refining your precision…"];
+const LOADING_FINAL_CTA = "See your result?";
 
 export default function EnglishTestPage() {
   const router = useRouter();
   const answers = useTestStore((state) => state.answers);
   const setAnswer = useTestStore((state) => state.setAnswer);
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState<"quick" | "precision" | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const firstUnanswered = allQuestions.findIndex((q) => !(q.id in answers));
@@ -84,10 +83,8 @@ export default function EnglishTestPage() {
 
   function handleAnswer(optionId: OptionId) {
     setAnswer(currentQuestion.id, optionId);
-    if (index === QUICK_COUNT - 1) {
-      setLoading("quick");
-    } else if (index === totalCount - 1) {
-      setLoading("precision");
+    if (index === totalCount - 1) {
+      setLoading(true);
     } else {
       setIndex((i) => i + 1);
     }
@@ -96,8 +93,8 @@ export default function EnglishTestPage() {
   if (loading) {
     return (
       <DiagnosisLoader
-        messages={loading === "quick" ? QUICK_LOADING_MESSAGES : PRECISION_LOADING_MESSAGES}
-        durationMs={loading === "quick" ? 2600 : 1200}
+        messages={LOADING_MESSAGES}
+        finalCta={LOADING_FINAL_CTA}
         onDone={() => {
           window.scrollTo(0, 0);
           router.push("/en/result");
@@ -146,7 +143,7 @@ export default function EnglishTestPage() {
           </span>
           <div className="flex items-center gap-5">
             <span className="label-mono text-[10px] text-faint">
-              {index < QUICK_COUNT ? `${index + 1} of ${QUICK_COUNT}` : `precision ${index - QUICK_COUNT + 1} of ${totalCount - QUICK_COUNT}`}
+              {index + 1} of {totalCount}
             </span>
             <button
               type="button"
@@ -187,7 +184,7 @@ export default function EnglishTestPage() {
                   key={q.id}
                   className={`h-[3px] shrink-0 rounded-full transition-all duration-250 ${
                     i === index ? "w-5 sm:w-7" : "w-1.5 sm:w-2"
-                  } ${i === QUICK_COUNT ? "ml-2 sm:ml-3" : ""}`}
+                  }`}
                   style={{
                     background:
                       i < index ? "var(--color-olive)" : i === index ? "var(--color-olive-mid)" : "var(--color-hair)",

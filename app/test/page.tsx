@@ -12,15 +12,15 @@ import { useTestStore } from "@/lib/store";
 import type { BinaryQuestion, MbtiBinaryQuestion, MbtiIndicator, OptionId } from "@/lib/types";
 
 /**
- * 퀴즈 페이지 — 2단계 진단(빠른 15문항 → 결과, 선택적으로 정밀 8문항 →
- * 결과 갱신) 중 문항을 실제로 답하는 화면. 밸런스게임형/이미지 선택형
- * 이지선다로 답한다(기존 5점 리커트 대체).
+ * 퀴즈 페이지 — 단일 진단 흐름(23문항, 밸런스게임형/이미지 선택형 이지선다,
+ * 기존 5점 리커트 대체)으로 문항을 답하는 화면.
  *
- * `lifestyleQuestions`(빠른 진단, 15개)와 `mbtiQuestions`(정밀 모드, 8개)를
- * 이어붙인 `allQuestions` 하나를 순서대로 진행하는 건 기존과 같다 — 15번째
- * 문항을 답하는 순간 곧장 MBTI로 넘기지 않고 로딩 화면 → `/result`로 보내고,
- * "더 정밀하게 보기"로 다시 들어오면 새로고침 재개 로직이 자동으로 16번째
- * 문항(MBTI 시작)부터 이어가게 한다.
+ * `lifestyleQuestions`(15개)와 `mbtiQuestions`(8개)를 이어붙인 `allQuestions`
+ * 하나를 처음부터 끝까지 순서대로 진행한다 — 예전엔 15번째에서 결과로
+ * 빠졌다가 "더 정밀하게 보기"로 나머지 8개를 마저 답하는 2단계 구조였지만,
+ * 실사용 결과 15문항과 23문항 매칭 결과가 사실상 같아서 정밀 모드가 실질적
+ * 가치를 안 준다고 판단해 폐기했다 — 지금은 23문항을 다 답해야 결과를 볼 수
+ * 있는 단일 흐름이다.
  */
 
 const lifestyleQuestions = lifestyleQuestionsData as BinaryQuestion[];
@@ -60,22 +60,23 @@ const allQuestions: QuizItem[] = [
   })),
 ];
 
-const QUICK_COUNT = lifestyleQuestions.length; // 15
 const HOUSE_TEMPLATE_COUNT = houseTemplatesData.length; // 30
 
-const QUICK_LOADING_MESSAGES = [
+// 순차 전환되는 로딩 문구 — 마지막 문구는 자동으로 넘어가지 않고
+// DiagnosisLoader가 알아서 클릭 유도 버튼(finalCta)으로 바꿔준다.
+const LOADING_MESSAGES = [
   "5가지 성향을 분석하는 중…",
   `${HOUSE_TEMPLATE_COUNT}가지 집 유형과 비교하는 중…`,
   "당신에게 맞는 집을 찾았어요!",
 ];
-const PRECISION_LOADING_MESSAGES = ["정밀도 업데이트 중…"];
+const LOADING_FINAL_CTA = "결과를 보러갈까요?";
 
 export default function TestPage() {
   const router = useRouter();
   const answers = useTestStore((state) => state.answers);
   const setAnswer = useTestStore((state) => state.setAnswer);
   const [index, setIndex] = useState(0);
-  const [loading, setLoading] = useState<"quick" | "precision" | null>(null);
+  const [loading, setLoading] = useState(false);
 
   // 새로고침 등으로 다시 들어왔을 때, 이미 응답한 문항 다음부터 이어서 시작한다.
   useEffect(() => {
@@ -92,10 +93,8 @@ export default function TestPage() {
 
   function handleAnswer(optionId: OptionId) {
     setAnswer(currentQuestion.id, optionId);
-    if (index === QUICK_COUNT - 1) {
-      setLoading("quick"); // 빠른 진단 완주 — 결과로 보내기 전 브랜드 로딩
-    } else if (index === totalCount - 1) {
-      setLoading("precision"); // 정밀 모드 완료 — 더 짧은 로딩
+    if (index === totalCount - 1) {
+      setLoading(true);
     } else {
       setIndex((i) => i + 1);
     }
@@ -104,8 +103,8 @@ export default function TestPage() {
   if (loading) {
     return (
       <DiagnosisLoader
-        messages={loading === "quick" ? QUICK_LOADING_MESSAGES : PRECISION_LOADING_MESSAGES}
-        durationMs={loading === "quick" ? 2600 : 1200}
+        messages={LOADING_MESSAGES}
+        finalCta={LOADING_FINAL_CTA}
         onDone={() => {
           window.scrollTo(0, 0);
           router.push("/result");
@@ -157,7 +156,7 @@ export default function TestPage() {
           </span>
           <div className="flex items-center gap-5">
             <span className="label-mono text-[10px] text-faint">
-              {index < QUICK_COUNT ? `${index + 1} of ${QUICK_COUNT}` : `정밀 ${index - QUICK_COUNT + 1} of ${totalCount - QUICK_COUNT}`}
+              {index + 1} of {totalCount}
             </span>
             <button
               type="button"
@@ -192,15 +191,13 @@ export default function TestPage() {
             >
               ← 이전
             </button>
-            {/* 진행 인디케이터 — 빠른 진단(15)과 정밀 모드(8) 사이에 살짝
-                넓은 틈을 둬서 두 단계가 나뉘어 있다는 걸 보여준다. */}
             <span className="flex min-w-0 items-center gap-1 sm:gap-[7px]">
               {allQuestions.map((q, i) => (
                 <span
                   key={q.id}
                   className={`h-[3px] shrink-0 rounded-full transition-all duration-250 ${
                     i === index ? "w-5 sm:w-7" : "w-1.5 sm:w-2"
-                  } ${i === QUICK_COUNT ? "ml-2 sm:ml-3" : ""}`}
+                  }`}
                   style={{
                     background:
                       i < index ? "var(--color-olive)" : i === index ? "var(--color-olive-mid)" : "var(--color-hair)",

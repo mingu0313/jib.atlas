@@ -4,12 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import houseTemplatesEnData from "@/data/house-templates.en.json";
 import lifestyleQuestionsEnData from "@/data/lifestyle-questions.en.json";
+import mbtiQuestionsEnData from "@/data/mbti-questions.en.json";
 import { FloorPlan } from "@/components/FloorPlan";
 import { generateExplanationEn } from "@/lib/explainEn";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersonaEn, getRarityTierEn } from "@/lib/persona";
 import { radarDots, radarLabelPoint, radarRing, radarShape } from "@/lib/radar";
-import { calculatePrecision, calculateScores } from "@/lib/scoring";
+import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { AXES, AXIS_LABELS_EN, ROOM_TYPE_LABELS_EN } from "@/lib/types";
 import type { Answer, HouseTemplate } from "@/lib/types";
@@ -20,11 +21,12 @@ const houseTemplatesEn = houseTemplatesEnData as HouseTemplate[];
  * 영문 결과 페이지(`/en/result`) — app/result/page.tsx와 마크업은 동일하고,
  * 채점(calculateScores)은 언어 무관이라 그대로 쓰되 매칭·페르소나·설명
  * 문장은 전용 영문 함수/데이터(lib/matching.ts의 templates 파라미터,
- * lib/persona.ts의 *En, lib/explainEn.ts)로 바꿨다. 2단계 진단 게이트·
- * 스펙트럼 문장·정밀도 배지도 한국어판과 동일한 로직.
+ * lib/persona.ts의 *En, lib/explainEn.ts)로 바꿨다. 단일 진단 게이트(23문항)·
+ * 스펙트럼 문장도 한국어판과 동일한 로직 — 정밀도 배지는 2단계 구조 폐기와
+ * 함께 제거됨.
  */
 
-const QUICK_COUNT = lifestyleQuestionsEnData.length; // 15
+const TOTAL_QUESTION_COUNT = lifestyleQuestionsEnData.length + mbtiQuestionsEnData.length; // 23
 
 export default function EnglishResultPage() {
   const router = useRouter();
@@ -32,7 +34,7 @@ export default function EnglishResultPage() {
   const reset = useTestStore((state) => state.reset);
 
   const answeredCount = Object.keys(answers).length;
-  if (answeredCount < QUICK_COUNT) {
+  if (answeredCount < TOTAL_QUESTION_COUNT) {
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-8 text-center">
         <h1 className="font-display text-xl">No result yet</h1>
@@ -49,8 +51,6 @@ export default function EnglishResultPage() {
     optionId,
   }));
   const { axisScores, mbtiType } = calculateScores(answerList);
-  const precision = Math.round(calculatePrecision(answerList));
-  const isPrecise = precision >= 100;
   const matches = matchHouseTemplate(axisScores, houseTemplatesEn);
   const topMatch = matches[0];
   const explanation = generateExplanationEn(axisScores, topMatch.template);
@@ -88,18 +88,6 @@ export default function EnglishResultPage() {
         <span className="label-mono rounded-full bg-sage px-3.5 py-1.5 text-[10px] text-sage-ink">
           {rarity} · {similarity}%
         </span>
-        {isPrecise ? (
-          <span className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-muted">
-            Precision 100%
-          </span>
-        ) : (
-          <Link
-            href="/en/test"
-            className="label-mono rounded-full border border-hair px-3.5 py-1.5 text-[10px] text-olive-mid transition hover:border-olive hover:bg-panel"
-          >
-            Precision ~{precision}% · Refine your result →
-          </Link>
-        )}
       </div>
 
       <h1 className="font-display mt-5 text-[clamp(34px,6.5vw,104px)] leading-[1.0] tracking-[-0.02em]">
