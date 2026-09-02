@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { RADAR_CX, RADAR_CY, radarLabelPoint, radarPoint, radarRing, radarShape } from "@/lib/radar";
 import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
@@ -17,21 +16,6 @@ import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
  * 대신한다. 스크롤마다 rAF로 스로틀하고, IO는 빠른 스크롤에서 어긋난다는
  * 이유로 의도적으로 안 쓴다.
  */
-
-/**
- * 소스 사진 5장 중 자연친화(가로형 1.5:1)를 뺀 4장이 전부 세로형(2:3~2:5)
- * 인데, 이 배너 컨테이너는 aspect-[5/4](가로형)라 object-position 없이
- * 기본 중앙(50%)만 쓰면 축마다 핵심 피사체가 위/아래로 잘려나간다 —
- * HeroPhotoStage.tsx의 슬라이드별 pos 패턴을 그대로 가져와 사진마다 실제
- * 확인한 피사체 위치에 맞춰 crop 기준점을 지정한다.
- */
-const AXIS_PHOTO: Record<Axis, { src: string; pos: string }> = {
-  sociability: { src: "/photos/axis-social.jpg", pos: "center 45%" },
-  minimalism: { src: "/photos/axis-minimal.jpg", pos: "center 32%" },
-  activity: { src: "/photos/axis-activity.jpg", pos: "center 30%" },
-  openness: { src: "/photos/axis-open.jpg", pos: "center 55%" },
-  nature: { src: "/photos/axis-nature.jpg", pos: "center 50%" },
-};
 
 const AXIS_EN: Record<Axis, string> = {
   sociability: "SOCIABILITY",
@@ -118,15 +102,15 @@ export function FiveAxes() {
 
       {/*
         모바일(<lg)에서는 grid-cols-1로 두 컬럼이 "각자의 행"으로 쪼개지면서
-        sticky의 containing block이 사진/패널 자기 콘텐츠 높이(~60vh)로
-        줄어들어버려 — 축 5개(74vh×5=370vh)를 스크롤하는 동안 붙어있지 못하고
-        먼저 스크롤아웃돼 버렸다(버그 리포트: "스크롤 내리면 사진이 안 보여").
-        고쳐서 모바일에서도 flex(세로 스택, 형제 컨테이너 공유)로 두고 사진/
-        패널을 맨 위에 sticky로 둬, 축 텍스트가 그 아래로 흘러가게 한다.
-        데스크톱에서만 grid 2컬럼으로 전환(그때는 grid stretch가 같은 효과를 준다).
+        sticky의 containing block이 패널 자기 콘텐츠 높이(~60vh)로 줄어들어버려
+        — 축 5개(74vh×5=370vh)를 스크롤하는 동안 붙어있지 못하고 먼저
+        스크롤아웃돼 버렸다(버그 리포트: "스크롤 내리면 패널이 안 보여").
+        고쳐서 모바일에서도 flex(세로 스택, 형제 컨테이너 공유)로 두고 패널을
+        맨 위에 sticky로 둬, 축 텍스트가 그 아래로 흘러가게 한다. 데스크톱에서만
+        grid 2컬럼으로 전환(그때는 grid stretch가 같은 효과를 준다).
       */}
       <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[44fr_56fr] lg:items-start lg:gap-20">
-        {/* 좌: 축 5개 — 데스크톱에서는 왼쪽, 모바일에서는 사진/패널 아래(order로 순서만 뒤집는다). */}
+        {/* 좌: 축 5개 — 데스크톱에서는 왼쪽, 모바일에서는 패널 아래(order로 순서만 뒤집는다). */}
         <div className="order-2 lg:order-1">
           {AXES.map((axis, i) => {
             const isActive = i === active;
@@ -159,58 +143,34 @@ export function FiveAxes() {
           })}
         </div>
 
-        {/* 우: sticky — 위에서 아래로 사진 → AXIS PROFILE 패널(레이더+막대).
-            sticky·top-0는 모든 화면 크기에서 켜져 있어야 한다(위 주석 참고).
+        {/* 우: sticky — AXIS PROFILE 패널(레이더+막대). sticky·top-0는 모든
+            화면 크기에서 켜져 있어야 한다(위 주석 참고).
 
             예전엔 lg:min-h-screen + justify-center로 뷰포트 안에서 수직
             중앙 정렬했는데, 노트북처럼 높이가 낮은 화면(대략 900px 미만)
-            에서는 사진+패널 합친 실제 높이가 뷰포트보다 커져서 위아래가
-            똑같이 잘려나갔다 — 게다가 flex justify-center로 넘친 콘텐츠는
-            스크롤로도 못 끌어올 수 있는 잘 알려진 CSS 함정이라(가운데
-            정렬 시 넘친 앞부분이 스크롤 영역 밖에 생김), 축 막대 뒤쪽
-            (미니멀·활동성·개방성·자연친화)이 아예 안 보이는 버그가 났다
-            (피드백: "사교성 밑에 있는 나머지가 안 보여"). justify-center를
-            버리고 위 정렬 + max-h-screen + overflow-y-auto로 바꿔서, 내용이
-            넘치면 이 패널 안에서 스크롤해 전부 볼 수 있게 했다. */}
-        <div className="sticky top-20 order-1 z-10 max-h-[calc(100vh-5rem)] overflow-y-auto lg:top-0 lg:order-2 lg:flex lg:max-h-screen lg:flex-col lg:gap-6 lg:overflow-y-auto lg:py-10">
-          {/* max-h-[Nvh]를 aspect-[5/4]와 같이 걸어놨던 예전 버전은 흔한 노트북
-              화면(높이 700~900px대)에서 vh 쪽이 항상 이겨버려 실제 렌더 비율이
-              5:4가 아니라 2:1 안팎으로 눌린 "얇은 배너"가 됐었다(피드백: "사진이
-              잘려서 안 보임"). 높이는 aspect-ratio에만 맡기고, 정말 짧은
-              화면에서 사진+패널 합친 콘텐츠가 넘치는 경우는 위 sticky 래퍼의
-              max-h-screen overflow-y-auto(168줄 주석 참고)가 이미 스크롤로
-              받아주니 여기서 또 높이를 눌러 싸울 필요가 없다 — 단, 이 박스는
-              lg:flex lg:flex-col의 flex item이라 shrink-0이 없으면 자식이 전부
-              fill(절대배치) 이미지뿐이라 min-content 높이가 0에 가까워, 부모가
-              max-h-screen을 넘길 때 overflow-y-auto로 넘기기 전에 flexbox가
-              먼저 이 박스부터 짓눌러버린다(그러면 aspect-ratio를 지정해도
-              무용지물) — shrink-0으로 그 지름길을 막아야 진짜 넘칠 때만
-              스크롤이 뜬다. */}
-          <div className="relative aspect-[5/4] shrink-0 overflow-hidden rounded-[26px] bg-photo-bg">
-            {AXES.map((axis, i) => (
-              <Image
-                key={axis}
-                src={AXIS_PHOTO[axis].src}
-                alt={AXIS_LABELS[axis]}
-                fill
-                sizes="(min-width: 1024px) 50vw, 100vw"
-                className="object-cover transition-opacity duration-500"
-                style={{ opacity: i === active ? 1 : 0, objectPosition: AXIS_PHOTO[axis].pos }}
-              />
-            ))}
-            <div
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-[44%]"
-              style={{ background: "linear-gradient(to top, rgba(18,18,15,0.46), rgba(18,18,15,0))" }}
-            />
-            <span className="font-kr absolute bottom-6 left-7 text-[26px] text-bg">{AXIS_LABELS[activeAxis]}</span>
-          </div>
+            에서는 실제 높이가 뷰포트보다 커져서 위아래가 똑같이 잘려나갔다 —
+            게다가 flex justify-center로 넘친 콘텐츠는 스크롤로도 못 끌어올 수
+            있는 잘 알려진 CSS 함정이라(가운데 정렬 시 넘친 앞부분이 스크롤
+            영역 밖에 생김), 축 막대 뒤쪽(미니멀·활동성·개방성·자연친화)이
+            아예 안 보이는 버그가 났다(피드백: "사교성 밑에 있는 나머지가 안
+            보여"). justify-center를 버리고 위 정렬 + max-h-screen +
+            overflow-y-auto로 바꿔서, 내용이 넘치면 이 패널 안에서 스크롤해
+            전부 볼 수 있게 했다.
 
-          {/* 레이더+막대 패널 — 원본 프리뷰(jib-atlas-v2-preview.html)는 화면 크기와
-              무관하게 사진과 패널이 항상 같이 sticky로 붙어서 축이 바뀔 때마다 함께
-              전환된다. 예전엔 모바일에서만 이 패널을 숨겼는데(화면을 다 덮는다는
-              우려), 그러면 정작 "축마다 패널이 같이 바뀌는" 핵심 동작 자체가 안
-              보이니 원본과 똑같이 모든 화면에서 보이게 둔다. */}
-          <div className="mt-6 rounded-[26px] bg-panel p-6 sm:p-9 lg:mt-0">
+            사진 밴드 제거 — 예전엔 이 자리 위에 aspect-[5/4] 사진 밴드가
+            먼저 있고 그 아래 이 프로필 패널이 이어졌는데, 사진(최대 약
+            400~700px)+패널(약 650~750px)을 합치면 흔한 노트북 높이
+            (700~900px)에서 항상 넘쳐서 위 max-h-screen overflow-y-auto가
+            켜졌다 — 그러면 바깥 페이지 스크롤(축 전환)과 이 패널 안쪽 스크롤
+            (넘친 내용 보기)이 동시에 존재해 "스크롤이 두 개"인 것처럼
+            느껴졌다(피드백: "둘 다 따로 스크롤하게 만들었는데 어색하다").
+            사진을 빼서 패널 하나만 남기면 대부분 화면에서 내부 스크롤 없이
+            한 번에 다 보인다 — overflow-y-auto/max-h는 정말 짧은 화면을 위한
+            방어선으로만 남겨뒀다. 사진을 나중에 다시 넣는다면 "패널 높이 +
+            사진 높이 ≤ 흔한 뷰포트 높이(700~900px)"를 반드시 먼저 확인할 것
+            — 안 그러면 이 버그가 그대로 재발한다. */}
+        <div className="sticky top-20 order-1 z-10 max-h-[calc(100vh-5rem)] overflow-y-auto lg:top-0 lg:order-2 lg:max-h-screen lg:overflow-y-auto lg:py-10">
+          <div className="rounded-[26px] bg-panel p-6 sm:p-9">
             <div className="flex items-baseline justify-between gap-5">
               <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>
               <span className="font-display text-base tracking-[0.02em] text-faint">{AXIS_EN[activeAxis]}</span>
