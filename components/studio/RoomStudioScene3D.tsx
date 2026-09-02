@@ -10,6 +10,7 @@ import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { computeCameraPose } from "@/lib/cameraPresets";
 import { HEIGHT_SCALE, TILE_M } from "@/lib/editor3d";
 import { formatLength } from "@/lib/roomDimensions";
+import { registerStudioCapture } from "@/lib/studioCapture";
 import { useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
 import { buildWallBoxes, CONVEX_DIAGONAL_SHAPES, getFloorRects, getWallOutwardNormal, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
@@ -407,6 +408,76 @@ function MeasurementLabels() {
   );
 }
 
+/** 캡처 목표 해상도(긴 변 기준, px) — 온스크린 캔버스는 h-[420px] 컨테이너
+ * 안이라 그대로 저장하면 다운로드해서 크게 보기엔 화질이 부족하다. 캡처
+ * 순간에만 같은 종횡비를 유지한 채(gl.setSize로 그리기 버퍼만 키우고 CSS
+ * 표시 크기는 그대로 둔다, updateStyle=false) 이 값까지 업스케일한다. */
+const CAPTURE_TARGET_LONG_EDGE = 2000;
+/** 원본 대비 최대 배율 — 좁은 컨테이너(모바일)에서 배율이 과하게 커지면
+ * 그 한 프레임 렌더에 GPU 메모리·시간이 튄다. */
+const CAPTURE_MAX_SCALE = 4;
+
+/** 한 프레임 기다리기 — 카메라 포즈가 아직 안 잡혔을 때 재시도 간격으로 쓴다. */
+function nextFrame(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+/**
+ * `<Canvas>` 내부에서만 gl/scene/camera에 접근할 수 있어서, 캔버스 바깥의
+ * "이미지로 저장하기" 버튼(StepFurniture)이 부를 캡처 함수를 여기서 만들어
+ * lib/studioCapture.ts에 등록해둔다(STEP 17).
+ *
+ * 종횡비는 그대로 두고 픽셀 수만 키운다 — camera.aspect/ortho 프러스텀은
+ * CameraRig의 useFrame이 매 프레임 `state.size`(컨테이너 CSS 크기) 기준으로
+ * 다시 계산하는 값이라, 여기서 직접 안 건드려도 캡처 후 gl.setSize로 원래
+ * 크기를 복원하기만 하면 다음 프레임에 알아서 원래 화각으로 돌아온다.
+ *
+ * toBlob(비동기 콜백) 대신 toDataURL을 쓴다 — toBlob은 호출 시점과 실제
+ * 픽셀을 읽어가는 시점 사이에 미묘한 간격이 있어서(구현체마다 다름),
+ * frameloop이 계속 도는 상태에서 그 사이 자동 프레임이 끼어들면 드물게
+ * 빈 화면이 캡처되는 걸 실제로 겪었다 — toDataURL은 완전히 동기라 이 문제
+ * 자체가 생길 수 없다.
+ *
+ * 카메라 포즈 레이스 — CameraRig의 위치 지정 useEffect는 `<Canvas
+ * frameloop="never">`로 시작한 상태(previewMode 기본값 "2d")에선 3D 탭을
+ * 처음 열기 전까지 실행이 미뤄질 수 있다(R3F가 frameloop="never"인 동안
+ * 자식 트리 첫 렌더 자체를 늦추는 것으로 보임 — 실측: 씬 children은 이미
+ * 채워져 있는데 camera.position이 (0,0,0)인 채로 캡처된 사례를 실제로
+ * 확인함). "이미지로 저장하기" 버튼이 previewMode를 3D로 바꾼 직후 곧바로
+ * 캡처를 요청할 수도 있으므로, 카메라가 원점에 있으면(=아직 안 잡힌
+ * 상태) 최대 몇 프레임 기다렸다가 다시 확인한다.
+ */
+function CaptureBridge() {
+  const { gl, scene, camera, size } = useThree();
+
+  useEffect(() => {
+    async function capture(): Promise<Blob | null> {
+      for (let i = 0; i < 30 && camera.position.lengthSq() === 0; i++) {
+        await nextFrame();
+      }
+      if (camera.position.lengthSq() === 0) return null; // 0.5초 넘게 기다려도 안 잡히면 포기
+
+      const longEdge = Math.max(size.width, size.height);
+      const scale = longEdge > 0 ? Math.min(CAPTURE_MAX_SCALE, CAPTURE_TARGET_LONG_EDGE / longEdge) : 1;
+      const targetW = Math.round(size.width * scale);
+      const targetH = Math.round(size.height * scale);
+
+      gl.setSize(targetW, targetH, false);
+      gl.render(scene, camera);
+      const dataUrl = gl.domElement.toDataURL("image/png");
+      gl.setSize(size.width, size.height, false);
+
+      const res = await fetch(dataUrl);
+      return await res.blob();
+    }
+
+    registerStudioCapture(capture);
+    return () => registerStudioCapture(null);
+  }, [gl, scene, camera, size]);
+
+  return null;
+}
+
 /**
  * `visible`: StudioPreviewPanel이 "2D/3D 보기" 탭 중 지금 3D 탭이 실제로
  * 화면에 보이는지 알려준다(display:none이어도 이 컴포넌트 자체는 항상
@@ -470,7 +541,13 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
 
   return (
     <div className="h-[420px] w-full overflow-hidden rounded-[18px]">
-      <Canvas shadows frameloop={visible ? "always" : "never"}>
+      {/* preserveDrawingBuffer — 캡처(CaptureBridge)가 gl.render() 직후
+          바로 toBlob()으로 픽셀을 읽는다. 같은 동기 실행 안이라 이거 없이도
+          대체로 되지만, WebGL 스펙상 드로잉 버퍼는 프레젠트 직후 브라우저가
+          지울 수 있어서(타이밍은 구현체마다 다름) 이 옵션 없이는 브라우저에
+          따라 드물게 빈 화면이 캡처될 수 있다 — 이 정도 규모 씬에서는
+          성능 비용이 무시할 만해서 안전하게 켜둔다. */}
+      <Canvas shadows frameloop={visible ? "always" : "never"} gl={{ preserveDrawingBuffer: true }}>
         <color attach="background" args={["#EDE8DF"]} />
         <ambientLight intensity={0.85} color="#F4F1EA" />
         <directionalLight
@@ -513,6 +590,7 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
         <MeasurementLabels />
 
         <CameraRig />
+        <CaptureBridge />
       </Canvas>
     </div>
   );

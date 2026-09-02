@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { RoomDimensionCanvas } from "@/components/studio/RoomDimensionCanvas";
 import { RoomFurnitureCanvas } from "@/components/studio/RoomFurnitureCanvas";
 import { RoomPlanCanvas } from "@/components/studio/RoomPlanCanvas";
@@ -20,10 +20,8 @@ const RoomStudioScene3D = dynamic(
 
 const CANVAS_HEIGHT = "h-[420px]";
 
-type PreviewMode = "2d" | "3d";
-
 /**
- * `/studio` 5단계 전체에서 딱 하나만 마운트되는 상시 프리뷰 패널
+ * `/studio` 4단계 전체에서 딱 하나만 마운트되는 상시 프리뷰 패널
  * (app/studio/page.tsx가 단계 콘텐츠 옆에 고정으로 둔다). 예전엔 3단계
  * (StepFinish)·4단계(StepFurniture) 각자가 자기 3D 씬을 갖고 있어서 단계를
  * 넘길 때마다 <Canvas>가 통째로 리마운트되고 OrbitControls 카메라 각도가
@@ -34,9 +32,15 @@ type PreviewMode = "2d" | "3d";
  * 2D 쪽은 단계마다 보여줄 캔버스 자체가 다르므로(모양 프리뷰 → 치수 드래그
  * → 문/창문 배치 → 가구 배치) step에 따라 조건부로 갈아끼운다 — 이쪽은
  * 언마운트돼도 카메라처럼 잃을 상태가 없어서 괜찮다.
+ *
+ * 2D/3D 탭 상태(previewMode)는 STEP 17부터 로컬 state가 아니라
+ * store(lib/roomBuilderStore.ts)에 있다 — "이미지로 저장하기" 버튼이
+ * 형제 컴포넌트(StepFurniture)에서 저장 직전 3D 탭으로 강제 전환해야
+ * 해서, 이 패널 밖에서도 건드릴 수 있어야 한다.
  */
 export function StudioPreviewPanel({ step }: { step: number }) {
-  const [mode, setMode] = useState<PreviewMode>("2d");
+  const mode = useRoomBuilderStore((s) => s.previewMode);
+  const setMode = useRoomBuilderStore((s) => s.setPreviewMode);
 
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const wallHeightCm = useRoomBuilderStore((s) => s.wallHeightCm);

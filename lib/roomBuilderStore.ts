@@ -342,6 +342,14 @@ interface RoomBuilderState {
   /** 측정 오버레이(각 변 길이 라벨) 표시 여부. */
   measurementVisible: boolean;
   toggleMeasurement: () => void;
+
+  /** 2D 평면도/3D 미리보기 탭 — StudioPreviewPanel의 로컬 state였다가
+   * store로 옮겼다(STEP 17, 이미지 저장). "이미지로 저장하기" 버튼은
+   * StudioPreviewPanel의 형제 컴포넌트(StepFurniture)에 있어서, 저장 시
+   * 3D 탭으로 강제 전환하려면 이 상태가 두 컴포넌트 모두에서 보여야
+   * 한다 — viewMode/sideViewWallId와 같은 이유로 store에 둔다. */
+  previewMode: "2d" | "3d";
+  setPreviewMode: (mode: "2d" | "3d") => void;
 }
 
 export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
@@ -515,4 +523,7 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   setSideViewWallId: (id) => set({ sideViewWallId: id }),
   measurementVisible: false,
   toggleMeasurement: () => set((state) => ({ measurementVisible: !state.measurementVisible })),
+
+  previewMode: "2d",
+  setPreviewMode: (mode) => set({ previewMode: mode }),
 }));
