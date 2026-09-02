@@ -4,8 +4,8 @@ import type { PlacedFurniture } from "@/lib/types";
 /**
  * 가구 배치를 아이소메트릭 SVG로 그린 미리보기 — 실사진 없이 /editor에서
  * 바로 지도에 올린 "방 미리보기" 게시물의 커버(app/atlas/page.tsx,
- * app/atlas/[id]/page.tsx). components/landing/HeroEditorWindow.tsx와 같은
- * lib/iso.ts 좌표계를 쓴다. 순수 SVG라 서버 컴포넌트에서 그대로 써도 된다.
+ * app/atlas/[id]/page.tsx). lib/iso.ts 좌표계를 쓴다. 순수 SVG라 서버
+ * 컴포넌트에서 그대로 써도 된다.
  */
 export function RoomIsoCard({ items, className }: { items: PlacedFurniture[]; className?: string }) {
   const boxes = buildIsoBoxes(items.map((item) => ({ key: item.id, defId: item.defId, col: item.col, row: item.row })));

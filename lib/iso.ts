@@ -3,10 +3,9 @@ import type { IsoFurnitureDef } from "./types";
 
 /**
  * DESIGN-HANDOFF-V2.md "5. 룸 에디터 > 아이소메트릭 렌더링" 공식 그대로.
- * components/EditorCanvas.tsx(실제 캔버스) / components/landing/HeroEditorWindow.tsx
- * (랜딩 히어로 미니 창) / components/ShareCard.tsx(공유 카드)가 전부 이 상수·
- * 헬퍼를 공유한다 — 좌표계가 어긋나면 세 군데가 따로 노는 아이소메트릭 룸이
- * 돼버린다.
+ * components/EditorCanvas.tsx(실제 캔버스) / components/atlas/RoomIsoCard.tsx
+ * (지도 카드 미리보기)가 이 상수·헬퍼를 공유한다 — 좌표계가 어긋나면 두 군데가
+ * 따로 노는 아이소메트릭 룸이 돼버린다.
  */
 export const TW = 64;
 export const TH = 32;

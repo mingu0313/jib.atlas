@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import houseTemplatesEnData from "@/data/house-templates.en.json";
-import { HeroEditorWindow } from "@/components/landing/HeroEditorWindow";
 import { FloatingNav } from "@/components/landing/FloatingNav";
 import { Footer } from "@/components/landing/Footer";
 
@@ -62,7 +61,6 @@ export default function EnglishHome() {
             className="pointer-events-none absolute inset-x-0 bottom-0 h-[40%]"
             style={{ background: "linear-gradient(to top, rgba(18,18,15,0.4), rgba(18,18,15,0))" }}
           />
-          <HeroEditorWindow />
         </div>
       </section>
 
