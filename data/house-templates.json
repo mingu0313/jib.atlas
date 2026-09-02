@@ -11,7 +11,7 @@
       { "type": "bathroom", "size": "S", "position": { "x": 310, "y": 160, "width": 70, "height": 60 } }
     ],
     "features": [
-      { "text": "주방·거실·다이닝이 하나로 이어진 완전 개방형 구조라 손님을 초대해 어울리기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "벽 대신 열린 공간으로 이어져 있어서, 따로 있어도 자연스럽게 함께 있게 되는 집이에요.", "linkedTrait": "sociability", "band": "high" },
       { "text": "천장까지 트인 개방감 넘치는 로프트 구조예요.", "linkedTrait": "openness", "band": "high" },
       { "text": "높은 층고와 큰 창으로 채광이 풍부해요.", "linkedTrait": "nature", "band": "high" }
     ]
@@ -83,7 +83,7 @@
       { "type": "kidsRoom", "size": "M", "position": { "x": 20, "y": 30, "width": 80, "height": 170 } }
     ],
     "features": [
-      { "text": "거실·주방·다이닝이 넓게 이어져 가족과 손님이 다 같이 모이기 좋아요.", "linkedTrait": "sociability", "band": "high" },
+      { "text": "조용할 틈이 없도록, 애초에 사람이 모이는 걸 전제로 지어진 집이에요.", "linkedTrait": "sociability", "band": "high" },
       { "text": "여러 개의 침실이 있어 대가족이 함께 지내기 편해요.", "linkedTrait": "sociability", "band": "high" },
       { "text": "개방형 공용 공간과 독립된 침실이 균형 있게 배치됐어요.", "linkedTrait": "openness", "band": "high" }
     ]
@@ -153,7 +153,7 @@
       { "type": "bathroom", "size": "S", "position": { "x": 90, "y": 220, "width": 70, "height": 60 } }
     ],
     "features": [
-      { "text": "혼자만의 시간을 방해받지 않는 독립적인 구조예요.", "linkedTrait": "sociability", "band": "low" },
+      { "text": "누구의 일정에도 맞추지 않고, 온전히 나만의 속도로 채우는 집이에요.", "linkedTrait": "sociability", "band": "low" },
       { "text": "군더더기 없이 정돈된 심플한 공간이에요.", "linkedTrait": "minimalism", "band": "high" },
       { "text": "책 읽기나 영상 몰아보기처럼 잔잔한 취미를 즐기기 좋은 조용한 공간이에요.", "linkedTrait": "activity", "band": "low" }
     ]
@@ -188,7 +188,7 @@
       { "type": "storage", "size": "S", "position": { "x": 290, "y": 240, "width": 90, "height": 40 } }
     ],
     "features": [
-      { "text": "군더더기 없는 원룸형 구조로 관리가 쉬워요.", "linkedTrait": "minimalism", "band": "high" },
+      { "text": "모든 물건에 자리를 정해두고, 그 밖의 것은 아예 들이지 않는 집이에요.", "linkedTrait": "minimalism", "band": "high" },
       { "text": "붙박이 수납으로 물건을 깔끔하게 숨길 수 있어요.", "linkedTrait": "minimalism", "band": "high" },
       { "text": "작지만 효율적으로 동선이 짜여 있어요.", "linkedTrait": "minimalism", "band": "high" }
     ]
