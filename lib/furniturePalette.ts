@@ -24,6 +24,17 @@ export const PALETTE = {
 export type PaletteKey = keyof typeof PALETTE;
 
 /**
+ * 팔레트 카드 썸네일(STEP 19)의 사전 렌더 PNG 경로 규칙. 실제 파일은
+ * `scripts/render-furniture-thumbnails.mjs`가 이 규칙 그대로
+ * `public/thumbnails/furniture/{id}.png`에 생성하고,
+ * components/studio/FurniturePalette.tsx가 같은 규칙으로 읽는다 —
+ * 두 쪽 다 이 함수 하나만 참조해서 규칙이 어긋날 일이 없게 한다.
+ */
+export function furnitureThumbnailUrl(defId: string): string {
+  return `/thumbnails/furniture/${defId}.png`;
+}
+
+/**
  * Kenney Furniture Kit 전체(140개 모델) 공용 머티리얼 이름 → 팔레트 키
  * 기본 매핑. GLB를 직접 열어 실제 머티리얼 이름을 덤프해서 확정했다
  * (스펙 3.2가 "실제로 열어봐야 안다"고 한 그 이름들 — wood/fabric/metal

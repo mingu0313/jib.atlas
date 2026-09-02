@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
+import { furnitureThumbnailUrl } from "@/lib/furniturePalette";
 import { furnitureFootprintCm, useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { CATEGORY_LABELS } from "@/lib/types";
 import type { FurnitureCategory, IsoFurnitureDef } from "@/lib/types";
@@ -21,25 +23,40 @@ const CATEGORY_ORDER: FurnitureCategory[] = [
   "desk",
 ];
 
-/** 카탈로그 썸네일 — 색 블록 하나 대신 def.w:def.d 비율 그대로의 상단뷰
- * 사각형을 그려서, 실제로 가로로 넓은 가구인지 정사각형에 가까운지 한눈에
- * 보이게 한다(예: 소파는 가로로 김, 협탁은 정사각형에 가까움). */
+/** 카탈로그 썸네일 — STEP 19부터 scripts/render-furniture-thumbnails.mjs가
+ * 미리 등각(isometric) 렌더해둔 실제 모델 PNG를 쓴다(recolorScene으로 룸
+ * 뷰와 같은 색). 아직 파일이 없는 항목(생성 스크립트를 안 돌렸거나 새로
+ * 추가된 카탈로그 항목)은 onError로 예전의 def.w:def.d 비율 색 사각형
+ * placeholder로 자동 대체해서, 항상 뭔가는 보이게 한다. */
 function FurnitureThumbnail({ def }: { def: IsoFurnitureDef }) {
+  const [imageFailed, setImageFailed] = useState(false);
   const isWide = def.w >= def.d;
+
   return (
     <div className="flex h-11 w-full shrink-0 items-center justify-center" aria-hidden>
-      <div
-        className="rounded-[4px] border"
-        style={{
-          background: def.top,
-          borderColor: "rgba(18,18,15,0.28)",
-          aspectRatio: `${def.w} / ${def.d}`,
-          width: isWide ? "100%" : "auto",
-          height: isWide ? "auto" : "100%",
-          maxWidth: "100%",
-          maxHeight: "100%",
-        }}
-      />
+      {imageFailed ? (
+        <div
+          className="rounded-[4px] border"
+          style={{
+            background: def.top,
+            borderColor: "rgba(18,18,15,0.28)",
+            aspectRatio: `${def.w} / ${def.d}`,
+            width: isWide ? "100%" : "auto",
+            height: isWide ? "auto" : "100%",
+            maxWidth: "100%",
+            maxHeight: "100%",
+          }}
+        />
+      ) : (
+        <Image
+          src={furnitureThumbnailUrl(def.id)}
+          alt=""
+          width={96}
+          height={96}
+          className="h-full w-full object-contain"
+          onError={() => setImageFailed(true)}
+        />
+      )}
     </div>
   );
 }
