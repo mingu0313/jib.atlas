@@ -23,11 +23,15 @@ type PostRow = HousePost & { house_photos: HousePhoto[] };
  * "방 꾸미고 공유하기" 버튼은 /editor(격자+박스가구, room_items 스키마)
  * 대신 이제 /studio(폴리곤 룸빌더)로 보낸다 — /editor는 진단이 매칭한
  * 하우스 타입 전용이라 진단 없이 못 들어가고, /studio는 진단 여부와 무관
- * 하게 바로 방을 꾸밀 수 있어서 이 진입점엔 더 맞는다. 다만 /studio의
- * 가구 배치(자유 x/z cm 좌표)는 아직 이 페이지의 room_items 스키마(col/row
- * 격자)로 변환되지 않는다 — 그래서 "공유하기"(house_posts insert, 아래
- * RoomIsoCard가 그리는 미리보기)는 지금은 /editor에만 있고 /studio 쪽엔
- * 아직 없다. /studio에 실제 공유 버튼을 붙이는 건 별도 작업으로 남겨뒀다.
+ * 하게 바로 방을 꾸밀 수 있어서 이 진입점엔 더 맞는다.
+ *
+ * /studio의 가구 배치(자유 x/z cm 좌표, 임의 폴리곤 방)는 옛 room_items
+ * 스키마(col/row 격자, /editor 전용)로 변환되지 않아서 그 컬럼을 그대로
+ * 못 쓴다 — 대신 STEP 18부터 studio_room(0006_house_atlas_studio_room.sql)
+ * 이라는 별도 컬럼에 원본 룸 데이터를, house_photos엔 3D 캡처 이미지를
+ * 같이 저장한다(components/studio/ShareToAtlasButton.tsx). 이 게시물은
+ * room_items 게시물과 달리 항상 사진이 있어서 RoomIsoCard 같은 SVG
+ * 특수 렌더링이 필요 없고, 아래 카드 렌더링에서 뱃지만 다르게 붙인다.
  */
 export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
   const { template } = await searchParams;
@@ -188,6 +192,14 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                         style={{ background: "rgba(247,246,242,0.86)", color: "var(--color-muted)" }}
                       >
                         방 미리보기
+                      </span>
+                    )}
+                    {post.studio_room && (
+                      <span
+                        className="label-mono rounded-full px-3 py-1.5 text-[9px]"
+                        style={{ background: "rgba(247,246,242,0.86)", color: "var(--color-muted)" }}
+                      >
+                        룸빌더로 꾸민 방
                       </span>
                     )}
                     {post.rarity_tier && (

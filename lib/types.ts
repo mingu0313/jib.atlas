@@ -323,6 +323,34 @@ export type TraitBand = "high" | "mid" | "low";
 export type TraitDescriptions = Record<Axis, Record<TraitBand, string>>;
 
 /**
+ * studio_room에 저장되는 형태 — lib/roomBuilderStore.ts의 라이브 상태
+ * (RoomBuilderState)에서 방을 다시 그리는 데 필요한 부분만 뽑은 스냅샷.
+ * 이 파일(lib/types.ts)은 다른 어디에도 의존하지 않는 기반 타입 모음이고
+ * (반대로 roomBuilderStore.ts가 이 파일의 IsoFurnitureDef를 가져다 쓴다),
+ * 저장된 JSON 스냅샷은 라이브 스토어 타입을 그대로 import하지 않고 여기
+ * 따로 적는다 — 나중에 스토어 내부 타입이 바뀌어도 이미 DB에 저장된
+ * 게시물의 스냅샷 형태는 그대로 유지해야 하니, 오히려 분리해두는 쪽이 맞다.
+ */
+export interface StudioRoomSnapshot {
+  roomShape: string;
+  roomPolygon: { x: number; z: number }[];
+  wallHeightCm: number;
+  wallColorHex: string;
+  floorStyleId: string;
+  openings: {
+    id: string;
+    kind: "door" | "window";
+    presetId: string;
+    wallIndex: number;
+    offsetCm: number;
+    widthCm: number;
+    heightCm: number;
+    sillHeightCm?: number;
+  }[];
+  furniture: { id: string; defId: string; cx: number; cz: number; rotated: boolean }[];
+}
+
+/**
  * 집 아틀라스 — 실제 내 집 사진을 올려 공유하는 공개 갤러리
  * (supabase/migrations/0002_house_atlas.sql 참고).
  */
@@ -340,6 +368,12 @@ export interface HousePost {
    * "방 미리보기" 게시물(0004_house_atlas_room_posts.sql). /editor에서
    * 한 번의 클릭으로 올린다 — 사진 업로드 없이 아틀라스에 콘텐츠를 채우는 경로. */
   room_items: PlacedFurniture[] | null;
+  /** 채워져 있으면 /studio(폴리곤 룸빌더)에서 만든 방을 공유한 게시물
+   * (0006_house_atlas_studio_room.sql). room_items(옛 /editor, col/row
+   * 격자)와 달리 이 경우엔 항상 house_photos에 캡처 이미지도 같이 올라가
+   * 있어서, SVG 특별 렌더링 없이 일반 사진 게시물처럼 보여주면 된다
+   * (구분은 뱃지만 다르게 — app/atlas/page.tsx). */
+  studio_room: StudioRoomSnapshot | null;
   like_count: number;
   comment_count: number;
   created_at: string;

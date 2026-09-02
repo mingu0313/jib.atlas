@@ -90,6 +90,11 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
                   방 미리보기
                 </span>
               )}
+              {typedPost.studio_room && (
+                <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
+                  룸빌더로 꾸민 방
+                </span>
+              )}
               {typedPost.rarity_tier && (
                 <span
                   className="label-mono rounded-full px-3 py-1.5 text-[9px]"

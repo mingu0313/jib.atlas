@@ -2,6 +2,7 @@
 
 import { FurniturePalette } from "@/components/studio/FurniturePalette";
 import { SaveRoomImageButton } from "@/components/studio/SaveRoomImageButton";
+import { ShareToAtlasButton } from "@/components/studio/ShareToAtlasButton";
 import { StepNav } from "@/components/studio/StepNav";
 
 /**
@@ -12,8 +13,9 @@ import { StepNav } from "@/components/studio/StepNav";
  *
  * 마지막 단계라 팔레트 아래에 "완성했어요" 카드(STEP 17)를 둔다 — 아직
  * 별도의 "완료 화면"을 새로 만들진 않고, 이 4단계 자체가 사실상 끝이라
- * 여기 붙였다. 집지도 공유(별도 작업)는 이 카드가 자리를 잡아두면 나중에
- * 바로 옆에 버튼만 추가하면 된다.
+ * 여기 붙였다. ShareToAtlasButton(STEP 18)을 primary(올리브 채움),
+ * SaveRoomImageButton을 secondary(테두리만)로 나란히 둔다 — 지도 공유가
+ * 더 눈에 띄어야 할 액션이라고 판단했다.
  */
 export function StepFurniture({ onBack }: { onBack: () => void }) {
   return (
@@ -33,9 +35,12 @@ export function StepFurniture({ onBack }: { onBack: () => void }) {
       <div className="flex flex-col items-start gap-4 rounded-[22px] border border-hair px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1.5">
           <span className="label-mono text-[10px] text-olive-mid">Finished</span>
-          <p className="text-[14px] text-fg">방을 다 꾸미셨나요? 지금 3D 룸 뷰를 이미지로 남겨보세요.</p>
+          <p className="text-[14px] text-fg">방을 다 꾸미셨나요? 집지도에 공유하거나 이미지로 남겨보세요.</p>
         </div>
-        <SaveRoomImageButton />
+        <div className="flex flex-wrap items-center gap-3">
+          <ShareToAtlasButton />
+          <SaveRoomImageButton />
+        </div>
       </div>
 
       <StepNav onBack={onBack} />
