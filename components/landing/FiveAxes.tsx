@@ -18,12 +18,19 @@ import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
  * 이유로 의도적으로 안 쓴다.
  */
 
-const AXIS_PHOTO: Record<Axis, string> = {
-  sociability: "/photos/axis-social.jpg",
-  minimalism: "/photos/axis-minimal.jpg",
-  activity: "/photos/axis-activity.jpg",
-  openness: "/photos/axis-open.jpg",
-  nature: "/photos/axis-nature.jpg",
+/**
+ * 소스 사진 5장 중 자연친화(가로형 1.5:1)를 뺀 4장이 전부 세로형(2:3~2:5)
+ * 인데, 이 배너 컨테이너는 aspect-[5/4](가로형)라 object-position 없이
+ * 기본 중앙(50%)만 쓰면 축마다 핵심 피사체가 위/아래로 잘려나간다 —
+ * HeroPhotoStage.tsx의 슬라이드별 pos 패턴을 그대로 가져와 사진마다 실제
+ * 확인한 피사체 위치에 맞춰 crop 기준점을 지정한다.
+ */
+const AXIS_PHOTO: Record<Axis, { src: string; pos: string }> = {
+  sociability: { src: "/photos/axis-social.jpg", pos: "center 45%" },
+  minimalism: { src: "/photos/axis-minimal.jpg", pos: "center 32%" },
+  activity: { src: "/photos/axis-activity.jpg", pos: "center 30%" },
+  openness: { src: "/photos/axis-open.jpg", pos: "center 55%" },
+  nature: { src: "/photos/axis-nature.jpg", pos: "center 50%" },
 };
 
 const AXIS_EN: Record<Axis, string> = {
@@ -166,18 +173,29 @@ export function FiveAxes() {
             버리고 위 정렬 + max-h-screen + overflow-y-auto로 바꿔서, 내용이
             넘치면 이 패널 안에서 스크롤해 전부 볼 수 있게 했다. */}
         <div className="sticky top-20 order-1 z-10 max-h-[calc(100vh-5rem)] overflow-y-auto lg:top-0 lg:order-2 lg:flex lg:max-h-screen lg:flex-col lg:gap-6 lg:overflow-y-auto lg:py-10">
-          <div
-            className="relative aspect-[5/4] max-h-[26vh] overflow-hidden rounded-[26px] bg-photo-bg sm:max-h-[36vh] lg:max-h-[38vh]"
-          >
+          {/* max-h-[Nvh]를 aspect-[5/4]와 같이 걸어놨던 예전 버전은 흔한 노트북
+              화면(높이 700~900px대)에서 vh 쪽이 항상 이겨버려 실제 렌더 비율이
+              5:4가 아니라 2:1 안팎으로 눌린 "얇은 배너"가 됐었다(피드백: "사진이
+              잘려서 안 보임"). 높이는 aspect-ratio에만 맡기고, 정말 짧은
+              화면에서 사진+패널 합친 콘텐츠가 넘치는 경우는 위 sticky 래퍼의
+              max-h-screen overflow-y-auto(168줄 주석 참고)가 이미 스크롤로
+              받아주니 여기서 또 높이를 눌러 싸울 필요가 없다 — 단, 이 박스는
+              lg:flex lg:flex-col의 flex item이라 shrink-0이 없으면 자식이 전부
+              fill(절대배치) 이미지뿐이라 min-content 높이가 0에 가까워, 부모가
+              max-h-screen을 넘길 때 overflow-y-auto로 넘기기 전에 flexbox가
+              먼저 이 박스부터 짓눌러버린다(그러면 aspect-ratio를 지정해도
+              무용지물) — shrink-0으로 그 지름길을 막아야 진짜 넘칠 때만
+              스크롤이 뜬다. */}
+          <div className="relative aspect-[5/4] shrink-0 overflow-hidden rounded-[26px] bg-photo-bg">
             {AXES.map((axis, i) => (
               <Image
                 key={axis}
-                src={AXIS_PHOTO[axis]}
+                src={AXIS_PHOTO[axis].src}
                 alt={AXIS_LABELS[axis]}
                 fill
                 sizes="(min-width: 1024px) 50vw, 100vw"
                 className="object-cover transition-opacity duration-500"
-                style={{ opacity: i === active ? 1 : 0 }}
+                style={{ opacity: i === active ? 1 : 0, objectPosition: AXIS_PHOTO[axis].pos }}
               />
             ))}
             <div
