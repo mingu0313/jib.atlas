@@ -33,10 +33,7 @@ type PreviewMode = "2d" | "3d";
  *
  * 2D 쪽은 단계마다 보여줄 캔버스 자체가 다르므로(모양 프리뷰 → 치수 드래그
  * → 문/창문 배치 → 가구 배치) step에 따라 조건부로 갈아끼운다 — 이쪽은
- * 언마운트돼도 카메라처럼 잃을 상태가 없어서 괜찮다. 5단계(예산)도
- * 4단계와 같은 RoomFurnitureCanvas를 그대로 쓴다 — 예산을 보며 가구를
- * 마지막으로 미세 조정하면 StepBudget의 예산 합계가 store 구독으로 바로
- * 재계산된다.
+ * 언마운트돼도 카메라처럼 잃을 상태가 없어서 괜찮다.
  */
 export function StudioPreviewPanel({ step }: { step: number }) {
   const [mode, setMode] = useState<PreviewMode>("2d");

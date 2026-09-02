@@ -4,12 +4,12 @@ import { FurniturePalette } from "@/components/studio/FurniturePalette";
 import { StepNav } from "@/components/studio/StepNav";
 
 /**
- * 가구 배치 단계 — `/editor`(격자+박스가구)를 대체하는 마지막 조각.
- * 평면도(자유 위치 배치·드래그 이동)와 3D 뷰는 오른쪽 상시 패널
- * (StudioPreviewPanel, app/studio/page.tsx)이 맡는다 — 여기는 카탈로그
- * 팔레트만.
+ * 가구 배치 단계 — `/editor`(격자+박스가구)를 대체하는, 지금 스테퍼의
+ * 마지막 단계(예산 단계 삭제로 이제 4단계가 끝). 평면도(자유 위치 배치·
+ * 드래그 이동)와 3D 뷰는 오른쪽 상시 패널(StudioPreviewPanel,
+ * app/studio/page.tsx)이 맡는다 — 여기는 카탈로그 팔레트만.
  */
-export function StepFurniture({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+export function StepFurniture({ onBack }: { onBack: () => void }) {
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
@@ -24,7 +24,7 @@ export function StepFurniture({ onBack, onNext }: { onBack: () => void; onNext: 
 
       <FurniturePalette />
 
-      <StepNav onBack={onBack} onNext={onNext} nextLabel="다음: 예산 보기 →" />
+      <StepNav onBack={onBack} />
     </div>
   );
 }

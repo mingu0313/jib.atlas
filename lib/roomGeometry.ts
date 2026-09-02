@@ -141,7 +141,7 @@ export function getFloorRects(shape: RoomShapeId, polygon: Point[]): Rect[] {
  * 바닥 면적(m²) — 신발끈 공식(shoelace formula)으로 폴리곤 자체에서 직접
  * 계산한다. 볼록/오목 어느 쪽이든, 축정렬이든 대각선이 있든 상관없이
  * 항상 정확해서(모든 심플 폴리곤에 성립) getFloorRects 같은 도형별 분해가
- * 필요 없다 — STEP 14 예산 계산(바닥재 = 단가 × 면적)에 쓴다.
+ * 필요 없다 — StudioPreviewPanel 상단바의 "18.2㎡" 표시에 쓴다.
  */
 export function getFloorAreaM2(polygon: Point[]): number {
   let sum2 = 0;
@@ -151,21 +151,6 @@ export function getFloorAreaM2(polygon: Point[]): number {
     sum2 += a.x * b.z - b.x * a.z;
   }
   return Math.abs(sum2) / 2 / 10_000;
-}
-
-/**
- * 벽 면적(m²) — 벽 전체(둘레 × 천장높이)에서 문/창문이 차지하는 면적을
- * 뺀, 실제로 페인트가 필요한 순 면적. STEP 14 예산 계산(벽 페인트 = 단가
- * × 면적)에 쓴다.
- */
-export function getWallAreaM2(
-  polygon: Point[],
-  wallHeightCm: number,
-  openings: { widthCm: number; heightCm: number }[],
-): number {
-  const grossCm2 = getWallSegments(polygon).reduce((sum, w) => sum + w.length * wallHeightCm, 0);
-  const openingsCm2 = openings.reduce((sum, o) => sum + o.widthCm * o.heightCm, 0);
-  return Math.max(0, grossCm2 - openingsCm2) / 10_000;
 }
 
 export interface Rect {

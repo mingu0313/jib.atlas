@@ -255,7 +255,7 @@ export default function ResultPage() {
             </h2>
             <p className="max-w-[420px] text-[13px] leading-[1.8] text-cream/75">
               {topMatch.template.name} 성향에 맞춘 모양·벽색·바닥을 기본값으로,
-              방 크기와 문/창문까지 직접 정하고 예상 예산까지 바로 확인하세요.
+              방 크기와 문/창문까지 직접 정하고 가구까지 자유롭게 배치해보세요.
             </p>
             <Link
               href="/studio"

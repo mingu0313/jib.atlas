@@ -250,7 +250,7 @@ export default function EnglishResultPage() {
             </h2>
             <p className="max-w-[420px] text-[13px] leading-[1.8] text-cream/75">
               Starting from a shape, wall color, and floor matched to your {topMatch.template.name} profile, set
-              the real dimensions, add doors and windows, and see an estimated budget right away.
+              the real dimensions, add doors and windows, and furnish it freely with real furniture.
             </p>
             <Link
               href="/studio"

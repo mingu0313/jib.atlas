@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
-import { defaultPriceProvider } from "@/lib/priceProvider";
 import { furnitureFootprintCm, useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { CATEGORY_LABELS } from "@/lib/types";
 import type { FurnitureCategory, IsoFurnitureDef } from "@/lib/types";
@@ -21,14 +20,6 @@ const CATEGORY_ORDER: FurnitureCategory[] = [
   "dining",
   "desk",
 ];
-
-/** 가격 힌트 — 정확한 원 단위(StepBudget의 formatWon)까진 필요 없고, 카탈로그를
- * 훑어보며 "대충 이 정도"를 가늠하는 용도라 만원 단위로 뭉뚱그린다. */
-function formatPriceHint(krw: number): string {
-  if (krw <= 0) return "가격 미정";
-  const man = Math.round(krw / 10_000);
-  return `약 ${man >= 1 ? man : 1}만원`;
-}
 
 /** 카탈로그 썸네일 — 색 블록 하나 대신 def.w:def.d 비율 그대로의 상단뷰
  * 사각형을 그려서, 실제로 가로로 넓은 가구인지 정사각형에 가까운지 한눈에
@@ -56,9 +47,8 @@ function FurnitureThumbnail({ def }: { def: IsoFurnitureDef }) {
 /**
  * 가구 팔레트 — /editor 팔레트(선택 → 타일 클릭)와 같은 관례를
  * store.selectedFurnitureDefId로 따른다. 실제 배치는 RoomFurnitureCanvas의
- * 바닥 클릭이 한다. 카드마다 실제 비율 썸네일 + 실치수(cm) + 대략적인
- * 가격 힌트를 보여줘서, 놓기 전에 "이게 방에 맞는 크기인지" "예산에 맞는
- * 가격대인지" 감을 잡을 수 있게 한다.
+ * 바닥 클릭이 한다. 카드마다 실제 비율 썸네일 + 실치수(cm)를 보여줘서,
+ * 놓기 전에 "이게 방에 맞는 크기인지" 감을 잡을 수 있게 한다.
  */
 export function FurniturePalette() {
   const [activeCategory, setActiveCategory] = useState<FurnitureCategory>(CATEGORY_ORDER[0]);
@@ -113,7 +103,7 @@ export function FurniturePalette() {
                 <FurnitureThumbnail def={def} />
                 <span className="text-[12px] leading-tight text-fg">{def.label}</span>
                 <span className="label-mono text-[10px] text-faint">
-                  {Math.round(widthCm)}×{Math.round(depthCm)}cm · {formatPriceHint(defaultPriceProvider.getFurnitureUnitPrice(def.id))}
+                  {Math.round(widthCm)}×{Math.round(depthCm)}cm
                 </span>
               </button>
             );

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { StepBudget } from "@/components/studio/StepBudget";
 import { StepDimensions } from "@/components/studio/StepDimensions";
 import { StepFinish } from "@/components/studio/StepFinish";
 import { StepFurniture } from "@/components/studio/StepFurniture";
@@ -16,9 +15,12 @@ import { useTestStore } from "@/lib/store";
 import type { Answer } from "@/lib/types";
 
 /**
- * `/studio` — 이 서비스의 유일한 룸빌더(인테리어 견적 스튜디오)다. IKEA
- * 홈디자인 플래너를 참고한 5단계 위저드: ① 모양·크기 → ② 치수 → ③ 문/창문·
- * 마감재 → ④ 가구 → ⑤ 예산(STEP 11~14 + 가구 배치).
+ * `/studio` — 이 서비스의 유일한 룸빌더(인테리어 스튜디오)다. IKEA
+ * 홈디자인 플래너를 참고한 4단계 위저드: ① 모양·크기 → ② 치수 → ③ 문/창문·
+ * 마감재 → ④ 가구(STEP 11~13 + 가구 배치). 예산(STEP 14) 단계는 실제 가격
+ * 데이터 없이 하드코딩 mock 단가로만 굴러가던 기능이라 전면 삭제했다 —
+ * lib/priceProvider.ts·lib/budget.ts·components/studio/StepBudget.tsx가
+ * 있었던 자리.
  *
  * 진단(/test → /result)을 마치고 왔든, 랜딩에서 "진단 없이 바로 꾸며보기"로
  * 곧장 왔든 같은 페이지를 쓴다 — 마운트 시 useTestStore에 완료된 진단
@@ -58,7 +60,6 @@ const STEPS = [
   { id: "dimensions", label: "치수" },
   { id: "finish", label: "문/창문·마감재" },
   { id: "furniture", label: "가구" },
-  { id: "budget", label: "예산" },
 ] as const;
 
 export default function StudioPage() {
@@ -163,8 +164,7 @@ export default function StudioPage() {
             {activeStep === 1 && <StepShape onNext={() => setActiveStep(2)} />}
             {activeStep === 2 && <StepDimensions onBack={() => setActiveStep(1)} onNext={() => setActiveStep(3)} />}
             {activeStep === 3 && <StepFinish onBack={() => setActiveStep(2)} onNext={() => setActiveStep(4)} />}
-            {activeStep === 4 && <StepFurniture onBack={() => setActiveStep(3)} onNext={() => setActiveStep(5)} />}
-            {activeStep === 5 && <StepBudget onBack={() => setActiveStep(4)} />}
+            {activeStep === 4 && <StepFurniture onBack={() => setActiveStep(3)} />}
           </div>
           <div className="lg:sticky lg:top-24">
             <StudioPreviewPanel step={activeStep} />
