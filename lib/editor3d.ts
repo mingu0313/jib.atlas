@@ -16,3 +16,19 @@
  */
 export const TILE_M = 0.7;
 export const HEIGHT_SCALE = 0.023;
+
+/**
+ * roomPolygon/openings/furniture는 전부 cm 단위로 저장된다(STEP 12) —
+ * 3D 월드 좌표(m)로 옮길 때 쓰는 배율. components/studio/RoomStudioScene3D.tsx
+ * (편집용)와 components/atlas/StudioRoomScene.tsx(집지도 읽기 전용 뷰,
+ * STEP 19) 둘 다 같은 배율을 써야 같은 방이 같은 크기로 보여서 여기
+ * 공유해둔다.
+ */
+export const CM_TO_M = 0.01;
+
+export function toM(cm: number): number {
+  return cm * CM_TO_M;
+}
+
+/** 벽 두께(cm) — 위와 같은 이유로 두 3D 씬이 공유한다. */
+export const WALL_THICKNESS_CM = 10;

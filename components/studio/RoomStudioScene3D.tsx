@@ -8,7 +8,7 @@ import { FurnitureShape } from "@/components/furniture3d";
 import { FurnitureModel } from "@/components/furnitureModel3d";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { computeCameraPose } from "@/lib/cameraPresets";
-import { HEIGHT_SCALE, TILE_M } from "@/lib/editor3d";
+import { CM_TO_M, HEIGHT_SCALE, TILE_M, toM, WALL_THICKNESS_CM } from "@/lib/editor3d";
 import { formatLength } from "@/lib/roomDimensions";
 import { registerStudioCapture } from "@/lib/studioCapture";
 import { useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
@@ -39,14 +39,11 @@ const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
  * BufferGeometry(정점을 world (x,0,z)에 직접 배치)로 그린다 — plane+
  * rotation 조합은 로컬 Y축이 world −Z로 뒤집히는 함정이 있어(회전행렬로
  * 검증됨), 벽 박스 좌표와 어긋날 위험을 아예 없앴다.
+ *
+ * CM_TO_M/toM/WALL_THICKNESS_CM은 lib/editor3d.ts에서 가져온다 — 집지도
+ * 읽기 전용 뷰(components/atlas/StudioRoomScene.tsx, STEP 19)와 같은
+ * 배율을 공유해야 같은 방이 같은 크기로 보인다.
  */
-
-const CM_TO_M = 0.01;
-const WALL_THICKNESS_CM = 10;
-
-function toM(cm: number) {
-  return cm * CM_TO_M;
-}
 
 /** 바닥 메시가 공통으로 받는 포인터 핸들러 — 가구 배치/선택 해제용(아래
  * useFloorPointerHandlers 참고). FloorRect·FloorFan 둘 다 이걸 그대로

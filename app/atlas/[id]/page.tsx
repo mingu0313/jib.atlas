@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AtlasPostActions } from "@/components/atlas/AtlasPostActions";
 import { AtlasPostOwnerActions } from "@/components/atlas/AtlasPostOwnerActions";
 import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
+import { StudioRoomViewer } from "@/components/atlas/StudioRoomViewer";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
@@ -11,6 +12,13 @@ import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
  * 집 아틀라스 상세 — 지도 위 한 페이지. STEP 9.
  * 사진·본문은 서버에서 그리고, 좋아요/댓글처럼 유저별로 달라지는 상호작용만
  * 클라이언트 컴포넌트(AtlasPostActions)로 넘긴다.
+ *
+ * studio_room이 있는 게시물(STEP 18, /studio에서 공유)은 캡처 사진 대신
+ * 읽기 전용 3D 뷰(StudioRoomViewer, STEP 19)를 보여준다 — "집지도에서
+ * 직접 3D로 돌려보고 싶다"는 요청으로 추가했다. house_photos에 캡처
+ * 이미지가 같이 있긴 하지만(카드 썸네일·room_items 게시물의 폴백용),
+ * 상세 페이지에선 원본 룸 데이터로 직접 오빗 가능한 3D가 정적 사진보다
+ * 항상 더 나은 정보라 대체한다.
  */
 export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">) {
   const { id } = await params;
@@ -61,7 +69,9 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
       </div>
 
       <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-8 px-6 py-10 sm:px-8 sm:py-14">
-        {typedPost.room_items ? (
+        {typedPost.studio_room ? (
+          <StudioRoomViewer room={typedPost.studio_room} />
+        ) : typedPost.room_items ? (
           <div className="flex items-center justify-center rounded-[16px] bg-panel py-8">
             <RoomIsoCard items={typedPost.room_items} className="h-[420px] max-w-full" />
           </div>
