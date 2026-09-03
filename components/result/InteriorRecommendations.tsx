@@ -27,7 +27,7 @@ export function InteriorRecommendations({ axisScores }: { axisScores: AxisScores
         const style = CARD_STYLE[i % CARD_STYLE.length];
         const numLabel = String(i + 1).padStart(2, "0");
         const badge = badgeLabelFor(axisScores, match, i);
-        const explanation = generateInteriorExplanation(axisScores, match);
+        const explanation = generateInteriorExplanation(axisScores, match, i);
 
         return (
           <div

@@ -148,18 +148,40 @@ export function badgeLabelFor(userAxisScores: AxisScores, match: InteriorStyleMa
 }
 
 /**
+ * 카드 4장이 한 화면에 나란히 보이다 보니 문장 틀까지 똑같으면(전부 "당신은
+ * ~ 사람이니까, ~ 있는 이 공간이 찰떡이에요!") 내용은 달라도 반복처럼
+ * 읽힌다는 피드백을 받아서, 뜻은 같고 어순/어미만 다른 문장 틀 여러 개를
+ * 두고 카드 순번(rank)에 따라 돌려쓴다. reasonPhrase는 항상 관형사형
+ * 어미(-는)로 끝나 "사람"/"당신" 앞에 그대로 붙고, featurePhrase는 항상
+ * 주격 조사가 붙은 채로 끝나 "있는 ..." 뒤에 그대로 이어진다 — 이 두 전제만
+ * 지키면 새 틀을 추가해도 아래 조립 로직을 건드릴 필요가 없다.
+ */
+const EXPLANATION_TEMPLATES: Array<(reasonPhrase: string, featurePhrase: string) => string> = [
+  (reasonPhrase, featurePhrase) => `당신은 ${reasonPhrase} 사람이니까, ${featurePhrase} 있는 이 공간이 찰떡이에요!`,
+  (reasonPhrase, featurePhrase) => `${featurePhrase} 있는 이 공간, ${reasonPhrase} 당신과 꼭 어울려요.`,
+  (reasonPhrase, featurePhrase) => `${reasonPhrase} 당신에게는, ${featurePhrase} 있는 이 공간을 추천해요.`,
+  (reasonPhrase, featurePhrase) => `${featurePhrase} 있는 이 공간이라면, ${reasonPhrase} 당신도 분명 반할 거예요.`,
+];
+
+/**
  * "이 프로필이 왜 이 사람에게 맞는지" 설명 문구를 조립하는 순수 함수(템플릿
  * 조합 방식 — LLM 호출 없음). contributingAxes 1~2개를 캐주얼한 이유 문구
  * (data/interior-reason-phrases.json)와 인테리어 특징 문구
- * (data/interior-style-descriptions.json)로 엮어 한 문장을 만든다.
+ * (data/interior-style-descriptions.json)로 엮고, rank로 고른 문장 틀
+ * (EXPLANATION_TEMPLATES)에 채워 넣는다.
  *
  * 원래 lib/explain.ts와 같은 소스(trait-descriptions.json)의 길고 격식체인
  * 문장을 그대로 이어붙였더니 "설명이 뭐라하는지 모르겠다"는 피드백을 받아서
  * (성향 문구 두 개를 관형절로 겹쳐 쓰면 한 문장이 너무 길고 무거워진다),
- * "당신은 ~하는 사람이니까, ~한 공간이 찰떡이에요!"처럼 짧고 캐주얼한
- * 전용 문구로 다시 만들었다.
+ * 짧고 캐주얼한 전용 문구로 다시 만들었다. rank는 badgeLabelFor와 동일하게
+ * 카드 순번(0-indexed) — 화면에 몇 장이 뜨든 EXPLANATION_TEMPLATES.length로
+ * 순환한다.
  */
-export function generateInteriorExplanation(userAxisScores: AxisScores, match: InteriorStyleMatch): string {
+export function generateInteriorExplanation(
+  userAxisScores: AxisScores,
+  match: InteriorStyleMatch,
+  rank = 0,
+): string {
   const axes = match.contributingAxes;
   const bands = axes.map((axis) => getTraitBand(userAxisScores[axis]));
   const reasons = axes.map((axis, i) => interiorReasonPhrases[axis][bands[i]]);
@@ -172,5 +194,6 @@ export function generateInteriorExplanation(userAxisScores: AxisScores, match: I
       ? `${features[0]}${conjunctionParticle(features[0])} ${features[1]}${subjectParticle(features[1])}`
       : `${features[0]}${subjectParticle(features[0])}`;
 
-  return `당신은 ${reasonPhrase} 사람이니까, ${featurePhrase} 있는 이 공간이 찰떡이에요!`;
+  const template = EXPLANATION_TEMPLATES[rank % EXPLANATION_TEMPLATES.length];
+  return template(reasonPhrase, featurePhrase);
 }

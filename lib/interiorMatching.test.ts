@@ -124,4 +124,15 @@ describe("generateInteriorExplanation", () => {
     const explanation = generateInteriorExplanation(user, match);
     expect(explanation).toMatch(/^당신은 .+ 사람이니까, .+ 있는 이 공간이 찰떡이에요!$/);
   });
+
+  it("rank(카드 순번)에 따라 문장 틀이 달라져 4장이 나란히 있어도 반복처럼 읽히지 않는다", () => {
+    const user: AxisScores = { ...neutral, minimalism: 90, nature: 85 };
+    const matches = matchInteriorStyles(user);
+    const explanations = [0, 1, 2, 3].map((rank) => generateInteriorExplanation(user, matches[0], rank));
+
+    // 문장 틀 4개가 서로 달라야 한다(내용이 아니라 어순/어미 구조 자체).
+    expect(new Set(explanations).size).toBe(4);
+    // rank가 템플릿 개수를 넘어가면 순환해서 rank 0과 같은 문장으로 돌아온다.
+    expect(generateInteriorExplanation(user, matches[0], 4)).toBe(explanations[0]);
+  });
 });
