@@ -35,8 +35,8 @@ const HERO_SLIDES = [
   },
   {
     src: "/photos/hero-openview.jpg",
-    pos: "center 48%",
-    alt: "통유리 너머 마당으로 이어지는 거실",
+    pos: "center 62%",
+    alt: "유리 슬라이딩 도어 하나로만 나뉜 침실과 도심 야경",
     caption: "개방 — 벽이 없어도 되는 이유",
   },
   {
@@ -53,8 +53,8 @@ const HERO_SLIDES = [
   },
   {
     src: "/photos/hero-gather.jpg",
-    pos: "center 55%",
-    alt: "초록이 우거진 마당에 놓인 라운지 테이블과 의자",
+    pos: "center 62%",
+    alt: "화분과 나무 사이, 손님을 기다리는 빈 테이블과 의자",
     caption: "환대 — 누군가 곧 채울 빈자리",
   },
   {
