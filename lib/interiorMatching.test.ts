@@ -112,16 +112,16 @@ describe("generateInteriorExplanation", () => {
     const matches = matchInteriorStyles(user);
     const explanation = generateInteriorExplanation(user, matches[0]);
 
-    expect(explanation).toMatch(/공간이 당신의 .+ 성향과 잘 맞아요\.$/);
+    expect(explanation).toMatch(/^당신은 .+ 사람이니까, .+ 있는 이 공간이 찰떡이에요!$/);
   });
 
-  it("기여 축이 1개면 단일 특징 문장을 만든다", () => {
+  it("기여 축이 1개면 단일 이유·특징으로 문장을 만든다", () => {
     const user: AxisScores = { ...neutral, activity: 100 };
     const matches = matchInteriorStyles(user);
     const match = matches.find((m) => m.contributingAxes.length === 1);
     if (!match) return; // 이 테스트 목적상 1개짜리 케이스가 없으면 스킵
 
     const explanation = generateInteriorExplanation(user, match);
-    expect(explanation).toMatch(/돋보이는 공간이 당신의 .+ 성향과 잘 맞아요\.$/);
+    expect(explanation).toMatch(/^당신은 .+ 사람이니까, .+ 있는 이 공간이 찰떡이에요!$/);
   });
 });

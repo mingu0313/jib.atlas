@@ -1,6 +1,6 @@
+import interiorReasonPhrasesData from "../data/interior-reason-phrases.json";
 import interiorStyleDescriptionsData from "../data/interior-style-descriptions.json";
 import interiorStylesData from "../data/interior-styles.json";
-import traitDescriptionsData from "../data/trait-descriptions.json";
 import { getTraitBand } from "./axisUtils";
 import { conjunctionParticle, subjectParticle, toConnectiveForm } from "./koreanGrammar";
 import { AXES, type Axis, type AxisScores, type TraitDescriptions } from "./types";
@@ -40,7 +40,7 @@ export interface InteriorStyleMatch {
 
 const interiorStyles = interiorStylesData as InteriorStyleProfile[];
 const interiorStyleDescriptions = interiorStyleDescriptionsData as TraitDescriptions;
-const traitDescriptions = traitDescriptionsData as TraitDescriptions;
+const interiorReasonPhrases = interiorReasonPhrasesData as TraitDescriptions;
 
 /** 이미 채택된 카드와 이 정도 이상 유사하면(%) "너무 몰린" 걸로 보고 다음 순위로 대체한다. */
 const DIVERSITY_THRESHOLD = 85;
@@ -149,22 +149,28 @@ export function badgeLabelFor(userAxisScores: AxisScores, match: InteriorStyleMa
 
 /**
  * "이 프로필이 왜 이 사람에게 맞는지" 설명 문구를 조립하는 순수 함수(템플릿
- * 조합 방식 — LLM 호출 없음). contributingAxes 1~2개를 인테리어 특징 문구
- * (data/interior-style-descriptions.json)와 기존 성향 문구
- * (data/trait-descriptions.json, lib/explain.ts와 동일 소스)로 엮는다.
+ * 조합 방식 — LLM 호출 없음). contributingAxes 1~2개를 캐주얼한 이유 문구
+ * (data/interior-reason-phrases.json)와 인테리어 특징 문구
+ * (data/interior-style-descriptions.json)로 엮어 한 문장을 만든다.
+ *
+ * 원래 lib/explain.ts와 같은 소스(trait-descriptions.json)의 길고 격식체인
+ * 문장을 그대로 이어붙였더니 "설명이 뭐라하는지 모르겠다"는 피드백을 받아서
+ * (성향 문구 두 개를 관형절로 겹쳐 쓰면 한 문장이 너무 길고 무거워진다),
+ * "당신은 ~하는 사람이니까, ~한 공간이 찰떡이에요!"처럼 짧고 캐주얼한
+ * 전용 문구로 다시 만들었다.
  */
 export function generateInteriorExplanation(userAxisScores: AxisScores, match: InteriorStyleMatch): string {
   const axes = match.contributingAxes;
   const bands = axes.map((axis) => getTraitBand(userAxisScores[axis]));
+  const reasons = axes.map((axis, i) => interiorReasonPhrases[axis][bands[i]]);
   const features = axes.map((axis, i) => interiorStyleDescriptions[axis][bands[i]]);
-  const traits = axes.map((axis, i) => traitDescriptions[axis][bands[i]]);
+
+  const reasonPhrase = reasons.length === 2 ? `${toConnectiveForm(reasons[0])} ${reasons[1]}` : reasons[0];
 
   const featurePhrase =
     features.length === 2
-      ? `${features[0]}${conjunctionParticle(features[0])} ${features[1]}${subjectParticle(features[1])} 어우러진`
-      : `${features[0]}${subjectParticle(features[0])} 돋보이는`;
+      ? `${features[0]}${conjunctionParticle(features[0])} ${features[1]}${subjectParticle(features[1])}`
+      : `${features[0]}${subjectParticle(features[0])}`;
 
-  const traitPhrase = traits.length === 2 ? `${toConnectiveForm(traits[0])} ${traits[1]}` : traits[0];
-
-  return `${featurePhrase} 공간이 당신의 ${traitPhrase} 성향과 잘 맞아요.`;
+  return `당신은 ${reasonPhrase} 사람이니까, ${featurePhrase} 있는 이 공간이 찰떡이에요!`;
 }

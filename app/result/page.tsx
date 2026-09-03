@@ -31,7 +31,10 @@ import type { Answer } from "@/lib/types";
  *
  * STEP 8에서 "AI 인테리어 추천" CTA를 추가했다 — /test → /result 전환과
  * 동일한 패턴(출발 페이지에서 DiagnosisLoader를 오버레이로 띄운 뒤
- * onDone에서 router.push)으로 /result/interiors로 이동한다.
+ * onDone에서 router.push)으로 /result/interiors로 이동한다. 버튼 위치는
+ * "이 집 꾸미러 가기"/"다시 진단하기" 바로 위(사용자 피드백 반영) —
+ * 처음엔 페이지 하단에 별도 섹션으로 뒀었는데, 다른 CTA들과 한데 묶어
+ * 상단에서 바로 보이는 게 낫다는 피드백을 받아 옮겼다.
  */
 
 const TOTAL_QUESTION_COUNT = lifestyleQuestionsData.length + mbtiQuestionsData.length; // 23
@@ -163,16 +166,26 @@ export default function ResultPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-[22px]">
-            <Link
-              href="/studio"
-              className="rounded-full bg-olive px-[42px] py-5 text-[15px] font-semibold text-cream transition hover:bg-fg"
+          <div className="flex flex-col gap-5 border-t border-hair pt-6">
+            <button
+              type="button"
+              onClick={() => setShowInteriorLoader(true)}
+              className="w-fit rounded-full border border-fg/70 px-[30px] py-4 text-[14px] font-semibold text-fg transition hover:bg-fg hover:text-cream"
             >
-              이 집 꾸미러 가기
-            </Link>
-            <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
-              다시 진단하기
+              AI가 추천하는 나에게 맞는 인테리어 보러가기
             </button>
+
+            <div className="flex flex-wrap items-center gap-[22px]">
+              <Link
+                href="/studio"
+                className="rounded-full bg-olive px-[42px] py-5 text-[15px] font-semibold text-cream transition hover:bg-fg"
+              >
+                이 집 꾸미러 가기
+              </Link>
+              <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
+                다시 진단하기
+              </button>
+            </div>
           </div>
         </div>
 
@@ -268,21 +281,6 @@ export default function ResultPage() {
             </div>
           ))}
         </div>
-      </section>
-
-      {/* ── AI 인테리어 추천 CTA(STEP 8) ── */}
-      <section className="mt-[90px] flex flex-col items-start gap-5 border-t border-hair pt-[70px]">
-        <span className="label-mono text-[10px] text-olive-mid">AI Interior Match</span>
-        <p className="max-w-md text-[14px] leading-[1.8] text-muted">
-          5개 축 점수를 바탕으로, 당신의 성향과 어울리는 인테리어 스타일 4가지를 AI가 골라드려요.
-        </p>
-        <button
-          type="button"
-          onClick={() => setShowInteriorLoader(true)}
-          className="rounded-full border border-fg/70 px-[34px] py-4 text-[14px] font-semibold text-fg transition hover:bg-fg hover:text-cream"
-        >
-          AI가 추천하는 나에게 맞는 인테리어 보러가기
-        </button>
       </section>
 
       {/* ── 나만의 인테리어 ── */}
