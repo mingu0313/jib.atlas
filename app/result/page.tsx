@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import lifestyleQuestionsData from "@/data/lifestyle-questions.json";
 import mbtiQuestionsData from "@/data/mbti-questions.json";
 import { FloorPlan } from "@/components/FloorPlan";
+import { DiagnosisLoader } from "@/components/quiz/DiagnosisLoader";
 import { generateExplanation } from "@/lib/explain";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona, getRarityTier } from "@/lib/persona";
@@ -26,14 +28,26 @@ import type { Answer } from "@/lib/types";
  *
  * "이런 구조도 어울려요"(2·3순위 매칭)·"나만의 인테리어"(평면도) 두 섹션은
  * 기존 기능 그대로 유지했다.
+ *
+ * STEP 8에서 "AI 인테리어 추천" CTA를 추가했다 — /test → /result 전환과
+ * 동일한 패턴(출발 페이지에서 DiagnosisLoader를 오버레이로 띄운 뒤
+ * onDone에서 router.push)으로 /result/interiors로 이동한다.
  */
 
 const TOTAL_QUESTION_COUNT = lifestyleQuestionsData.length + mbtiQuestionsData.length; // 23
+
+const INTERIOR_LOADING_MESSAGES = [
+  "5개 축 성향을 다시 살펴보는 중…",
+  "당신에게 맞는 공간을 찾는 중…",
+  "인테리어 스타일 4가지를 골랐어요!",
+];
+const INTERIOR_LOADING_FINAL_CTA = "추천을 보러갈까요?";
 
 export default function ResultPage() {
   const router = useRouter();
   const answers = useTestStore((state) => state.answers);
   const reset = useTestStore((state) => state.reset);
+  const [showInteriorLoader, setShowInteriorLoader] = useState(false);
 
   const answeredCount = Object.keys(answers).length;
   if (answeredCount < TOTAL_QUESTION_COUNT) {
@@ -45,6 +59,19 @@ export default function ResultPage() {
           진단 테스트 하러 가기
         </Link>
       </main>
+    );
+  }
+
+  if (showInteriorLoader) {
+    return (
+      <DiagnosisLoader
+        messages={INTERIOR_LOADING_MESSAGES}
+        finalCta={INTERIOR_LOADING_FINAL_CTA}
+        onDone={() => {
+          window.scrollTo(0, 0);
+          router.push("/result/interiors");
+        }}
+      />
     );
   }
 
@@ -241,6 +268,21 @@ export default function ResultPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* ── AI 인테리어 추천 CTA(STEP 8) ── */}
+      <section className="mt-[90px] flex flex-col items-start gap-5 border-t border-hair pt-[70px]">
+        <span className="label-mono text-[10px] text-olive-mid">AI Interior Match</span>
+        <p className="max-w-md text-[14px] leading-[1.8] text-muted">
+          5개 축 점수를 바탕으로, 당신의 성향과 어울리는 인테리어 스타일 4가지를 AI가 골라드려요.
+        </p>
+        <button
+          type="button"
+          onClick={() => setShowInteriorLoader(true)}
+          className="rounded-full border border-fg/70 px-[34px] py-4 text-[14px] font-semibold text-fg transition hover:bg-fg hover:text-cream"
+        >
+          AI가 추천하는 나에게 맞는 인테리어 보러가기
+        </button>
       </section>
 
       {/* ── 나만의 인테리어 ── */}

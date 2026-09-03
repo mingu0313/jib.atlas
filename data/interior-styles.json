@@ -1,0 +1,92 @@
+[
+  {
+    "id": "minimal-zen",
+    "name": "미니멀 젠 스튜디오",
+    "badgeLabel": "미니멀 지향",
+    "styleBlurb": "군더더기를 걷어낸 여백과 낮은 채도로 마음까지 차분해지는 스튜디오예요.",
+    "scoreProfile": { "sociability": 25, "minimalism": 90, "activity": 25, "openness": 55, "nature": 60 },
+    "photoPath": "/photos/interior-minimal-zen.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "social-lounge",
+    "name": "소셜 라운지 로프트",
+    "badgeLabel": "사교적 공간",
+    "styleBlurb": "낮은 소파와 넉넉한 동선으로 사람이 모여도 북적이지 않는 라운지예요.",
+    "scoreProfile": { "sociability": 90, "minimalism": 35, "activity": 55, "openness": 80, "nature": 30 },
+    "photoPath": "/photos/interior-social-lounge.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "botanical-retreat",
+    "name": "보태니컬 그린하우스",
+    "badgeLabel": "자연 친화",
+    "styleBlurb": "곳곳에 식물을 들인 채광 좋은 공간이 집 안에서도 계절을 느끼게 해줘요.",
+    "scoreProfile": { "sociability": 30, "minimalism": 50, "activity": 25, "openness": 60, "nature": 90 },
+    "photoPath": "/photos/interior-botanical-retreat.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "industrial-loft",
+    "name": "인더스트리얼 오픈 로프트",
+    "badgeLabel": "개방감 강조",
+    "styleBlurb": "벽을 허문 층고 높은 구조가 좁은 집도 훨씬 넓어 보이게 해줘요.",
+    "scoreProfile": { "sociability": 55, "minimalism": 70, "activity": 45, "openness": 90, "nature": 25 },
+    "photoPath": "/photos/interior-industrial-loft.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "maximalist-vintage",
+    "name": "맥시멀 빈티지 덴",
+    "badgeLabel": "맥시멀 지향",
+    "styleBlurb": "빈티지 소품과 색을 겹겹이 쌓은 개성 있는 공간이에요.",
+    "scoreProfile": { "sociability": 75, "minimalism": 15, "activity": 30, "openness": 40, "nature": 45 },
+    "photoPath": "/photos/interior-maximalist-vintage.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "active-urban",
+    "name": "액티브 어반 베이스",
+    "badgeLabel": "활동적 공간",
+    "styleBlurb": "장비를 두고도 여유로운 동선이 몸을 움직이는 하루를 자연스럽게 만들어줘요.",
+    "scoreProfile": { "sociability": 55, "minimalism": 55, "activity": 90, "openness": 60, "nature": 30 },
+    "photoPath": "/photos/interior-active-urban.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "scandinavian-calm",
+    "name": "스칸디나비안 캄 네스트",
+    "badgeLabel": "미니멀 지향",
+    "styleBlurb": "따뜻한 원목과 낮은 채도로 정돈된, 조용히 머물기 좋은 공간이에요.",
+    "scoreProfile": { "sociability": 35, "minimalism": 85, "activity": 30, "openness": 50, "nature": 55 },
+    "photoPath": "/photos/interior-scandinavian-calm.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "open-family",
+    "name": "오픈 패밀리 커먼스",
+    "badgeLabel": "개방감 강조",
+    "styleBlurb": "거실과 주방이 하나로 이어져 다 같이 있어도 각자의 시간이 지켜지는 구조예요.",
+    "scoreProfile": { "sociability": 85, "minimalism": 45, "activity": 55, "openness": 85, "nature": 50 },
+    "photoPath": "/photos/interior-open-family.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "artisan-studio",
+    "name": "아티산 워크숍 스튜디오",
+    "badgeLabel": "활동적 공간",
+    "styleBlurb": "작업대와 수납을 한데 모은, 몸을 쓰는 작업이 편한 공간이에요.",
+    "scoreProfile": { "sociability": 30, "minimalism": 35, "activity": 80, "openness": 55, "nature": 40 },
+    "photoPath": "/photos/interior-artisan-studio.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "coastal-airy",
+    "name": "코스탈 에어리 선룸",
+    "badgeLabel": "자연 친화",
+    "styleBlurb": "큰 창으로 들어온 빛과 자연 소재가 하루 종일 산뜻한 공기를 만들어줘요.",
+    "scoreProfile": { "sociability": 50, "minimalism": 65, "activity": 35, "openness": 80, "nature": 80 },
+    "photoPath": "/photos/interior-coastal-airy.jpg",
+    "productLinks": []
+  }
+]

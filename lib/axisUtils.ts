@@ -1,4 +1,4 @@
-import { AXES, type Axis, type AxisScores } from "./types";
+import { AXES, type Axis, type AxisScores, type TraitBand } from "./types";
 
 /**
  * 점수 기준 상위 축 n개를 뽑는다. "가장 높은 값"이 아니라 "중립(50)에서 가장
@@ -27,4 +27,17 @@ export function pickTopAxesByExtremity(
 /** 중립(50)을 기준으로 한 단순 2극 밴드. Feature.band와 짝을 맞추는 데 쓴다. */
 export function simpleBand(score: number): "high" | "low" {
   return score >= 50 ? "high" : "low";
+}
+
+const HIGH_THRESHOLD = 70;
+const LOW_THRESHOLD = 30;
+
+/** 70점 이상 high, 30점 이하 low, 그 사이는 mid인 3구간 밴드.
+ * trait-descriptions.json류(high/mid/low 3종 문구를 가진 데이터)를 고를 때 쓴다.
+ * (원래 lib/explain.ts 안의 getBand였다 — lib/interiorMatching.ts에서도 같은
+ * 기준이 필요해서 여기로 옮겼다.) */
+export function getTraitBand(score: number): TraitBand {
+  if (score >= HIGH_THRESHOLD) return "high";
+  if (score <= LOW_THRESHOLD) return "low";
+  return "mid";
 }
