@@ -29,8 +29,8 @@ const HERO_SLIDES = [
   },
   {
     src: "/photos/hero-solitude.jpg",
-    pos: "center 60%",
-    alt: "거대한 곡선 천장 아래 벤치에 홀로 앉은 사람",
+    pos: "center 42%",
+    alt: "짙은 초록 벽 아래, 책과 커피만 놓인 조용한 아침 식탁",
     caption: "고요 — 문 하나로 완성되는 혼자만의 시간",
   },
   {
