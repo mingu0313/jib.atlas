@@ -28,15 +28,15 @@ const HERO_SLIDES = [
     caption: "02 — open horizon · 열린 수평선",
   },
   {
-    src: "/photos/type-serene.jpg",
-    pos: "center 48%",
-    alt: "고요한 은신처 유형의 집",
-    caption: "01 — serene nest · 고요한 은신처",
+    src: "/photos/hero-nook.jpg",
+    pos: "center 50%",
+    alt: "아치형 창가 자리에 놓인 안락의자",
+    caption: "고요함 — 창 하나, 의자 하나로 충분한 시간",
   },
   {
-    src: "/photos/axis-open.jpg",
-    pos: "center 52%",
-    alt: "개방성 축을 보여주는 사진",
+    src: "/photos/hero-openview.jpg",
+    pos: "center 48%",
+    alt: "통유리 너머 마당으로 이어지는 거실",
     caption: "개방성 — 벽을 줄이고 시야를 늘린다",
   },
   {
@@ -52,10 +52,10 @@ const HERO_SLIDES = [
     caption: "자연친화도 — 창과 초록의 몫",
   },
   {
-    src: "/photos/type-social.jpg",
-    pos: "center 52%",
-    alt: "사교적 중정 유형의 집",
-    caption: "04 — social atrium · 사교적 중정",
+    src: "/photos/hero-gather.jpg",
+    pos: "center 58%",
+    alt: "손님을 기다리며 차려둔 야외 테이블",
+    caption: "사교성 — 애초에 사람이 모이는 걸 전제로 비운 자리",
   },
   {
     src: "/photos/hero-courtyard.jpg",
