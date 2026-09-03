@@ -6,13 +6,13 @@ import { useMotion } from "@/components/motion/MotionProvider";
 
 /**
  * DESIGN-HANDOFF-V2.md "1. 랜딩 > Hero > #히어로 자동 순환".
- * 6장을 전부 겹쳐 놓고 opacity만 전환한다(조건부 렌더링 금지 — 그러면
+ * N장을 전부 겹쳐 놓고 opacity만 전환한다(조건부 렌더링 금지 — 그러면
  * 크로스페이드 없이 사진이 바뀌는 순간 뚝 끊긴다).
  *
  * 간격(4s)과 페이드(1.1s)는 의도적으로 다르다 — 같게 두면 다음 타이머가
  * 이전 페이드를 중간에 끊어서 전환이 불규칙해 보인다(문서 경고 그대로).
  *
- * 마운트 시 6장을 전부 프리로드한다. 안 하면 아직 안 받아진 사진 차례에서
+ * 마운트 시 전부 프리로드한다. 안 하면 아직 안 받아진 사진 차례에서
  * 크로스페이드 없이 툭 나타난다 — "어느 챕터만 유독 뚝뚝 끊긴다"처럼 보이는
  * 원인이 이거다.
  *
@@ -56,6 +56,12 @@ const HERO_SLIDES = [
     pos: "center 52%",
     alt: "사교적 중정 유형의 집",
     caption: "04 — social atrium · 사교적 중정",
+  },
+  {
+    src: "/photos/hero-courtyard.jpg",
+    pos: "center 50%",
+    alt: "돌과 화단으로 채운 중정을 위에서 내려다본 사진",
+    caption: "안뜰 — 쉼을 닮은 마당",
   },
 ] as const;
 
