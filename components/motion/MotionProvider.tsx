@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 /**
@@ -13,8 +13,8 @@ import { usePathname } from "next/navigation";
  * - 리빌: IntersectionObserver(rootMargin "0px 0px -12% 0px", threshold
  *   0.08), 진입 시 1회만(unobserve).
  *
- * "모션 전체를 끄는 스위치가 있어야 한다(prefers-reduced-motion도 함께)."
- * — useMotion()의 reduced가 그 스위치다. 꺼지면 패럴랙스는 멈추고(엘리먼트는
+ * reduced는 이제 OS의 prefers-reduced-motion 하나만 따른다 — 수동 on/off
+ * 버튼(FloatingNav)은 삭제됐다. 꺼지면 패럴랙스는 멈추고(엘리먼트는
  * transform 없는 정지 상태), 리빌 엘리먼트는 즉시 보이는 상태로 전환한다.
  * 다섯 축 스크롤텔링의 활성 축 추적(components/landing/FiveAxes.tsx)은 이
  * 스위치와 무관하게 별도 rAF 루프로 항상 동작한다 — 문서가 명시적으로
@@ -28,19 +28,16 @@ import { usePathname } from "next/navigation";
 
 interface MotionCtx {
   reduced: boolean;
-  toggle: () => void;
 }
 
-const Ctx = createContext<MotionCtx>({ reduced: false, toggle: () => {} });
+const Ctx = createContext<MotionCtx>({ reduced: false });
 
 export function useMotion() {
   return useContext(Ctx);
 }
 
-const STORAGE_KEY = "jib-atlas-motion-off";
-
-/** 서버 렌더에는 window/localStorage가 없어 항상 false(모션 켜짐)로 시작한다 —
- * 클라이언트 마운트 후 아래 두 useState 지연 초기화가 실제 값으로 맞춘다. */
+/** 서버 렌더에는 window가 없어 항상 false(모션 켜짐)로 시작한다 —
+ * 클라이언트 마운트 후 아래 useState 지연 초기화가 실제 값으로 맞춘다. */
 function readSystemReduced(): boolean {
   if (typeof window === "undefined") return false;
   try {
@@ -50,18 +47,7 @@ function readSystemReduced(): boolean {
   }
 }
 
-function readUserOff(): boolean {
-  if (typeof window === "undefined") return false;
-  try {
-    return localStorage.getItem(STORAGE_KEY) === "1";
-  } catch {
-    // 프라이빗 모드 등으로 localStorage를 못 쓰면 기본값(켜짐)으로 둔다.
-    return false;
-  }
-}
-
 export function MotionProvider({ children }: { children: React.ReactNode }) {
-  const [userOff, setUserOff] = useState(readUserOff);
   const [systemReduced, setSystemReduced] = useState(readSystemReduced);
   const pathname = usePathname();
 
@@ -74,19 +60,7 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     return () => mq.removeEventListener("change", onChange);
   }, []);
 
-  const reduced = userOff || systemReduced;
-
-  const toggle = useCallback(() => {
-    setUserOff((prev) => {
-      const next = !prev;
-      try {
-        localStorage.setItem(STORAGE_KEY, next ? "1" : "0");
-      } catch {
-        // 저장 실패는 무시 — 이번 세션 동안만 토글이 유지된다.
-      }
-      return next;
-    });
-  }, []);
+  const reduced = systemReduced;
 
   useEffect(() => {
     document.body.dataset.motion = reduced ? "off" : "on";
@@ -152,5 +126,5 @@ export function MotionProvider({ children }: { children: React.ReactNode }) {
     return () => io.disconnect();
   }, [reduced, pathname]);
 
-  return <Ctx.Provider value={{ reduced, toggle }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ reduced }}>{children}</Ctx.Provider>;
 }

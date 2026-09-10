@@ -3,8 +3,8 @@
     "id": "minimal-zen",
     "name": "미니멀 젠 스튜디오",
     "badgeLabel": "미니멀 지향",
-    "styleBlurb": "군더더기를 걷어낸 여백과 낮은 채도로 마음까지 차분해지는 스튜디오예요.",
-    "scoreProfile": { "sociability": 25, "minimalism": 90, "activity": 25, "openness": 55, "nature": 60 },
+    "styleBlurb": "장식을 걷어낸 여백과 매끈한 마감만 남겨 군더더기 없이 차분해지는 스튜디오예요.",
+    "scoreProfile": { "sociability": 50, "minimalism": 95, "activity": 45, "openness": 35, "nature": 20 },
     "photoPath": "/photos/interior-minimal-zen.jpg",
     "productLinks": []
   },
