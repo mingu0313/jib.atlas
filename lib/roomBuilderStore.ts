@@ -182,6 +182,30 @@ export function furnitureFootprintCm(def: IsoFurnitureDef, rotated: boolean): { 
   return { widthCm: rotated ? d : w, depthCm: rotated ? w : d, heightCm: def.h * HEIGHT_SCALE * 100 };
 }
 
+/**
+ * STEP 21 후속 — 배치 판정용 바운딩박스. rotated(90도 스냅) 위에
+ * fineAngleDeg(미세 회전)까지 반영한 "실제로 회전된 사각형"의 축정렬
+ * 바운딩박스(AABB)를 구한다. 회전한 사각형의 AABB는 항상 원래 사각형보다
+ * 크거나 같아서(대각선일 때 가장 크다) 보수적으로 안전하다.
+ *
+ * 처음엔 fineAngleDeg를 판정에서 완전히 빼놨는데(주석이 그렇게 남아
+ * 있었다), 실제로 코너 소파를 미세 회전해 방 귀퉁이에 맞추려던 사용자가
+ * "회전된 실루엣과 안 보이는 판정 박스가 어긋나서, 벽에 닿을 때까지
+ * 못 밀어넣거나 반대로 벽을 뚫고 들어간 것처럼 보인다"는 문제를 겪었다 —
+ * 그래서 이걸로 바꿨다. */
+export function rotatedFootprintAabbCm(
+  def: IsoFurnitureDef,
+  rotated: boolean,
+  fineAngleDeg: number,
+): { widthCm: number; depthCm: number } {
+  const { widthCm, depthCm } = furnitureFootprintCm(def, rotated);
+  if (!fineAngleDeg) return { widthCm, depthCm };
+  const rad = (fineAngleDeg * Math.PI) / 180;
+  const c = Math.abs(Math.cos(rad));
+  const s = Math.abs(Math.sin(rad));
+  return { widthCm: widthCm * c + depthCm * s, depthCm: widthCm * s + depthCm * c };
+}
+
 /** 배치된 가구 하나 — 격자(col/row)가 아니라 방 폴리곤과 같은 cm 좌표계
  * 위 자유 위치(footprint 중심)다. `/editor`(useEditorStore.items)와 달리
  * 특정 방 "타입"에도 안 묶인다 — `/studio`는 방이 하나뿐이라 어디에
@@ -197,13 +221,11 @@ export interface PlacedStudioFurniture {
    * 값이라, 같은 defId를 색만 다르게 여러 개 놓을 수 있다. */
   colorKey?: PaletteKey;
   /**
-   * STEP 21 — rotated(0/90도 스냅) 위에 얹는 미세 회전(도). 배치 판정
-   * (canPlaceFurniture)은 여전히 rotated 기준 축정렬 바운딩박스만 보고
-   * 이 값은 안 본다 — 코너 소파를 방 네 귀퉁이 중 어디에도 맞추거나
-   * 의자를 살짜기 튼 느낌을 주는 정도의 "보기용 미세조정"이라, 범위를
-   * ±45도로 좁혀서(그 이상은 rotated 90도 스냅이 담당) 충돌 판정을
-   * 다시 계산하지 않고도 실제로는 거의 항상 같은 바운딩박스 안에 머문다.
-   * 없으면 0(기존 동작과 동일). */
+   * STEP 21 — rotated(0/90도 스냅) 위에 얹는 미세 회전(도, ±FINE_ANGLE_MAX_DEG).
+   * 배치 판정(canPlaceFurniture)은 rotatedFootprintAabbCm으로 이 각도까지
+   * 반영한 회전 바운딩박스를 본다 — 처음엔 안 봤었는데, 회전된 실루엣과
+   * 안 보이는 판정 박스가 어긋나 벽까지 못 밀어넣거나 뚫고 들어간 것처럼
+   * 보이는 문제가 있어서 바꿨다. 없으면 0(기존 동작과 동일). */
   fineAngleDeg?: number;
 }
 
@@ -230,8 +252,9 @@ export function canPlaceFurniture(
   roomPolygon: Point[],
   placed: PlacedStudioFurniture[],
   excludeId?: string,
+  fineAngleDeg = 0,
 ): boolean {
-  const { widthCm, depthCm } = furnitureFootprintCm(def, rotated);
+  const { widthCm, depthCm } = rotatedFootprintAabbCm(def, rotated, fineAngleDeg);
   const footprint: Rect = { x0: cx - widthCm / 2, z0: cz - depthCm / 2, x1: cx + widthCm / 2, z1: cz + depthCm / 2 };
   if (!isFootprintInsideRoom(roomShape, roomPolygon, footprint)) return false;
   const layer = def.layer ?? "object";
@@ -240,7 +263,7 @@ export function canPlaceFurniture(
     const itemDef = furnitureDefById.get(item.defId);
     if (!itemDef) return true;
     if ((itemDef.layer ?? "object") !== layer) return true;
-    const dims = furnitureFootprintCm(itemDef, item.rotated);
+    const dims = rotatedFootprintAabbCm(itemDef, item.rotated, item.fineAngleDeg ?? 0);
     const other: Rect = {
       x0: item.cx - dims.widthCm / 2,
       z0: item.cz - dims.depthCm / 2,
@@ -539,7 +562,9 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       const target = state.furniture.find((f) => f.id === id);
       const def = target ? furnitureDefById.get(target.defId) : undefined;
       if (!target || !def) return state;
-      if (!canPlaceFurniture(cx, cz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id)) return state;
+      if (!canPlaceFurniture(cx, cz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id, target.fineAngleDeg ?? 0)) {
+        return state;
+      }
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, cx, cz } : f)) };
     }),
   removeFurniture: (id) =>
@@ -558,19 +583,36 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       const def = target ? furnitureDefById.get(target.defId) : undefined;
       if (!target || !def) return state;
       const nextRotated = !target.rotated;
-      if (!canPlaceFurniture(target.cx, target.cz, def, nextRotated, state.roomShape, state.roomPolygon, state.furniture, id)) {
+      if (
+        !canPlaceFurniture(
+          target.cx,
+          target.cz,
+          def,
+          nextRotated,
+          state.roomShape,
+          state.roomPolygon,
+          state.furniture,
+          id,
+          target.fineAngleDeg ?? 0,
+        )
+      ) {
         return state;
       }
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, rotated: nextRotated } : f)) };
     }),
   nudgeFurnitureAngle: (id, deltaDeg) =>
-    set((state) => ({
-      furniture: state.furniture.map((f) => {
-        if (f.id !== id) return f;
-        const next = Math.max(-FINE_ANGLE_MAX_DEG, Math.min(FINE_ANGLE_MAX_DEG, (f.fineAngleDeg ?? 0) + deltaDeg));
-        return { ...f, fineAngleDeg: next };
-      }),
-    })),
+    set((state) => {
+      const target = state.furniture.find((f) => f.id === id);
+      const def = target ? furnitureDefById.get(target.defId) : undefined;
+      if (!target || !def) return state;
+      const next = Math.max(-FINE_ANGLE_MAX_DEG, Math.min(FINE_ANGLE_MAX_DEG, (target.fineAngleDeg ?? 0) + deltaDeg));
+      // 회전된 실루엣이 벽/다른 가구를 뚫고 들어가면(특히 대각선에 가까울 때
+      // AABB가 커진다) 조용히 무시 — moveFurniture와 같은 관례.
+      if (!canPlaceFurniture(target.cx, target.cz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id, next)) {
+        return state;
+      }
+      return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, fineAngleDeg: next } : f)) };
+    }),
   nudgeFurniturePosition: (id, dxCm, dzCm) =>
     set((state) => {
       const target = state.furniture.find((f) => f.id === id);
@@ -578,7 +620,19 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       if (!target || !def) return state;
       const nextCx = target.cx + dxCm;
       const nextCz = target.cz + dzCm;
-      if (!canPlaceFurniture(nextCx, nextCz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id)) {
+      if (
+        !canPlaceFurniture(
+          nextCx,
+          nextCz,
+          def,
+          target.rotated,
+          state.roomShape,
+          state.roomPolygon,
+          state.furniture,
+          id,
+          target.fineAngleDeg ?? 0,
+        )
+      ) {
         return state;
       }
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, cx: nextCx, cz: nextCz } : f)) };
