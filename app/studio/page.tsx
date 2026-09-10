@@ -63,7 +63,12 @@ const STEPS = [
 ] as const;
 
 export default function StudioPage() {
-  const [activeStep, setActiveStep] = useState(1); // 1-indexed, STEPS 배열과 맞춤
+  // 1-indexed, STEPS 배열과 맞춤. 이미 매칭 기준(모양·벽색·바닥)이 적용된
+  // 상태로 이 페이지에 들어오면(다른 페이지 갔다가 같은 세션에서 돌아온
+  // 경우 등) 앞 3단계를 다시 훑을 필요 없이 곧장 가구 배치(4단계)로 —
+  // 마음에 안 들면 뒤로 가서 바꾸면 되니 굳이 처음부터 거칠 이유가 없다는
+  // 피드백 반영.
+  const [activeStep, setActiveStep] = useState(() => (useRoomBuilderStore.getState().matchedTemplate ? 4 : 1));
   const [autoApplyDismissed, setAutoApplyDismissed] = useState(false);
 
   const answers = useTestStore((s) => s.answers);
@@ -86,6 +91,12 @@ export default function StudioPage() {
       defaults.wallColorHex,
       defaults.floorStyleId,
     );
+    // 모양·벽색·바닥을 방금 다 정했으니 1~3단계를 다시 훑게 하지 않고 바로
+    // 가구 배치로 — 마음에 안 드는 게 있으면 상단 인디케이터로 언제든
+    // 앞 단계로 돌아가서 바꿀 수 있다. 진단 답변이 갖춰지는 순간(외부
+    // 스토어 상태) 한 번만 일어나는 의도된 동기화 부작용이라 억제한다.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setActiveStep(4);
   }, [answers, matchedTemplate, autoApplyDismissed, applyTemplateDefaults]);
 
   return (
@@ -151,6 +162,7 @@ export default function StudioPage() {
               onClick={() => {
                 clearMatchedTemplate();
                 setAutoApplyDismissed(true);
+                setActiveStep(1); // 모양·벽색·바닥이 중립 기본값으로 되돌아갔으니 1단계부터 다시.
               }}
               className="shrink-0 underline underline-offset-2 hover:no-underline"
             >
