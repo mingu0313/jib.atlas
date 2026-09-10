@@ -48,11 +48,18 @@ export function HouseTypes() {
         {FEATURED.map((item) => (
           <div key={item.template.id} className="flex flex-col border-t border-hair pt-[30px]" data-reveal>
             <div className="relative overflow-hidden rounded-[18px]" style={{ aspectRatio: "4 / 5" }}>
+              {/* loading="eager" — Hero 바로 아래 첫 스크롤 섹션이라, 기본 lazy가
+                  브라우저 native lazy-load 임계 거리에 걸려 스크롤하는 동안 사진이
+                  뒤늦게 팝인하는 끊김으로 보였다. 4장뿐이라 전부 즉시 받아도 부담이
+                  적다 — Next 16은 priority가 deprecated라(preload로 대체) 여기처럼
+                  "화면마다 어떤 게 LCP일지 갈리는 여러 장" 케이스엔 문서가 권장하는
+                  대로 preload 대신 loading="eager"를 쓴다. */}
               <Image
                 src={item.photo}
                 alt={item.template.name}
                 fill
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+                loading="eager"
                 className="object-cover"
                 style={{ filter: "grayscale(0.18) contrast(0.96)" }}
               />
