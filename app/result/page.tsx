@@ -91,7 +91,14 @@ export default function ResultPage() {
   const rarity = getRarityTier(topMatch.similarity);
   const similarity = Math.round(topMatch.similarity);
 
-  const [spectrumAxis] = persona.topAxes;
+  // 헤드라인 문장("당신은 N% OOO형이에요")은 persona.topAxes(중립 50에서 가장
+  // 먼 축 — 낮은 쪽 극단도 잡아내려고 일부러 이렇게 고른다, lib/axisUtils.ts
+  // 참고)를 그대로 재사용하면 안 된다. AXIS_LABELS가 전부 "고득점 방향"
+  // 이름이라(예: minimalism→"미니멀"), 극단이 낮은 쪽이면 "20% 미니멀형"처럼
+  // 숫자와 이름이 반대로 읽혀 혼란스럽다(미니멀 20%면 사실 맥시멀리스트인데
+  // "미니멀형"이라고 부르는 꼴). 여기선 그냥 5축 중 가장 높은 점수의 축을
+  // 골라 "자연친화 82%"처럼 숫자와 이름이 항상 같은 방향을 가리키게 한다.
+  const spectrumAxis = AXES.reduce((best, axis) => (axisScores[axis] > axisScores[best] ? axis : best));
   const spectrumValue = Math.round(axisScores[spectrumAxis]);
 
   const typeNum = topMatch.template.id.replace(/^t/, "").padStart(2, "0");

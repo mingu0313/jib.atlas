@@ -59,7 +59,11 @@ export default function EnglishResultPage() {
   const rarity = getRarityTierEn(topMatch.similarity);
   const similarity = Math.round(topMatch.similarity);
 
-  const [spectrumAxis] = persona.topAxes;
+  // 헤드라인 문장은 app/result/page.tsx와 같은 이유로 persona.topAxes(중립
+  // 50에서 가장 먼 축, 낮은 극단도 잡아냄)가 아니라 5축 중 가장 높은 점수의
+  // 축을 쓴다 — 그래야 "82% Nature"처럼 숫자와 이름이 항상 같은 방향을
+  // 가리킨다.
+  const spectrumAxis = AXES.reduce((best, axis) => (axisScores[axis] > axisScores[best] ? axis : best));
   const spectrumValue = Math.round(axisScores[spectrumAxis]);
 
   const typeNum = topMatch.template.id.replace(/^t/, "").padStart(2, "0");
