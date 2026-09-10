@@ -25,7 +25,13 @@ const STEPS = [
  */
 export function EditorPreview() {
   return (
-    <section className="grid min-h-[92vh] grid-cols-1 lg:grid-cols-2">
+    // min-h-[92vh]는 lg 전용이다 — 모바일(grid-cols-1)에서 컨테이너 전체에
+    // 걸면, 텍스트 칸(짧다)과 사진 칸을 합친 자연 높이가 92vh보다 모자랄 때
+    // grid의 auto 트랙이 그 차이를 각 행 사이 여백으로 늘려버려서 "스튜디오
+    // 열어보기" 버튼과 사진 사이에 쓸데없이 큰 빈 공간이 생겼다(실기기
+    // 리포트: "배치가 어색함"). lg에서 2컬럼일 땐 의도대로 두 칸 높이를
+    // 맞추는 용도라 그대로 둔다.
+    <section className="grid grid-cols-1 lg:min-h-[92vh] lg:grid-cols-2">
       <div className="flex flex-col justify-center gap-8 px-6 py-16 sm:px-10 lg:px-16" data-reveal>
         <h2 className="font-kr text-[clamp(28px,4vw,52px)] leading-[1.1] tracking-[-0.02em]">
           방을 직접 꾸며보세요<span className="heading-dot">.</span>

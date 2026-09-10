@@ -101,13 +101,19 @@ export function FiveAxes() {
       </header>
 
       {/*
-        모바일(<lg)에서는 grid-cols-1로 두 컬럼이 "각자의 행"으로 쪼개지면서
-        sticky의 containing block이 패널 자기 콘텐츠 높이(~60vh)로 줄어들어버려
-        — 축 5개(74vh×5=370vh)를 스크롤하는 동안 붙어있지 못하고 먼저
-        스크롤아웃돼 버렸다(버그 리포트: "스크롤 내리면 패널이 안 보여").
-        고쳐서 모바일에서도 flex(세로 스택, 형제 컨테이너 공유)로 두고 패널을
-        맨 위에 sticky로 둬, 축 텍스트가 그 아래로 흘러가게 한다. 데스크톱에서만
-        grid 2컬럼으로 전환(그때는 grid stretch가 같은 효과를 준다).
+        모바일(<lg)에서 sticky 패널 자체를 껐다 — 예전엔 여기도 sticky로
+        붙여뒀는데(아래 이력 참고), 실기기 리포트로 "axis profile 때문에
+        성향 설명 글이 가려져 안 보임"이 들어왔다. 원인은 패널 높이(레이더+
+        막대 5개, 약 618px)가 흔한 모바일 화면(~844px)의 70%를 넘게 차지해서
+        — 축 텍스트 블록(각 min-h-[74vh]≈625px)의 내용은 justify-center로
+        블록 한가운데 놓이는데, 그 위치가 패널이 차지한 화면 영역과 거의
+        항상 겹쳐서 스크롤해도 설명 문단이 거의 안 보이는 구간이 대부분이었다.
+        패널이 크다고 줄이면(레이더 축소 등) 또 다른 화면에서 다시 안 맞을
+        여지가 있어서, 아예 모바일에선 sticky-스크롤텔링 연출 자체를 접고
+        패널을 한 번만 보여준 뒤 축 설명 5개를 평범한 목록으로 이어지게
+        했다 — 화면 크기와 무관하게 텍스트가 항상 다 보이는 쪽이 우선이다.
+        데스크톱(lg 이상)은 기존 sticky 2컬럼 그대로 유지(공간이 충분해서
+        문제가 없었다).
       */}
       <div className="flex flex-col gap-10 lg:grid lg:grid-cols-[44fr_56fr] lg:items-start lg:gap-20">
         {/* 좌: 축 5개 — 데스크톱에서는 왼쪽, 모바일에서는 패널 아래(order로 순서만 뒤집는다). */}
@@ -120,7 +126,7 @@ export function FiveAxes() {
                 ref={(el) => {
                   stepRefs.current[i] = el;
                 }}
-                className="flex min-h-[74vh] flex-col justify-center gap-5"
+                className="flex flex-col justify-center gap-5 py-8 lg:min-h-[74vh] lg:py-0"
               >
                 <span
                   className={`label-mono text-[11px] transition-colors duration-500 ${
@@ -143,8 +149,10 @@ export function FiveAxes() {
           })}
         </div>
 
-        {/* 우: sticky — AXIS PROFILE 패널(레이더+막대). sticky·top-0는 모든
-            화면 크기에서 켜져 있어야 한다(위 주석 참고).
+        {/* 우: AXIS PROFILE 패널(레이더+막대). sticky·top-0는 lg 이상에서만
+            켜진다 — 모바일에서 이 패널을 sticky로 뒀다가 화면을 너무 많이
+            차지해서 축 설명 글이 안 보이는 버그가 났었다(위 주석 참고).
+            모바일에선 그냥 order-1로 맨 위에 한 번 정적으로 보여주고 끝.
 
             예전엔 lg:min-h-screen + justify-center로 뷰포트 안에서 수직
             중앙 정렬했는데, 노트북처럼 높이가 낮은 화면(대략 900px 미만)
@@ -155,7 +163,7 @@ export function FiveAxes() {
             아예 안 보이는 버그가 났다(피드백: "사교성 밑에 있는 나머지가 안
             보여"). justify-center를 버리고 위 정렬 + max-h-screen +
             overflow-y-auto로 바꿔서, 내용이 넘치면 이 패널 안에서 스크롤해
-            전부 볼 수 있게 했다.
+            전부 볼 수 있게 했다 — 이건 lg 전용이라 그대로 둔다.
 
             사진 밴드 제거 — 예전엔 이 자리 위에 aspect-[5/4] 사진 밴드가
             먼저 있고 그 아래 이 프로필 패널이 이어졌는데, 사진(최대 약
@@ -169,7 +177,7 @@ export function FiveAxes() {
             방어선으로만 남겨뒀다. 사진을 나중에 다시 넣는다면 "패널 높이 +
             사진 높이 ≤ 흔한 뷰포트 높이(700~900px)"를 반드시 먼저 확인할 것
             — 안 그러면 이 버그가 그대로 재발한다. */}
-        <div className="sticky top-20 order-1 z-10 max-h-[calc(100vh-5rem)] overflow-y-auto lg:top-0 lg:order-2 lg:max-h-screen lg:overflow-y-auto lg:py-10">
+        <div className="order-1 lg:sticky lg:top-0 lg:z-10 lg:order-2 lg:max-h-screen lg:overflow-y-auto lg:py-10">
           <div className="rounded-[26px] bg-panel p-6 sm:p-9">
             <div className="flex items-baseline justify-between gap-5">
               <span className="label-mono text-[10px] text-olive-mid">Axis Profile</span>

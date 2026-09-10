@@ -50,6 +50,15 @@ const TEXT: Record<Locale, Record<string, string>> = {
  * (예: "House Types" 섹션 영문 타이틀이 로고를 뚫고 지나감). fixed nav
  * 아래로 뭐가 지나가든 항상 읽히도록 각 클러스터를 옅은 필로 감쌌다.
  *
+ * 그런데도 필 "사이" 빈 공간(로고 필과 중앙/우측 필 사이, 모바일에선 로고
+ * 필과 CTA 사이 꽤 넓은 구간)은 여전히 완전 투명이었다 — 모바일 실기기
+ * 리포트로 "다섯 축 패널 글자가 로고 자리에서 겹쳐 보인다", "에디터
+ * 프리뷰 스텝 목록 글자가 로고 위로 지나간다"가 들어왔다. 필 배경만으론
+ * 못 막는 문제라(스크롤되는 콘텐츠가 정확히 그 필 위치에 있을 때만
+ * 가려짐), 내비 바 전체 폭에 옅은 그라디언트 스크림(위는 반투명 크림색,
+ * 아래로 갈수록 투명) + 블러를 깔아서 필 사이 빈틈으로도 아무것도 안
+ * 비치게 했다. pointer-events-none이라 클릭은 그대로 아래로 통과한다.
+ *
  * locale — STEP 11(다국어). 이 컴포넌트는 지금 한국어 랜딩(`/`)과 영문
  * 랜딩(`/en`) 딱 두 군데에서만 쓰이기 때문에(다른 라우트는 각자 자기
  * 헤더를 그림), 언어 전환 링크는 그냥 "/" ↔ "/en"만 오가면 충분하다 —
@@ -73,6 +82,11 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
 
   return (
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 px-6 py-[22px] sm:px-10 sm:py-[28px]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[130px] backdrop-blur-[10px]"
+        style={{ background: "linear-gradient(to bottom, rgba(247,246,242,0.85) 0%, rgba(247,246,242,0.55) 55%, rgba(247,246,242,0) 100%)" }}
+      />
       <Link
         href={locale === "en" ? "/en" : "/"}
         className="pointer-events-auto rounded-full px-4 py-2 font-display text-[22px] tracking-[-0.01em] text-fg backdrop-blur-[16px] sm:text-[26px]"
