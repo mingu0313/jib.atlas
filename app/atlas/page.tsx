@@ -6,7 +6,7 @@ import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
 
 export const metadata = {
   title: "집 아틀라스 — jib.atlas",
-  description: "유저들이 직접 등록한 집(실사진 또는 에디터로 꾸민 방)을 모아 보여주는 지도.",
+  description: "유저들이 직접 등록한 집(실사진 또는 인테리어 스튜디오로 꾸민 방)을 모아 보여주는 지도.",
 };
 
 type PostRow = HousePost & { house_photos: HousePhoto[] };
@@ -33,9 +33,22 @@ type PostRow = HousePost & { house_photos: HousePhoto[] };
  * room_items 게시물과 달리 항상 사진이 있어서 RoomIsoCard 같은 SVG
  * 특수 렌더링이 필요 없고, 아래 카드 렌더링에서 뱃지만 다르게 붙인다.
  */
+/** 게시물 종류 필터 — "실제 사진 공간"과 "인테리어 스튜디오로 만든 공간"
+ * 두 칸으로 나눠서 보고 싶다는 요청 반영. room_items(옛 /editor, 이제
+ * 삭제됨)와 studio_room(현재 /studio) 둘 다 "실사진이 아니라 직접 만든
+ * 방"이라는 점은 같아서(app/atlas/page.tsx 상단 주석 참고 — 둘 다 뱃지만
+ * 다를 뿐 같은 취급), 이 둘을 합쳐 "studio" 한 칸으로 묶는다 — "실사진
+ * 없이 도구로 만든 방" vs "진짜 우리 집 사진", 딱 두 공간이면 충분하다. */
+type KindFilter = "photo" | "studio" | null;
+
+function parseKindFilter(value: string | string[] | undefined): KindFilter {
+  return value === "photo" || value === "studio" ? value : null;
+}
+
 export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
-  const { template } = await searchParams;
+  const { template, kind } = await searchParams;
   const templateFilter = typeof template === "string" ? template : null;
+  const kindFilter = parseKindFilter(kind);
 
   const supabase = await createClient();
 
@@ -45,6 +58,8 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
     .order("created_at", { ascending: false })
     .limit(60);
   if (templateFilter) query = query.eq("template_id", templateFilter);
+  if (kindFilter === "photo") query = query.is("room_items", null).is("studio_room", null);
+  if (kindFilter === "studio") query = query.or("room_items.not.is.null,studio_room.not.is.null");
   const { data, error } = await query;
   const posts = (data as PostRow[] | null) ?? [];
 
@@ -93,12 +108,39 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
           유저들이 직접 올린 집을 모아, 하나의 지도로<span className="text-olive-mid">.</span>
         </h1>
         <p className="mt-3 max-w-lg text-[14px] text-muted">
-          실제 사는 집 사진이거나, 에디터로 꾸민 방이에요. 어느 쪽이든 이 지도 위 한 페이지가 됩니다.
+          실제 사는 집 사진이거나, 인테리어 스튜디오로 꾸민 방이에요. 어느 쪽이든 이 지도 위 한 페이지가 됩니다.
         </p>
 
+        {/* 종류 탭 — "실사진 공간"과 "스튜디오로 만든 공간" 두 칸을 볼 수
+            있으면 좋겠다는 요청으로 추가. 아래 유형 칩(template)과는 별도
+            축이라 둘 다 동시에 걸 수 있다(예: kind=studio&template=t3) —
+            링크에 서로의 현재 값을 그대로 이어붙인다. */}
         <div className="mt-8 flex flex-wrap gap-2">
+          {(
+            [
+              [null, "전체"],
+              ["photo", "실제 사진"],
+              ["studio", "스튜디오로 만든 방"],
+            ] as const
+          ).map(([value, label]) => (
+            <Link
+              key={label}
+              href={value ? `/atlas?kind=${value}${templateFilter ? `&template=${templateFilter}` : ""}` : templateFilter ? `/atlas?template=${templateFilter}` : "/atlas"}
+              className="rounded-full px-5 py-2.5 text-[13px] font-semibold transition"
+              style={
+                kindFilter === value
+                  ? { background: "var(--color-olive)", color: "var(--color-cream)" }
+                  : { border: "1px solid var(--color-hair)", color: "var(--color-fg)" }
+              }
+            >
+              {label}
+            </Link>
+          ))}
+        </div>
+
+        <div className="mt-4 flex flex-wrap gap-2">
           <Link
-            href="/atlas"
+            href={kindFilter ? `/atlas?kind=${kindFilter}` : "/atlas"}
             className="label-mono rounded-full px-4 py-2 text-[9px] transition"
             style={
               templateFilter
@@ -106,12 +148,12 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                 : { background: "var(--color-olive)", color: "var(--color-cream)" }
             }
           >
-            전체
+            전체 유형
           </Link>
           {templateChips.map(([id, name]) => (
             <Link
               key={id}
-              href={`/atlas?template=${id}`}
+              href={`/atlas?template=${id}${kindFilter ? `&kind=${kindFilter}` : ""}`}
               className="label-mono rounded-full px-4 py-2 text-[9px] transition"
               style={
                 templateFilter === id
@@ -133,10 +175,16 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
         {!error && posts.length === 0 && (
           <div className="mt-14 flex flex-col items-center gap-4 rounded-[24px] border border-hair bg-panel px-8 py-16 text-center">
             <p className="font-kr text-lg">
-              {templateFilter ? "이 유형엔 아직 등록된 집이 없어요" : "아직 지도에 등록된 집이 없어요"}
+              {templateFilter
+                ? "이 유형엔 아직 등록된 집이 없어요"
+                : kindFilter === "photo"
+                  ? "아직 등록된 실제 집 사진이 없어요"
+                  : kindFilter === "studio"
+                    ? "아직 스튜디오로 만든 방이 없어요"
+                    : "아직 지도에 등록된 집이 없어요"}
             </p>
             <p className="text-sm text-muted">
-              사진이 없어도 괜찮아요 — 에디터에서 꾸민 방을 클릭 한 번으로 올릴 수 있어요.
+              사진이 없어도 괜찮아요 — 인테리어 스튜디오에서 꾸민 방을 클릭 한 번으로 올릴 수 있어요.
             </p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
