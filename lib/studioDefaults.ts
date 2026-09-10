@@ -9,7 +9,15 @@ export interface StudioDefaults {
 }
 
 function hexOf(colorId: string): string {
-  return WALL_COLOR_PRESETS.find((p) => p.id === colorId)?.hex ?? WALL_COLOR_PRESETS[0].hex;
+  const preset = WALL_COLOR_PRESETS.find((p) => p.id === colorId);
+  // WALL_COLOR_PRESETS 밖의 id를 넘기면(오타 등) 조용히 기본값(웜 화이트)으로
+  // 빠지는 대신 개발 중엔 경고를 띄운다 — 실제로 "sage"/"charcoal"/
+  // "deep-olive"라는, 이 배열에 없는 id를 넘겨서 30개 하우스 타입 중 25개가
+  // 의도한 색과 상관없이 전부 웜 화이트로 조용히 깔리던 버그가 있었다.
+  if (!preset && process.env.NODE_ENV !== "production") {
+    console.warn(`[getStudioDefaults] "${colorId}"는 WALL_COLOR_PRESETS에 없는 id예요 — 기본값으로 대체됩니다.`);
+  }
+  return preset?.hex ?? WALL_COLOR_PRESETS[0].hex;
 }
 
 /**
@@ -30,16 +38,24 @@ export function getStudioDefaults(template: HouseTemplate): StudioDefaults {
     minimalism >= 65 ? "square" : sociability >= 60 || openness >= 60 ? "lshape" : "rectangle";
 
   // 벽 색상: 자연친화 > 미니멀 > 활동성 > 사교성 순으로 가장 두드러진
-  // 성향 하나를 골라 그에 맞는 톤을 준다.
+  // 성향 하나를 골라 그에 맞는 톤을 준다. id는 반드시 roomStyle.ts의
+  // WALL_COLOR_PRESETS에 실제로 있는 것만 써야 한다 — "sage"/"charcoal"/
+  // "deep-olive"처럼 그럴듯하지만 존재하지 않는 id를 썼다가 hexOf가 조용히
+  // 기본값(웜 화이트)으로 대체해버려서, 30개 타입 중 25개가 벽 색이 전혀
+  // 안 바뀌는 버그가 있었다(브랜드 올리브/세이지 톤과 안 겹치게 일부러
+  // 뺀 중립 팔레트라 "sage" 자체가 원래 없다 — roomStyle.ts 주석 참고).
+  // greige(그레이지)=자연친화의 흙빛 뉘앙스, dark-roast(다크 로스트)=
+  // 미니멀의 짙고 차분한 느낌, mocha(모카)=사교적인 공간의 따뜻한 느낌으로
+  // 기존 팔레트 안에서 가장 가까운 색을 골랐다.
   const wallColorHex = hexOf(
     nature >= 60
-      ? "sage"
+      ? "greige"
       : minimalism >= 65
-        ? "charcoal"
+        ? "dark-roast"
         : activity >= 60
           ? "terracotta"
           : sociability >= 60
-            ? "deep-olive"
+            ? "mocha"
             : "warm-white",
   );
 

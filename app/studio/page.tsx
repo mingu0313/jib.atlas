@@ -143,8 +143,8 @@ export default function StudioPage() {
         {matchedTemplate && (
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-full bg-sage px-5 py-3 text-[12px] text-sage-ink">
             <span>
-              <strong className="font-semibold">{matchedTemplate.name}</strong> 매칭 결과를 기준으로 시작했어요 —
-              자유롭게 바꿔도 괜찮아요.
+              <strong className="font-semibold">{matchedTemplate.name}</strong> 매칭 결과를 기준으로 방 모양·벽 색·
+              바닥재를 미리 골라놨어요 — 자유롭게 바꿔도 괜찮아요.
             </span>
             <button
               type="button"
