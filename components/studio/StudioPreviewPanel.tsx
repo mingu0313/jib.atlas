@@ -183,9 +183,10 @@ export function StudioPreviewPanel({ step }: { step: number }) {
  * nudgeFurnitureAngle/nudgeFurniturePosition을 그대로 호출해서 2D 캔버스
  * 드래그·키보드([·]/화살표, StudioPreviewPanel 최상단 핸들러)와 같은
  * 값을 공유한다. 3D를 보는 중에도 이 패널이 뜨는 이유가 바로 이거다 —
- * 3D 캔버스 자체에 레이캐스팅 드래그를 넣는 대신(범위가 커서 STEP 16이
- * 미뤄둔 부분), 뷰와 무관하게 항상 같은 위치에 뜨는 이 컨트롤로 "3D
- * 화면에서도 미세조절"을 만족시킨다.
+ * STEP 22부터 3D 캔버스(RoomStudioScene3D)에도 포인터로 꾹 눌러 옮기는
+ * 자유 드래그가 생겼지만, 그건 "대략 이 근처" 배치용이고 코너에 딱 맞추는
+ * 것 같은 정밀 조정은 여전히 숫자 스텝 버튼이 편하다 — 뷰와 무관하게 항상
+ * 같은 위치에 뜨는 이 컨트롤로 "3D 화면에서도 미세조절"을 만족시킨다.
  */
 function FurnitureFineTunePanel() {
   const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);

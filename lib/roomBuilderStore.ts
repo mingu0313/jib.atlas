@@ -376,13 +376,25 @@ interface RoomBuilderState {
    * 지우고 다시 놓지 않아도 방향을 바꿀 수 있게 해준다. */
   rotateFurniture: (id: string) => void;
   /** STEP 21 — 90도 스냅 위에 얹는 미세 각도 조절(±FINE_ANGLE_MAX_DEG).
-   * 배치 판정을 다시 안 하므로(주석 참고) 항상 성공 — moveFurniture처럼
-   * "조용히 무시"할 실패 케이스가 없다. */
+   * moveFurniture와 같은 배치 판정을 거친다(rotatedFootprintAabbCm 기준 —
+   * 벽/다른 가구를 뚫고 들어가면 조용히 무시). */
   nudgeFurnitureAngle: (id: string, deltaDeg: number) => void;
   /** 위치 미세이동(화살표 키·D패드 버튼) — 방향 하나(dx,dz 중 하나만
    * ±POSITION_NUDGE_STEP_CM)만큼 옮기고, moveFurniture와 같은 배치 판정을
    * 거친다(놓을 수 없으면 조용히 무시). */
   nudgeFurniturePosition: (id: string, dxCm: number, dzCm: number) => void;
+  /** STEP 22 — 3D 화면(RoomStudioScene3D)에서 가구를 포인터로 꾹 눌러 자유
+   * 드래그하는 동안 "지금 뭘 드래그 중인지" 들고 있는 값. 2D 평면도
+   * (RoomFurnitureCanvas)는 SVG pointer capture로 한 엘리먼트가 포인터를
+   * 계속 붙들 수 있어서 이런 값이 따로 없어도 되지만, 3D는 실제 지오메트리
+   * 레이캐스팅이라 포인터가 가구 실루엣 밖으로 나가는 순간 그 가구는 더
+   * 이상 포인터 이벤트를 못 받는다 — 대신 방 어디서든 포인터가 있는 한
+   * 계속 맞는 바닥 메시가 매 pointermove마다 이 id를 참조해서
+   * moveFurniture를 대신 호출해준다. 드래그 중엔 CameraRig가 이 값을 보고
+   * 오빗 컨트롤을 꺼서 카메라 회전과 겹치지 않게 한다. */
+  draggingFurnitureId: string | null;
+  startDraggingFurniture: (id: string) => void;
+  stopDraggingFurniture: () => void;
 
   /** STEP 16 — 3D 프리뷰의 카메라 뷰 모드. "aerial"(기본, 자유 오빗) /
    * "top"(진짜 위→아래, 사실상 평면도 역할) / "side"(선택한 벽 정면).
@@ -577,6 +589,10 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   selectedFurnitureId: null,
   selectOpening: (id) => set((state) => ({ selectedOpeningId: state.selectedOpeningId === id ? null : id })),
   selectFurnitureItem: (id) => set((state) => ({ selectedFurnitureId: state.selectedFurnitureId === id ? null : id })),
+
+  draggingFurnitureId: null,
+  startDraggingFurniture: (id) => set({ draggingFurnitureId: id }),
+  stopDraggingFurniture: () => set((state) => (state.draggingFurnitureId ? { draggingFurnitureId: null } : state)),
   rotateFurniture: (id) =>
     set((state) => {
       const target = state.furniture.find((f) => f.id === id);

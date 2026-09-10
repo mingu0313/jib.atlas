@@ -52,6 +52,7 @@ const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 interface FloorPointerHandlers {
   onPointerDown?: (e: ThreeEvent<PointerEvent>) => void;
   onPointerUp?: (e: ThreeEvent<PointerEvent>) => void;
+  onPointerMove?: (e: ThreeEvent<PointerEvent>) => void;
 }
 
 function FloorRect({
@@ -62,6 +63,7 @@ function FloorRect({
   color,
   onPointerDown,
   onPointerUp,
+  onPointerMove,
 }: { x0: number; z0: number; x1: number; z1: number; color: string } & FloorPointerHandlers) {
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -78,7 +80,7 @@ function FloorRect({
   }, [x0, z0, x1, z1]);
 
   return (
-    <mesh geometry={geometry} receiveShadow onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+    <mesh geometry={geometry} receiveShadow onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerMove={onPointerMove}>
       <meshStandardMaterial color={color} roughness={0.9} metalness={0.02} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -97,6 +99,7 @@ function FloorFan({
   color,
   onPointerDown,
   onPointerUp,
+  onPointerMove,
 }: { polygon: Point[]; color: string } & FloorPointerHandlers) {
   const geometry = useMemo(() => {
     const geo = new THREE.BufferGeometry();
@@ -115,7 +118,7 @@ function FloorFan({
   }, [polygon]);
 
   return (
-    <mesh geometry={geometry} receiveShadow onPointerDown={onPointerDown} onPointerUp={onPointerUp}>
+    <mesh geometry={geometry} receiveShadow onPointerDown={onPointerDown} onPointerUp={onPointerUp} onPointerMove={onPointerMove}>
       <meshStandardMaterial color={color} roughness={0.9} metalness={0.02} side={THREE.DoubleSide} />
     </mesh>
   );
@@ -220,13 +223,22 @@ const SELECTION_COLOR = "#41521f";
  * STEP 16 후속 — 클릭으로 선택 가능(드래그/오빗과는 pointerdown→up 이동
  * 거리로 구분). 선택 이후의 삭제(Delete)·회전(R)은 이미 StudioPreviewPanel
  * 의 전역 키보드 핸들러가 뷰 종류와 무관하게 처리해준다 — 여기선 선택만
- * 담당. 이동(드래그)은 아직 2D 평면도 쪽에만 있다(3D 레이캐스팅 드래그는
- * 이번 범위 밖).
+ * 담당.
+ *
+ * STEP 22 — 포인터를 꾹 눌러 자유 드래그도 여기서 시작한다(2D 평면도
+ * RoomFurnitureCanvas와 같은 동작). 다만 3D 오브젝트는 SVG처럼 pointer
+ * capture로 이동 이벤트를 계속 받을 수 없어서(포인터가 이 가구의 실제
+ * 지오메트리 밖으로 나가는 순간 R3F 레이캐스팅이 더는 이 그룹을 안 맞춘다)
+ * 실제 좌표 갱신은 store.draggingFurnitureId를 보는 바닥 메시
+ * (RoomStudioScene3D의 handleFloorPointerMove)가 대신 한다 — 여긴 그
+ * "지금 뭘 드래그하는지"만 pointerDown에서 켜고 pointerUp에서 끈다.
  */
 function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
   const def = furnitureDefById.get(item.defId);
   const selectFurnitureItem = useRoomBuilderStore((s) => s.selectFurnitureItem);
   const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);
+  const startDraggingFurniture = useRoomBuilderStore((s) => s.startDraggingFurniture);
+  const stopDraggingFurniture = useRoomBuilderStore((s) => s.stopDraggingFurniture);
   const downPos = useRef<{ x: number; y: number } | null>(null);
   // 놓을 때 고른 색상 오버라이드(STEP 20) — 카탈로그 기본 materialOverride
   // 위에 얹는다. FurnitureModel의 useGLTF 캐시는 defId가 아니라 modelUrl
@@ -257,9 +269,14 @@ function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
         // 그 자리에 다른 가구가 놓이거나 선택이 풀리는 걸 막는다).
         e.stopPropagation();
         downPos.current = { x: e.clientX, y: e.clientY };
+        // 2D 평면도처럼 선택 여부와 무관하게 바로 드래그를 시작한다 — 총
+        // 이동거리가 클릭 임계값 밑이면(=드래그가 아니었으면) pointerUp에서
+        // 선택으로 처리하니 "그냥 클릭"엔 아무 부작용이 없다.
+        startDraggingFurniture(item.id);
       }}
       onPointerUp={(e) => {
         e.stopPropagation();
+        stopDraggingFurniture();
         const start = downPos.current;
         downPos.current = null;
         if (!start) return;
@@ -326,6 +343,7 @@ function CameraRig() {
   const sideViewWallId = useRoomBuilderStore((s) => s.sideViewWallId);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const wallHeightCm = useRoomBuilderStore((s) => s.wallHeightCm);
+  const draggingFurnitureId = useRoomBuilderStore((s) => s.draggingFurnitureId);
 
   const pose = useMemo(
     () => computeCameraPose(viewMode, roomPolygon, wallHeightCm, sideViewWallId),
@@ -352,8 +370,20 @@ function CameraRig() {
     prevProjection.current = pose.projection;
     controls.setLookAt(...pose.position, ...pose.target, hasFramedOnce.current && !justSwappedProjection);
     hasFramedOnce.current = true;
-    controls.enabled = viewMode === "aerial";
-  }, [pose, viewMode]);
+  }, [pose]);
+
+  // STEP 22 — 가구를 3D 화면에서 드래그하는 동안은 오빗을 꺼둔다. 카메라
+  // 컨트롤(drei CameraControls)이 캔버스에 직접 붙는 네이티브 포인터
+  // 리스너라, 이 컴포넌트의 R3F 이벤트 stopPropagation과 무관하게 같은
+  // 드래그 제스처에 반응해버린다 — 껐다 켜지 않으면 가구를 옮기려던
+  // 드래그가 카메라만 빙빙 돌리는 것처럼 보인다. 뷰 전환 자체의 포즈
+  // 이펙트(위)와는 별개로 둬서, 드래그 시작/종료가 setLookAt 트랜지션을
+  // 다시 트리거하지 않게 한다.
+  useEffect(() => {
+    const controls = controlsRef.current;
+    if (!controls) return;
+    controls.enabled = viewMode === "aerial" && !draggingFurnitureId;
+  }, [viewMode, draggingFurnitureId]);
 
   useFrame((state) => {
     const aspect = state.size.width / Math.max(state.size.height, 1);
@@ -507,6 +537,9 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
   const selectedFurnitureDefId = useRoomBuilderStore((s) => s.selectedFurnitureDefId);
   const placeFurnitureAt = useRoomBuilderStore((s) => s.placeFurnitureAt);
   const selectFurnitureItem = useRoomBuilderStore((s) => s.selectFurnitureItem);
+  const moveFurniture = useRoomBuilderStore((s) => s.moveFurniture);
+  const draggingFurnitureId = useRoomBuilderStore((s) => s.draggingFurnitureId);
+  const stopDraggingFurniture = useRoomBuilderStore((s) => s.stopDraggingFurniture);
 
   const floorPreset = FLOOR_STYLE_PRESETS.find((p) => p.id === floorStyleId) ?? FLOOR_STYLE_PRESETS[0];
   const isConvexDiagonal = CONVEX_DIAGONAL_SHAPES.includes(roomShape);
@@ -535,6 +568,7 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
   }, []);
   const handleFloorPointerUp = useCallback(
     (e: ThreeEvent<PointerEvent>) => {
+      stopDraggingFurniture();
       const start = floorDownPos.current;
       floorDownPos.current = null;
       if (!start) return;
@@ -545,8 +579,33 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
         selectFurnitureItem(null);
       }
     },
-    [selectedFurnitureDefId, placeFurnitureAt, selectFurnitureItem],
+    [selectedFurnitureDefId, placeFurnitureAt, selectFurnitureItem, stopDraggingFurniture],
   );
+  // STEP 22 — 가구를 포인터로 꾹 눌러 옮기는 동안의 실제 좌표 갱신은 여기서
+  // 한다. FurnitureItem 자신은 실제 지오메트리라 포인터가 그 실루엣 밖으로
+  // 나가면 더는 pointermove를 못 받지만(3D 레이캐스팅의 한계 —
+  // FurnitureItem 주석 참고), 바닥은 방 전체를 덮고 있어서 포인터가 방
+  // 안 어디에 있든 계속 이 이벤트를 받는다. draggingFurnitureId가 있을
+  // 때만(=누가 드래그 중일 때만) 반응하고, moveFurniture 자체가 벽 밖·다른
+  // 가구와 겹치는 자리는 조용히 무시해준다(기존 관례).
+  const handleFloorPointerMove = useCallback(
+    (e: ThreeEvent<PointerEvent>) => {
+      if (!draggingFurnitureId) return;
+      moveFurniture(draggingFurnitureId, e.point.x / CM_TO_M, e.point.z / CM_TO_M);
+    },
+    [draggingFurnitureId, moveFurniture],
+  );
+
+  // 안전망 — 드래그 도중 포인터가 바닥·가구 어느 지오메트리도 안 맞는 곳
+  // (벽, 방 폴리곤 바깥, 캔버스 밖)에서 놓이면 위 핸들러들의 pointerUp이
+  // 아예 안 불릴 수 있다. 창 전체 pointerup을 봐서 그런 경우에도 드래그
+  // 상태가 안 눌어붙게 한다.
+  useEffect(() => {
+    if (!draggingFurnitureId) return;
+    const onWindowPointerUp = () => stopDraggingFurniture();
+    window.addEventListener("pointerup", onWindowPointerUp);
+    return () => window.removeEventListener("pointerup", onWindowPointerUp);
+  }, [draggingFurnitureId, stopDraggingFurniture]);
 
   return (
     <div className="h-[420px] w-full overflow-hidden rounded-[18px]">
@@ -573,6 +632,7 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
             color={floorPreset.base}
             onPointerDown={handleFloorPointerDown}
             onPointerUp={handleFloorPointerUp}
+            onPointerMove={handleFloorPointerMove}
           />
         ) : (
           floorRects.map((r, i) => (
@@ -585,6 +645,7 @@ export function RoomStudioScene3D({ visible = true }: { visible?: boolean }) {
               color={floorPreset.base}
               onPointerDown={handleFloorPointerDown}
               onPointerUp={handleFloorPointerUp}
+              onPointerMove={handleFloorPointerMove}
             />
           ))
         )}
