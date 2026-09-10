@@ -23,10 +23,6 @@ const INDICATOR_POLES: Record<MbtiIndicator, [MbtiPole, MbtiPole]> = {
   JP: ["J", "P"],
 };
 
-function clamp(value: number, min: number, max: number): number {
-  return Math.min(max, Math.max(min, value));
-}
-
 function buildOptionMap(answers: Answer[]): Map<string, OptionId> {
   return new Map(answers.map((a) => [a.questionId, a.optionId]));
 }
@@ -120,17 +116,22 @@ export function calculateScores(answers: Answer[]): ScoringResult {
 
   const eiE = mbtiPoleStrength("EI", "E", optionMap);
   const snN = mbtiPoleStrength("SN", "N", optionMap);
-  const tfF = mbtiPoleStrength("TF", "F", optionMap);
+  const tfT = mbtiPoleStrength("TF", "T", optionMap);
   const jpJ = mbtiPoleStrength("JP", "J", optionMap);
+  // T(논리·효율)와 J(계획·정돈) 둘 다 미니멀 성향과 방향이 같다고 보고
+  // 평균한 값 하나로 합쳐서, sociability/openness와 똑같이 "lifestyle 0.7 +
+  // mbti 0.3" 가중합 패턴을 따른다 — 전에는 tfF를 0.3 빼고 jpJ를 0.2 더하는
+  // 식이라 가중치 합이 1.0이 아니었고(0.7-0.3+0.2=0.6), 부호도 반대라 실제
+  // 도달 가능한 값 범위가 [-30, 90]까지 내려가 clamp(0,100)가 자주
+  // 발동했다 — 그 결과 무작위 응답의 10%+가 그냥 0%로 깔려서, 가장 튀는
+  // 축을 고르는 pickTopAxesByExtremity가 미니멀리즘과 무관한 답변만
+  // 했어도 "당신은 0% 미니멀형이에요"를 헤드라인으로 뽑아버리는 버그였다.
+  const orderliness = (tfT + jpJ) / 2;
 
   const axisScores: AxisScores = {
     sociability: lifestyle.sociability * 0.7 + eiE * 0.3,
     openness: lifestyle.openness * 0.7 + snN * 0.3,
-    minimalism: clamp(
-      lifestyle.minimalism * 0.7 - tfF * 0.3 + jpJ * 0.2,
-      0,
-      100,
-    ),
+    minimalism: lifestyle.minimalism * 0.7 + orderliness * 0.3,
     activity: lifestyle.activity,
     nature: lifestyle.nature,
   };

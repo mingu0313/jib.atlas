@@ -31,9 +31,9 @@ describe("calculateScores", () => {
     // openness는 q12만 A가 -방향(계획적=안정파)이라 라이프스타일 자체가 80%에
     // 그치고, 거기에 SN 블렌드(A는 S방향이라 N강도 0%)가 더해져 56이 된다.
     expect(result.axisScores.openness).toBeCloseTo(56, 5);
-    // minimalism은 라이프스타일 100% + TF(A=T방향, F강도 0%) + JP(A=J방향, J강도 100%)
-    // = 100*0.7 - 0*0.3 + 100*0.2 = 90.
-    expect(result.axisScores.minimalism).toBeCloseTo(90, 5);
+    // minimalism은 라이프스타일 100% + orderliness(TF의 T강도 100%, JP의 J강도
+    // 100% 평균) 100% = 100*0.7 + 100*0.3 = 100.
+    expect(result.axisScores.minimalism).toBeCloseTo(100, 5);
 
     // MBTI 문항 전부 A(각 지표의 첫 번째 극 방향)를 고르면 ESTJ가 나온다.
     expect(result.mbtiType).toBe("ESTJ");
