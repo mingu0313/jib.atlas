@@ -33,7 +33,7 @@ export function FurnitureModel({
 }) {
   const { scene } = useGLTF(def.modelUrl!);
 
-  const { object, scale, yOffset } = useMemo(() => {
+  const { object, scale, xOffset, yOffset, zOffset } = useMemo(() => {
     // useGLTF 캐시가 돌려주는 scene은 같은 GLB를 쓰는 모든 배치가 공유하는
     // 객체라, 여기서 바로 안 쓰고 clone한다 — 안 그러면 같은 가구를 두
     // 개 놓았을 때 하나만 화면에 남는다. 리컬러도 이 clone 위에서 딱 한
@@ -47,13 +47,18 @@ export function FurnitureModel({
         mesh.receiveShadow = true;
       }
     });
-    const { size, yOffset } = measureFootprint(cloned);
+    const { size, xOffset, yOffset, zOffset } = measureFootprint(cloned);
     const scale = fitScale(size, width, depth, height);
-    return { object: cloned, scale, yOffset };
+    return { object: cloned, scale, xOffset, yOffset, zOffset };
   }, [scene, def.materialOverride, width, depth, height]);
 
+  // xOffset/zOffset — 모델의 바운딩박스 "중심"을 그룹 원점(0,0)에 맞춘다.
+  // 부모(FurnitureItem)는 이 그룹의 로컬 원점이 곧 footprint 중심(선택
+  // 아웃라인·격자 판정이 그 기준)이라고 가정하는데, Kenney 모델 중 피벗이
+  // 바운딩박스 구석 쪽에 있는 것들은 이걸 안 하면 실루엣이 그 어긋난
+  // 만큼 옆으로 밀려 보였다(furniturePalette.ts measureFootprint 주석 참고).
   return (
-    <group position={[0, yOffset * scale, 0]} scale={scale}>
+    <group position={[xOffset * scale, yOffset * scale, zOffset * scale]} scale={scale}>
       <primitive object={object} />
     </group>
   );

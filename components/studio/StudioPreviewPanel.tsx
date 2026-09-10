@@ -192,6 +192,7 @@ function FurnitureFineTunePanel() {
   const furniture = useRoomBuilderStore((s) => s.furniture);
   const nudgeFurnitureAngle = useRoomBuilderStore((s) => s.nudgeFurnitureAngle);
   const nudgeFurniturePosition = useRoomBuilderStore((s) => s.nudgeFurniturePosition);
+  const removeFurniture = useRoomBuilderStore((s) => s.removeFurniture);
 
   const item = selectedFurnitureId ? furniture.find((f) => f.id === selectedFurnitureId) : undefined;
   if (!item) return null;
@@ -205,9 +206,23 @@ function FurnitureFineTunePanel() {
     <div
       className="absolute top-3 right-3 z-20 flex flex-col gap-2 rounded-[14px] px-3 py-2.5 backdrop-blur-[16px]"
       style={{ background: "rgba(247,246,242,0.92)", border: "1px solid var(--color-hair)" }}
-      title="키보드 [ ]로 회전, 화살표로 이동돼요(Shift로 크게)"
+      title="키보드 Delete/Backspace로도 뺄 수 있어요, [ ]로 회전, 화살표로 이동돼요(Shift로 크게)"
     >
-      <span className="label-mono text-[9px] text-faint">{def?.label ?? "가구"} 미세조절</span>
+      <div className="flex items-center justify-between gap-3">
+        <span className="label-mono text-[9px] text-faint">{def?.label ?? "가구"} 미세조절</span>
+        {/* 키보드 Delete/Backspace(StudioPreviewPanel 최상단 핸들러)와 같은
+            동작 — 터치 기기에선 키보드가 없어 이 패널에서 뺄 방법이 아예
+            없었다("기구를 다시 뺄 수 있는 기능"). */}
+        <button
+          type="button"
+          aria-label="가구 빼기"
+          title="가구 빼기"
+          onClick={() => removeFurniture(item.id)}
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-hair text-[11px] leading-none text-muted transition hover:border-[#b5453a] hover:text-[#b5453a]"
+        >
+          ✕
+        </button>
+      </div>
 
       <div className="flex items-center gap-1.5">
         <button type="button" aria-label="왼쪽으로 미세 회전" onClick={() => nudgeFurnitureAngle(item.id, -FINE_ANGLE_STEP_DEG)} className={nudgeBtnClass}>

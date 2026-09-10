@@ -144,11 +144,21 @@ export function recolorScene(scene: THREE.Object3D, overrides?: Record<string, P
  * 칸에 들어간다. measureFootprint는 대신 "선언한 footprint가 실측과
  * 많이 다르면" 콘솔에 경고해 카탈로그 JSON을 나중에 손으로 맞출 수 있게
  * 하는 개발 진단용이다.
+ *
+ * xOffset/zOffset — STEP 21 후속 버그 수정. RoomStudioScene3D의
+ * FurnitureItem은 group을 item.cx/cz(=footprint 중심)에 두고, 선택
+ * 아웃라인(Line)도 그 그룹의 로컬 원점(0,0)이 footprint 중심이라고
+ * 가정해서 그린다. y는 항상 바닥(min.y)을 기준으로 접지해서 문제가 없지만
+ * x/z는 그대로 안 맞춰줬었다 — Kenney 모델 중 원점(피벗)이 바운딩박스
+ * 중심이 아니라 한쪽 구석 근처에 있는 것들(실제로 서랍 사이드테이블에서
+ * 확인됨)은 그 피벗 오차만큼 실루엣이 선택 박스·격자 중심에서 벗어나
+ * 보였다. 바운딩박스 "중심"을 원점에 오도록 한 번 더 옮겨서 고친다.
  */
 export function measureFootprint(scene: THREE.Object3D) {
   const box = new THREE.Box3().setFromObject(scene);
   const size = box.getSize(new THREE.Vector3());
-  return { size, yOffset: -box.min.y };
+  const center = box.getCenter(new THREE.Vector3());
+  return { size, yOffset: -box.min.y, xOffset: -center.x, zOffset: -center.z };
 }
 
 /**
