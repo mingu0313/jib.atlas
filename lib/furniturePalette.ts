@@ -36,8 +36,20 @@ export type PaletteKey = keyof typeof PALETTE;
  * 다른 색으로 남는 어색함도 없다. 카탈로그에 없는 이름을 덮어써도
  * recolorScene이 그냥 무시하니(그 이름의 머티리얼이 없으면 아무 효과 없음)
  * 안전하다.
+ *
+ * STEP 20 후속 버그 수정 — wood/carpet 딱 두 개만으로는 부족했다.
+ * DEFAULT_MATERIAL_PALETTE를 보면 킷은 명암 변형까지 별도 이름으로 나눠
+ * 쓴다(wood 옆에 woodDark, carpet 옆에 carpetDarker·carpetWhite) — 카탈로그
+ * 항목 중엔 "books"(carpetWhite/carpetDarker만 씀, wood/carpet 자체가 아예
+ * 없음)나 "box-closed"(wood와 woodDark를 같이 씀)처럼, 보이는 몸체가 이
+ * 변형 이름 쪽에 걸쳐 있는 항목이 실제로 있었다 — 그 항목들은 스와치를
+ * 골라도 wood/carpet만 덮어써지고 woodDark/carpetDarker/carpetWhite는
+ * DEFAULT_MATERIAL_PALETTE 고정값 그대로 남아, 부분적으로만 바뀌거나
+ * (box-closed) 아예 안 바뀌는(books) 걸로 보였다. 목재·패브릭 "계열"
+ * 이름을 전부 같은 색으로 덮어써서 고친다 — metal 계열·plant·lamp는
+ * 여전히 안 건드린다(다리는 금속으로, 화분 잎은 초록으로 남아야 자연스럽다).
  */
-const RECOLOR_MATERIAL_KEYS = ["wood", "carpet"] as const;
+const RECOLOR_MATERIAL_KEYS = ["wood", "woodDark", "carpet", "carpetDarker", "carpetWhite"] as const;
 
 export function withColorOverride(
   materialOverride: Record<string, PaletteKey> | undefined,
