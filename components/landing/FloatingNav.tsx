@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { signOut } from "@/app/actions/auth";
 import { CollabInquiryModal } from "@/components/landing/CollabInquiryModal";
-import { useMotion } from "@/components/motion/MotionProvider";
 import { useUser } from "@/lib/supabase/useUser";
 
 type Locale = "ko" | "en";
@@ -20,8 +19,6 @@ const TEXT: Record<Locale, Record<string, string>> = {
     login: "로그인",
     logout: "로그아웃",
     start: "진단 시작 ↗",
-    motionOn: "모션 켜기",
-    motionOff: "모션 끄기",
     otherLocaleLabel: "EN",
   },
   en: {
@@ -33,8 +30,6 @@ const TEXT: Record<Locale, Record<string, string>> = {
     login: "Log in",
     logout: "Log out",
     start: "Start Quiz ↗",
-    motionOn: "Motion on",
-    motionOff: "Motion off",
     otherLocaleLabel: "한국어",
   },
 };
@@ -45,12 +40,8 @@ const TEXT: Record<Locale, Record<string, string>> = {
  * 컨테이너는 pointer-events:none이고 자식(링크·버튼)만 auto라 내비 사이
  * 빈 공간을 클릭해도 아래 히어로가 그대로 반응한다.
  *
- * 모션 스위치("모션 전체를 끄는 스위치가 있어야 한다")는 CTA 옆에 작은
- * 점 버튼으로 둔다 — 문서가 위치를 정하지 않아서 항상 눈에 띄는 이
- * 자리를 골랐다.
- *
  * 로그인/협업 문의는 "진단 시작 옆"이라는 요청대로 우측 CTA 클러스터에
- * 둔다 — 모션 스위치와 같은 이유로 sm 이상에서만 텍스트 링크로 보이고,
+ * 둔다 — EN 언어 전환 버튼과 같은 이유로 sm 이상에서만 텍스트 링크로 보이고,
  * 로그인 상태는 useUser로 구독해 로그인/로그아웃을 스위칭한다.
  *
  * 로고와 우측 텍스트 링크 클러스터에도 중앙 필과 같은 블러 배경을 준다 —
@@ -73,7 +64,6 @@ const TEXT: Record<Locale, Record<string, string>> = {
  * 기대지 않고 서버 액션(app/actions/collabInquiry.ts)으로 바로 저장된다.
  */
 export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
-  const { reduced, toggle } = useMotion();
   const { user, loading: userLoading } = useUser();
   const pathname = usePathname();
   const [collabOpen, setCollabOpen] = useState(false);
@@ -119,20 +109,6 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
         >
           {t.otherLocaleLabel}
         </Link>
-
-        <button
-          type="button"
-          onClick={toggle}
-          aria-pressed={reduced}
-          title={reduced ? t.motionOn : t.motionOff}
-          className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-full border border-hair text-[10px] text-muted backdrop-blur-[16px] transition hover:border-olive hover:text-olive sm:flex"
-          style={{ background: "rgba(247,246,242,0.74)" }}
-        >
-          <span
-            className="h-2 w-2 rounded-full"
-            style={{ background: reduced ? "var(--color-dim)" : "var(--color-olive-mid)" }}
-          />
-        </button>
 
         <div
           className="hidden items-center gap-5 rounded-full px-5 py-2.5 backdrop-blur-[16px] sm:flex"
