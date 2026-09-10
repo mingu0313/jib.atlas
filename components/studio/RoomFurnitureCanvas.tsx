@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
+import { PALETTE } from "@/lib/furniturePalette";
 import { furnitureFootprintCm, useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
 import { getPolygonViewBox, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
@@ -123,7 +124,7 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
         width={widthCm}
         height={depthCm}
         rx={6}
-        fill={def.top}
+        fill={item.colorKey ? PALETTE[item.colorKey] : def.top}
         stroke={isSelected ? "var(--color-olive)" : "rgba(18,18,15,0.35)"}
         strokeWidth={isSelected ? 3.5 : 2}
       />

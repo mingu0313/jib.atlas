@@ -44,5 +44,38 @@
   { "id": "plant-small", "label": "소형 화분", "en": "SMALL PLANT", "w": 1, "d": 1, "h": 30, "top": "#6F7A52", "left": "#F4F1EA", "right": "#E3DDD3", "category": "plant", "modelUrl": "/models/furniture/plantSmall1.glb", "materialOverride": { "wood": "neutral.chalk" } },
 
   { "id": "desk-chair", "label": "사무용 의자", "en": "DESK CHAIR", "w": 1, "d": 1, "h": 34, "top": "#A79E8F", "left": "#2A2620", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/chairDesk.glb", "materialOverride": { "carpet": "greige.500" } },
-  { "id": "desk-corner", "label": "코너 책상", "en": "CORNER DESK", "w": 2, "d": 2, "h": 32, "top": "#A9633C", "left": "#7E4527", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/deskCorner.glb" }
+  { "id": "desk-corner", "label": "코너 책상", "en": "CORNER DESK", "w": 2, "d": 2, "h": 32, "top": "#A9633C", "left": "#7E4527", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/deskCorner.glb" },
+
+  { "id": "chair-rounded", "label": "라운드 체어", "en": "ROUNDED CHAIR", "w": 1, "d": 1, "h": 34, "top": "#A79E8F", "left": "#7E4527", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/chairRounded.glb" },
+  { "id": "lamp-floor-square", "label": "스퀘어 플로어 조명", "en": "SQUARE FLOOR LAMP", "w": 1, "d": 1, "h": 56, "top": "#F4F1EA", "left": "#7E4527", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/lampSquareFloor.glb" },
+  { "id": "lamp-floor-round", "label": "라운드 플로어 조명", "en": "ROUND FLOOR LAMP", "w": 1, "d": 1, "h": 56, "top": "#F4F1EA", "left": "#A9633C", "right": "#2A2620", "category": "desk", "modelUrl": "/models/furniture/lampRoundFloor.glb" },
+
+  { "id": "bookcase-closed", "label": "책장(도어형)", "en": "CLOSED BOOKCASE", "w": 2, "d": 1, "h": 70, "top": "#A9633C", "left": "#7E4527", "right": "#5f350f", "category": "storage", "modelUrl": "/models/furniture/bookcaseClosed.glb" },
+  { "id": "cabinet-tv-doors", "label": "도어형 TV장", "en": "TV CABINET DOORS", "w": 3, "d": 1, "h": 34, "top": "#C98A5E", "left": "#A9633C", "right": "#7E4527", "category": "storage", "modelUrl": "/models/furniture/cabinetTelevisionDoors.glb" },
+  { "id": "side-table", "label": "사이드 테이블", "en": "SIDE TABLE", "w": 1, "d": 1, "h": 28, "top": "#A9633C", "left": "#7E4527", "right": "#2A2620", "category": "storage", "modelUrl": "/models/furniture/sideTable.glb" },
+  { "id": "coat-rack-simple", "label": "심플 코트랙", "en": "SIMPLE COAT RACK", "w": 1, "d": 1, "h": 78, "top": "#7E4527", "left": "#2A2620", "right": "#5f350f", "category": "storage", "modelUrl": "/models/furniture/coatRack.glb" },
+  { "id": "nightstand-cabinet", "label": "협탁", "en": "NIGHTSTAND", "w": 1, "d": 1, "h": 22, "top": "#E3DDD3", "left": "#A9633C", "right": "#2A2620", "category": "storage", "modelUrl": "/models/furniture/cabinetBed.glb" },
+  { "id": "nightstand-drawer", "label": "서랍 협탁", "en": "DRAWER NIGHTSTAND", "w": 1, "d": 1, "h": 24, "top": "#E3DDD3", "left": "#A9633C", "right": "#2A2620", "category": "storage", "modelUrl": "/models/furniture/cabinetBedDrawerTable.glb" },
+
+  { "id": "pillow-floor", "label": "바닥 쿠션", "en": "FLOOR PILLOW", "w": 1, "d": 1, "h": 6, "top": "#C9C1B4", "left": "#A79E8F", "right": "#7C7466", "layer": "floor", "category": "textile", "modelUrl": "/models/furniture/pillow.glb" },
+  { "id": "pillow-long-floor", "label": "긴 바닥 쿠션", "en": "LONG FLOOR PILLOW", "w": 1, "d": 1, "h": 5, "top": "#C9C1B4", "left": "#A79E8F", "right": "#7C7466", "layer": "floor", "category": "textile", "modelUrl": "/models/furniture/pillowLong.glb" },
+  { "id": "rug-rounded", "label": "라운드 러그(소프트)", "en": "SOFT ROUND RUG", "w": 3, "d": 3, "h": 2, "top": "#C98A5E", "left": "#A9633C", "right": "#7E4527", "layer": "floor", "category": "textile", "modelUrl": "/models/furniture/rugRounded.glb", "materialOverride": { "carpet": "copper.400", "carpetDarker": "copper.600" } },
+
+  { "id": "chair-modern-cushion", "label": "모던 쿠션 체어", "en": "MODERN CUSHION CHAIR", "w": 1, "d": 1, "h": 34, "top": "#A79E8F", "left": "#2A2620", "right": "#7E4527", "category": "sofa", "modelUrl": "/models/furniture/chairModernCushion.glb", "materialOverride": { "carpet": "greige.500" } },
+  { "id": "chair-modern-frame", "label": "모던 프레임 체어", "en": "MODERN FRAME CHAIR", "w": 1, "d": 1, "h": 34, "top": "#A79E8F", "left": "#2A2620", "right": "#7E4527", "category": "sofa", "modelUrl": "/models/furniture/chairModernFrameCushion.glb", "materialOverride": { "carpet": "greige.500" } },
+  { "id": "lounge-relax", "label": "릴렉스 체어", "en": "RELAX LOUNGE CHAIR", "w": 2, "d": 2, "h": 40, "top": "#C9C1B4", "left": "#A9633C", "right": "#7E4527", "category": "sofa", "modelUrl": "/models/furniture/loungeChairRelax.glb" },
+  { "id": "sofa-design", "label": "디자인 소파", "en": "DESIGN SOFA", "w": 4, "d": 2, "h": 40, "top": "#A79E8F", "left": "#7E4527", "right": "#2A2620", "category": "sofa", "modelUrl": "/models/furniture/loungeDesignSofa.glb", "materialOverride": { "carpet": "greige.500" } },
+  { "id": "sofa-design-corner", "label": "디자인 코너 소파", "en": "DESIGN CORNER SOFA", "w": 3, "d": 3, "h": 42, "top": "#C9C1B4", "left": "#7E4527", "right": "#2A2620", "category": "sofa", "modelUrl": "/models/furniture/loungeDesignSofaCorner.glb" },
+  { "id": "bench", "label": "벤치", "en": "BENCH", "w": 2, "d": 1, "h": 24, "top": "#A9633C", "left": "#7E4527", "right": "#2A2620", "category": "sofa", "modelUrl": "/models/furniture/bench.glb" },
+  { "id": "bench-cushion", "label": "쿠션 벤치", "en": "CUSHION BENCH", "w": 2, "d": 1, "h": 26, "top": "#C9C1B4", "left": "#A9633C", "right": "#7E4527", "category": "sofa", "modelUrl": "/models/furniture/benchCushion.glb", "materialOverride": { "carpet": "greige.500" } },
+
+  { "id": "plant-small-2", "label": "소형 화분 2", "en": "SMALL PLANT 2", "w": 1, "d": 1, "h": 28, "top": "#6F7A52", "left": "#F4F1EA", "right": "#E3DDD3", "category": "plant", "modelUrl": "/models/furniture/plantSmall2.glb", "materialOverride": { "wood": "neutral.chalk" } },
+  { "id": "plant-small-3", "label": "소형 화분 3", "en": "SMALL PLANT 3", "w": 1, "d": 1, "h": 32, "top": "#6F7A52", "left": "#F4F1EA", "right": "#E3DDD3", "category": "plant", "modelUrl": "/models/furniture/plantSmall3.glb", "materialOverride": { "wood": "neutral.chalk" } },
+
+  { "id": "table-coffee-glass", "label": "글라스 커피 테이블", "en": "GLASS COFFEE TABLE", "w": 2, "d": 1, "h": 18, "top": "#C9C1B4", "left": "#A79E8F", "right": "#7C7466", "category": "dining", "modelUrl": "/models/furniture/tableCoffeeGlass.glb" },
+  { "id": "table-coffee-glass-square", "label": "정사각 글라스 테이블", "en": "SQUARE GLASS TABLE", "w": 2, "d": 2, "h": 18, "top": "#C9C1B4", "left": "#A79E8F", "right": "#7C7466", "category": "dining", "modelUrl": "/models/furniture/tableCoffeeGlassSquare.glb" },
+  { "id": "table-coffee-square", "label": "정사각 커피 테이블", "en": "SQUARE COFFEE TABLE", "w": 2, "d": 2, "h": 18, "top": "#C98A5E", "left": "#A9633C", "right": "#7E4527", "category": "dining", "modelUrl": "/models/furniture/tableCoffeeSquare.glb" },
+  { "id": "table-cross", "label": "크로스다리 테이블", "en": "CROSS LEG TABLE", "w": 3, "d": 2, "h": 26, "top": "#A9633C", "left": "#7E4527", "right": "#5f350f", "category": "dining", "modelUrl": "/models/furniture/tableCross.glb" },
+  { "id": "table-glass", "label": "글라스 식탁", "en": "GLASS DINING TABLE", "w": 3, "d": 2, "h": 26, "top": "#C9C1B4", "left": "#A79E8F", "right": "#7C7466", "category": "dining", "modelUrl": "/models/furniture/tableGlass.glb" },
+  { "id": "stool-bar-square", "label": "각진 바 스툴", "en": "SQUARE BAR STOOL", "w": 1, "d": 1, "h": 50, "top": "#A79E8F", "left": "#2A2620", "right": "#7E4527", "category": "dining", "modelUrl": "/models/furniture/stoolBarSquare.glb", "materialOverride": { "carpet": "greige.500" } }
 ]

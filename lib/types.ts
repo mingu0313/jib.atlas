@@ -347,7 +347,7 @@ export interface StudioRoomSnapshot {
     heightCm: number;
     sillHeightCm?: number;
   }[];
-  furniture: { id: string; defId: string; cx: number; cz: number; rotated: boolean }[];
+  furniture: { id: string; defId: string; cx: number; cz: number; rotated: boolean; colorKey?: import("./furniturePalette").PaletteKey }[];
 }
 
 /**

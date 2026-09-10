@@ -24,6 +24,31 @@ export const PALETTE = {
 export type PaletteKey = keyof typeof PALETTE;
 
 /**
+ * STEP 20 — 놓기 전 색상 스와치(FurniturePalette). recolorScene이 머티리얼
+ * "이름"으로 색을 입히는데, Kenney 킷은 딱 하나로 뭉뚱그려지지 않는다 —
+ * 책상·책장처럼 몸체가 "wood"인 항목도 있고, 소파·의자·스툴처럼 눈에 보이는
+ * 대부분이 쿠션/패브릭이라 "carpet"인 항목도 있다(카탈로그의 기존
+ * materialOverride들이 의자·소파류에 carpet을 얹어둔 게 그 증거 —
+ * desk-chair, chair-cushion, sofa-long 등). 카테고리 하나로 이 둘을
+ * 구분하려다 실패한 적이 있어서(처음엔 wood 하나만 덮어써서 소파가 전혀
+ * 안 바뀌는 버그였다), 아예 두 이름 다 같은 색으로 덮어쓴다 — 어떤 이름을
+ * 쓰는 모델이든 스와치를 고르면 확실히 색이 바뀌고, 프레임과 쿠션이 서로
+ * 다른 색으로 남는 어색함도 없다. 카탈로그에 없는 이름을 덮어써도
+ * recolorScene이 그냥 무시하니(그 이름의 머티리얼이 없으면 아무 효과 없음)
+ * 안전하다.
+ */
+const RECOLOR_MATERIAL_KEYS = ["wood", "carpet"] as const;
+
+export function withColorOverride(
+  materialOverride: Record<string, PaletteKey> | undefined,
+  colorKey: PaletteKey,
+): Record<string, PaletteKey> {
+  const next = { ...materialOverride };
+  for (const key of RECOLOR_MATERIAL_KEYS) next[key] = colorKey;
+  return next;
+}
+
+/**
  * 팔레트 카드 썸네일(STEP 19)의 사전 렌더 PNG 경로 규칙. 실제 파일은
  * `scripts/render-furniture-thumbnails.mjs`가 이 규칙 그대로
  * `public/thumbnails/furniture/{id}.png`에 생성하고,

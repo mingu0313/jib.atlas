@@ -9,6 +9,7 @@ import { FurnitureModel } from "@/components/furnitureModel3d";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { computeCameraPose } from "@/lib/cameraPresets";
 import { CM_TO_M, HEIGHT_SCALE, TILE_M, toM, WALL_THICKNESS_CM } from "@/lib/editor3d";
+import { withColorOverride } from "@/lib/furniturePalette";
 import { formatLength } from "@/lib/roomDimensions";
 import { registerStudioCapture } from "@/lib/studioCapture";
 import { useRoomBuilderStore, type PlacedStudioFurniture, type Point } from "@/lib/roomBuilderStore";
@@ -227,6 +228,17 @@ function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
   const selectFurnitureItem = useRoomBuilderStore((s) => s.selectFurnitureItem);
   const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);
   const downPos = useRef<{ x: number; y: number } | null>(null);
+  // 놓을 때 고른 색상 오버라이드(STEP 20) — 카탈로그 기본 materialOverride
+  // 위에 얹는다. FurnitureModel의 useGLTF 캐시는 defId가 아니라 modelUrl
+  // 기준이라, 같은 defId를 색만 다르게 여러 개 놓아도 서로 안 섞인다
+  // (components/furnitureModel3d.tsx가 scene을 매번 clone 후 리컬러). def가
+  // 없어도 훅 순서를 지키려고 이 useMemo는 아래 조기 return보다 먼저 둔다 —
+  // 매번 새 객체를 만들면 FurnitureModel의 useMemo(의존성 materialOverride
+  // 참조 비교)가 다른 가구 이동 때마다 이 가구까지 불필요하게 다시 리컬러한다.
+  const effectiveDef = useMemo(() => {
+    if (!def || !item.colorKey) return def;
+    return { ...def, materialOverride: withColorOverride(def.materialOverride, item.colorKey) };
+  }, [def, item.colorKey]);
   if (!def) return null;
   const width = def.w * TILE_M;
   const depth = def.d * TILE_M;
@@ -255,7 +267,7 @@ function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
         selectFurnitureItem(item.id);
       }}
     >
-      <FurnitureVisual def={def} width={width} depth={depth} height={height} />
+      <FurnitureVisual def={effectiveDef ?? def} width={width} depth={depth} height={height} />
       {isSelected && (
         <Line
           points={[

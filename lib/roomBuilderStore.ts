@@ -4,6 +4,7 @@ import { HEIGHT_SCALE, TILE_M } from "./editor3d";
 import { buildPolygon, DEFAULT_WALL_HEIGHT_CM, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "./roomDimensions";
 import type { RoomViewMode } from "./cameraPresets";
 import { clampOpeningOffset, getWallSegments, isFootprintInsideRoom, overlapsOtherOpening, rectsOverlap, type Rect } from "./roomGeometry";
+import type { PaletteKey } from "./furniturePalette";
 import { DEFAULT_FLOOR_STYLE_ID, DEFAULT_WALL_COLOR_HEX, DOOR_PRESETS, WINDOW_PRESETS } from "./roomStyle";
 import type { IsoFurnitureDef } from "./types";
 
@@ -191,6 +192,10 @@ export interface PlacedStudioFurniture {
   cx: number;
   cz: number;
   rotated: boolean;
+  /** 놓기 전 팔레트에서 고른 색상 오버라이드(STEP 20) — 없으면 카탈로그
+   * 기본색(def.materialOverride)을 그대로 쓴다. 놓인 가구마다 따로 갖는
+   * 값이라, 같은 defId를 색만 다르게 여러 개 놓을 수 있다. */
+  colorKey?: PaletteKey;
 }
 
 /**
@@ -301,8 +306,14 @@ interface RoomBuilderState {
   furnitureRotated: boolean;
   /** 마지막 배치 시도가 실패(방을 벗어나거나 다른 가구와 겹침)했는지. */
   furnitureWarn: boolean;
+  /** 다음에 놓을 가구에 적용할 색상(STEP 20) — null이면 카탈로그 기본색.
+   * furnitureRotated와 달리 가구를 바꿔 골라도 리셋하지 않는다: 방 전체를
+   * 한 색으로 맞추려고 여러 가구를 연달아 놓는 흐름을 지원하기 위해서다. */
+  selectedColorKey: PaletteKey | null;
   selectFurnitureDef: (defId: string) => void;
   toggleFurnitureRotate: () => void;
+  /** 같은 색을 다시 고르면 해제(다른 팔레트 선택 관례와 통일). */
+  selectColor: (key: PaletteKey) => void;
   placeFurnitureAt: (cx: number, cz: number) => void;
   /** 가구를 (cx,cz)로 옮긴다 — 놓을 수 없는 자리면 조용히 무시(마지막
    * 유효 위치 유지). */
@@ -465,6 +476,7 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
   selectedFurnitureDefId: null,
   furnitureRotated: false,
   furnitureWarn: false,
+  selectedColorKey: null,
   selectFurnitureDef: (defId) =>
     set((state) => ({
       selectedFurnitureDefId: state.selectedFurnitureDefId === defId ? null : defId,
@@ -473,8 +485,9 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       selectedFurnitureId: null, // 새로 놓을 걸 고르는 중이면 기존 선택(삭제·회전 툴바)은 의미 없음
     })),
   toggleFurnitureRotate: () => set((state) => ({ furnitureRotated: !state.furnitureRotated })),
+  selectColor: (key) => set((state) => ({ selectedColorKey: state.selectedColorKey === key ? null : key })),
   placeFurnitureAt: (cx, cz) => {
-    const { selectedFurnitureDefId, furnitureRotated, roomShape, roomPolygon, furniture } = get();
+    const { selectedFurnitureDefId, furnitureRotated, roomShape, roomPolygon, furniture, selectedColorKey } = get();
     if (!selectedFurnitureDefId) return;
     const def = furnitureDefById.get(selectedFurnitureDefId);
     if (!def) return;
@@ -483,7 +496,17 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
       return;
     }
     set({
-      furniture: [...furniture, { id: crypto.randomUUID(), defId: selectedFurnitureDefId, cx, cz, rotated: furnitureRotated }],
+      furniture: [
+        ...furniture,
+        {
+          id: crypto.randomUUID(),
+          defId: selectedFurnitureDefId,
+          cx,
+          cz,
+          rotated: furnitureRotated,
+          ...(selectedColorKey ? { colorKey: selectedColorKey } : {}),
+        },
+      ],
       furnitureWarn: false,
     });
   },

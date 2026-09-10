@@ -9,6 +9,7 @@ import { FurnitureModel } from "@/components/furnitureModel3d";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { computeCameraPose } from "@/lib/cameraPresets";
 import { HEIGHT_SCALE, TILE_M, toM, WALL_THICKNESS_CM } from "@/lib/editor3d";
+import { withColorOverride } from "@/lib/furniturePalette";
 import type { RoomShapeId } from "@/lib/roomBuilderStore";
 import { buildWallBoxes, CONVEX_DIAGONAL_SHAPES, getFloorRects, getWallSegments } from "@/lib/roomGeometry";
 import { FLOOR_STYLE_PRESETS } from "@/lib/roomStyle";
@@ -153,6 +154,13 @@ function FurnitureVisual({ def, width, depth, height }: { def: IsoFurnitureDef; 
  * 위치가 맞는다 — RoomStudioScene3D.tsx의 FurnitureItem과 같은 규칙. */
 function FurnitureItem({ item }: { item: StudioRoomSnapshot["furniture"][number] }) {
   const def = furnitureDefById.get(item.defId);
+  // 놓을 때 고른 색상 오버라이드(STEP 20) — RoomStudioScene3D.tsx의
+  // FurnitureItem과 같은 규칙으로 카탈로그 기본 materialOverride 위에 얹는다.
+  // 훅 순서를 지키려고 아래 조기 return보다 먼저 둔다.
+  const effectiveDef = useMemo(() => {
+    if (!def || !item.colorKey) return def;
+    return { ...def, materialOverride: withColorOverride(def.materialOverride, item.colorKey) };
+  }, [def, item.colorKey]);
   if (!def) return null;
   const width = def.w * TILE_M;
   const depth = def.d * TILE_M;
@@ -161,7 +169,7 @@ function FurnitureItem({ item }: { item: StudioRoomSnapshot["furniture"][number]
 
   return (
     <group position={[toM(item.cx), y, toM(item.cz)]} rotation={[0, item.rotated ? Math.PI / 2 : 0, 0]}>
-      <FurnitureVisual def={def} width={width} depth={depth} height={height} />
+      <FurnitureVisual def={effectiveDef ?? def} width={width} depth={depth} height={height} />
     </group>
   );
 }

@@ -3,10 +3,28 @@
 import Image from "next/image";
 import { useState } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
-import { furnitureThumbnailUrl } from "@/lib/furniturePalette";
+import { furnitureThumbnailUrl, PALETTE } from "@/lib/furniturePalette";
 import { furnitureFootprintCm, useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { CATEGORY_LABELS } from "@/lib/types";
 import type { FurnitureCategory, IsoFurnitureDef } from "@/lib/types";
+import type { PaletteKey } from "@/lib/furniturePalette";
+
+/** 색상 스와치 표시 순서 — 밝은 톤 → 어두운 톤, 그레이지 → 코퍼 → 뉴트럴 →
+ * 그린 순으로 lib/furniturePalette.ts PALETTE 키를 나열한다(Object.keys
+ * 선언 순서에 기대지 않고 명시적으로 고정). */
+const COLOR_SWATCH_ORDER: PaletteKey[] = [
+  "greige.100",
+  "greige.300",
+  "greige.500",
+  "greige.700",
+  "copper.400",
+  "copper.600",
+  "copper.800",
+  "copper.metal",
+  "neutral.chalk",
+  "neutral.ink",
+  "accent.leaf",
+];
 
 const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 
@@ -74,6 +92,8 @@ export function FurniturePalette() {
   const furnitureRotated = useRoomBuilderStore((s) => s.furnitureRotated);
   const toggleFurnitureRotate = useRoomBuilderStore((s) => s.toggleFurnitureRotate);
   const furnitureWarn = useRoomBuilderStore((s) => s.furnitureWarn);
+  const selectedColorKey = useRoomBuilderStore((s) => s.selectedColorKey);
+  const selectColor = useRoomBuilderStore((s) => s.selectColor);
 
   const selectedDef = selectedFurnitureDefId ? furnitureCatalog.find((d) => d.id === selectedFurnitureDefId) : null;
 
@@ -128,13 +148,37 @@ export function FurniturePalette() {
       </div>
 
       {selectedDef && (
-        <button
-          type="button"
-          onClick={toggleFurnitureRotate}
-          className="w-fit rounded-full border border-hair px-4 py-2 text-[11px] text-[#5f5f57] transition hover:border-olive hover:text-fg"
-        >
-          ↻ 놓을 방향{furnitureRotated ? " — 90도 돌림" : ""}
-        </button>
+        <div className="flex flex-wrap items-center gap-4">
+          <button
+            type="button"
+            onClick={toggleFurnitureRotate}
+            className="w-fit rounded-full border border-hair px-4 py-2 text-[11px] text-[#5f5f57] transition hover:border-olive hover:text-fg"
+          >
+            ↻ 놓을 방향{furnitureRotated ? " — 90도 돌림" : ""}
+          </button>
+
+          <div className="flex items-center gap-2">
+            <span className="label-mono text-[10px] text-faint">색상</span>
+            {COLOR_SWATCH_ORDER.map((key) => {
+              const active = selectedColorKey === key;
+              return (
+                <button
+                  key={key}
+                  type="button"
+                  aria-label={`${key} 색상 선택`}
+                  aria-pressed={active}
+                  onClick={() => selectColor(key)}
+                  className="h-6 w-6 shrink-0 rounded-full border-2 transition"
+                  style={{
+                    background: PALETTE[key],
+                    borderColor: active ? "var(--color-olive)" : "rgba(18,18,15,0.16)",
+                    boxShadow: active ? "0 0 0 2px var(--color-sage)" : "none",
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
       )}
 
       <p className="text-[12px] leading-[1.8] text-muted">
