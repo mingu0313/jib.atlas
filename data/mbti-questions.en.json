@@ -2,73 +2,73 @@
   {
     "id": "m1",
     "indicator": "EI",
-    "prompt": "Which is closer to you?",
+    "prompt": "At a party full of strangers, you...",
     "options": [
-      { "id": "A", "label": "Meeting new people actually energizes me", "poleWeight": 2 },
-      { "id": "B", "label": "After a social day, I need time alone to recharge", "poleWeight": -2 }
+      { "id": "A", "label": "Feel more energized the more new people you meet", "poleWeight": 2 },
+      { "id": "B", "label": "Come home completely drained, need alone time to recharge", "poleWeight": -2 }
     ]
   },
   {
     "id": "m2",
     "indicator": "EI",
-    "prompt": "Which is closer to you?",
+    "prompt": "Talking to strangers, you...",
     "options": [
-      { "id": "A", "label": "I tend to strike up conversation with strangers", "poleWeight": 2 },
-      { "id": "B", "label": "I keep close bonds with just a few people", "poleWeight": -2 }
+      { "id": "A", "label": "Strike up conversation with the person next to you", "poleWeight": 2 },
+      { "id": "B", "label": "Stick with the friends you already trust", "poleWeight": -2 }
     ]
   },
   {
     "id": "m3",
     "indicator": "SN",
-    "prompt": "Which is closer to you?",
+    "prompt": "When something's bothering you, you...",
     "options": [
-      { "id": "A", "label": "I start from what's practical and in front of me", "poleWeight": 2 },
-      { "id": "B", "label": "I'm drawn to future possibilities and ideas first", "poleWeight": -2 }
+      { "id": "A", "label": "Focus on what's actually happening right now", "poleWeight": 2 },
+      { "id": "B", "label": "Start imagining how it'll all play out later", "poleWeight": -2 }
     ]
   },
   {
     "id": "m4",
     "indicator": "SN",
-    "prompt": "Which is closer to you?",
+    "prompt": "What catches your interest without you even trying?",
     "options": [
-      { "id": "A", "label": "I care more about concrete, practical things", "poleWeight": 2 },
-      { "id": "B", "label": "I'm drawn to new, unusual concepts", "poleWeight": -2 }
+      { "id": "A", "label": "Something concrete you can actually use", "poleWeight": 2 },
+      { "id": "B", "label": "Something weird and wildly original", "poleWeight": -2 }
     ]
   },
   {
     "id": "m5",
     "indicator": "TF",
-    "prompt": "Which is closer to you?",
+    "prompt": "Making a decision, you...",
     "options": [
-      { "id": "A", "label": "I weigh logic and efficiency first when deciding", "poleWeight": 2 },
-      { "id": "B", "label": "I think about people's feelings first when deciding", "poleWeight": -2 }
+      { "id": "A", "label": "Check the facts and the logic first", "poleWeight": 2 },
+      { "id": "B", "label": "Think about who might get hurt first", "poleWeight": -2 }
     ]
   },
   {
     "id": "m6",
     "indicator": "TF",
-    "prompt": "Which is closer to you?",
+    "prompt": "When judging a situation, what matters more?",
     "options": [
-      { "id": "A", "label": "Judging by objective standards matters to me", "poleWeight": 2 },
-      { "id": "B", "label": "Empathizing with the person involved matters more", "poleWeight": -2 }
+      { "id": "A", "label": "A standard anyone would agree is fair", "poleWeight": 2 },
+      { "id": "B", "label": "Putting yourself in their shoes", "poleWeight": -2 }
     ]
   },
   {
     "id": "m7",
     "indicator": "JP",
-    "prompt": "Which is closer to you?",
+    "prompt": "Your everyday style is...",
     "options": [
-      { "id": "A", "label": "I like planning ahead and sticking to it", "poleWeight": 2 },
-      { "id": "B", "label": "I like staying flexible and adapting as I go", "poleWeight": -2 }
+      { "id": "A", "label": "Everything's in the planner, no surprises", "poleWeight": 2 },
+      { "id": "B", "label": "Whatever feels right in the moment", "poleWeight": -2 }
     ]
   },
   {
     "id": "m8",
     "indicator": "JP",
-    "prompt": "Which is closer to you?",
+    "prompt": "About your routine, you...",
     "options": [
-      { "id": "A", "label": "A fixed routine gives me a sense of stability", "poleWeight": 2 },
-      { "id": "B", "label": "Spontaneous changes of plan are fun too", "poleWeight": -2 }
+      { "id": "A", "label": "Feel safest doing the same thing every day", "poleWeight": 2 },
+      { "id": "B", "label": "Love it when plans suddenly change", "poleWeight": -2 }
     ]
   }
 ]
