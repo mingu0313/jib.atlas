@@ -295,6 +295,18 @@ export interface IsoFurnitureDef {
    * 허용한다). 없으면 "object"(기존 동작과 동일, 전부 서로 겹칠 수 없음).
    */
   layer?: "floor" | "object";
+  /**
+   * STEP 21 — 2D 평면도(RoomFurnitureCanvas) 아이콘 모양. 전부 사각형이면
+   * "무슨 가구를 놓았는지 구분이 안 된다"는 피드백으로 추가했다. 없으면
+   * "rect"(기존 동작과 동일). "circle"은 실제 실측이 원형/타원인 가구
+   * (원형 테이블·러그·스툴·소형 화분 등) — 바운딩 박스에 꽉 차는 타원
+   * 하나로 원·타원 둘 다 표현한다(w=d면 원, w≠d면 타원). "lshape"는
+   * 코너 소파·코너 책상처럼 정사각 바운딩 박스의 절반씩을 차지하는 L자
+   * 배치 — 실제 3D 모델의 정확한 외곽선을 재현한 건 아니고, "이 자리엔
+   * 이런 방향성 있는 코너형 가구가 있다"는 걸 사각형보다 잘 전달하려는
+   * 근사 도형이다.
+   */
+  planShape?: "rect" | "circle" | "lshape";
 }
 
 /** 캔버스에 배치된 가구 하나. col/row는 좌상단 타일 기준(격자 스냅).
@@ -347,7 +359,16 @@ export interface StudioRoomSnapshot {
     heightCm: number;
     sillHeightCm?: number;
   }[];
-  furniture: { id: string; defId: string; cx: number; cz: number; rotated: boolean; colorKey?: import("./furniturePalette").PaletteKey }[];
+  furniture: {
+    id: string;
+    defId: string;
+    cx: number;
+    cz: number;
+    rotated: boolean;
+    colorKey?: import("./furniturePalette").PaletteKey;
+    /** STEP 21 — 90도 스냅 회전 위에 얹는 미세 각도(도, -45~45). 없으면 0. */
+    fineAngleDeg?: number;
+  }[];
 }
 
 /**

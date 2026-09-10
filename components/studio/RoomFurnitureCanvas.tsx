@@ -30,6 +30,67 @@ function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number): Point
   return { x: p.x, z: p.y };
 }
 
+/**
+ * STEP 21 — 평면도 위 가구 아이콘. 전부 사각형이면 "무슨 가구를 놓았는지
+ * 구분이 안 된다"는 피드백으로, def.planShape에 따라 다른 도형을 그린다.
+ * - "circle": 바운딩 박스에 꽉 차는 타원 하나로 원·타원 가구(원형
+ *   테이블·러그·스툴·화분) 전부 표현한다(w=d면 원, w≠d면 타원).
+ * - "lshape": 정사각 바운딩 박스를 절반씩 나눈 L자 — 코너 소파/코너
+ *   책상의 실제 3D 모델 외곽선과 정확히 같진 않지만, 사각형보다는
+ *   "방향성 있는 코너형 가구"라는 걸 훨씬 잘 전달한다. 기본 방향은 위쪽·
+ *   왼쪽 변을 따라 두 팔이 붙고 오른쪽 아래가 트인 모양으로 고정해두고,
+ *   회전(rotated 90도 스냅 + fineAngleDeg 미세 각도)은 바깥 <g transform>
+ *   하나로 처리한다 — 그래서 도형 정의 자체엔 회전 로직이 안 들어간다.
+ * - 그 외(기본값 "rect")는 기존과 동일한 둥근 사각형.
+ */
+function FurnitureIcon({
+  shape,
+  x0,
+  z0,
+  widthCm,
+  depthCm,
+  cx,
+  cz,
+  angleDeg,
+  fill,
+  stroke,
+  strokeWidth,
+}: {
+  shape: "rect" | "circle" | "lshape";
+  x0: number;
+  z0: number;
+  widthCm: number;
+  depthCm: number;
+  cx: number;
+  cz: number;
+  angleDeg: number;
+  fill: string;
+  stroke: string;
+  strokeWidth: number;
+}) {
+  let inner: React.ReactNode;
+  if (shape === "circle") {
+    inner = <ellipse cx={cx} cy={cz} rx={widthCm / 2} ry={depthCm / 2} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
+  } else if (shape === "lshape") {
+    const armW = widthCm / 2;
+    const armD = depthCm / 2;
+    const points = [
+      [x0, z0],
+      [x0 + widthCm, z0],
+      [x0 + widthCm, z0 + armD],
+      [x0 + armW, z0 + armD],
+      [x0 + armW, z0 + depthCm],
+      [x0, z0 + depthCm],
+    ]
+      .map((p) => p.join(","))
+      .join(" ");
+    inner = <polygon points={points} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
+  } else {
+    inner = <rect x={x0} y={z0} width={widthCm} height={depthCm} rx={6} fill={fill} stroke={stroke} strokeWidth={strokeWidth} />;
+  }
+  return angleDeg ? <g transform={`rotate(${angleDeg} ${cx} ${cz})`}>{inner}</g> : inner;
+}
+
 /** 선택된 가구 위에 뜨는 회전·삭제 버튼 두 개짜리 인라인 툴바 — 가구
  * bounding box 위쪽 가장자리 바로 위, 가로로 나란히. */
 function FurnitureToolbar({
@@ -118,12 +179,15 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
       }}
       style={{ cursor: "grab" }}
     >
-      <rect
-        x={item.cx - widthCm / 2}
-        y={item.cz - depthCm / 2}
-        width={widthCm}
-        height={depthCm}
-        rx={6}
+      <FurnitureIcon
+        shape={def.planShape ?? "rect"}
+        x0={item.cx - widthCm / 2}
+        z0={item.cz - depthCm / 2}
+        widthCm={widthCm}
+        depthCm={depthCm}
+        cx={item.cx}
+        cz={item.cz}
+        angleDeg={item.fineAngleDeg ?? 0}
         fill={item.colorKey ? PALETTE[item.colorKey] : def.top}
         stroke={isSelected ? "var(--color-olive)" : "rgba(18,18,15,0.35)"}
         strokeWidth={isSelected ? 3.5 : 2}

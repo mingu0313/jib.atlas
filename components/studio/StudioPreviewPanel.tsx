@@ -7,8 +7,13 @@ import { RoomFurnitureCanvas } from "@/components/studio/RoomFurnitureCanvas";
 import { RoomPlanCanvas } from "@/components/studio/RoomPlanCanvas";
 import { RoomPolygonPreview } from "@/components/studio/RoomPolygonPreview";
 import { RoomViewToolbar } from "@/components/studio/RoomViewToolbar";
+import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { getFloorAreaM2 } from "@/lib/roomGeometry";
-import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
+import { FINE_ANGLE_MAX_DEG, FINE_ANGLE_STEP_DEG, POSITION_NUDGE_STEP_CM, useRoomBuilderStore } from "@/lib/roomBuilderStore";
+import type { IsoFurnitureDef } from "@/lib/types";
+
+const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
+const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
 // three.js Canvas는 WebGL이라 SSR 불가 — 예전엔 StepFinish/StepFurniture
 // 두 곳에서 각자 이렇게 동적 로드했는데, 이제 이 패널 하나로 합쳤다(아래
@@ -51,6 +56,8 @@ export function StudioPreviewPanel({ step }: { step: number }) {
   const removeOpening = useRoomBuilderStore((s) => s.removeOpening);
   const removeFurniture = useRoomBuilderStore((s) => s.removeFurniture);
   const rotateFurniture = useRoomBuilderStore((s) => s.rotateFurniture);
+  const nudgeFurnitureAngle = useRoomBuilderStore((s) => s.nudgeFurnitureAngle);
+  const nudgeFurniturePosition = useRoomBuilderStore((s) => s.nudgeFurniturePosition);
 
   // 단계를 넘기면 이전 단계에서 선택돼 있던 문/창문·가구 선택을 지운다 —
   // 안 지우면 예컨대 3단계에서 문을 선택한 채로 4단계로 넘어갔을 때, 화면엔
@@ -61,9 +68,13 @@ export function StudioPreviewPanel({ step }: { step: number }) {
     selectFurnitureItem(null);
   }, [step, selectOpening, selectFurnitureItem]);
 
-  // 선택된 opening/furniture를 Delete·Backspace로 삭제, R로 회전(가구만).
-  // 입력창(치수 입력 등)에 포커스가 있을 때는 무시 — 안 그러면 숫자를
-  // 지우려고 Backspace를 눌렀는데 방금 선택한 가구가 같이 지워진다.
+  // 선택된 opening/furniture를 Delete·Backspace로 삭제, R로 90도 회전
+  // (가구만). STEP 21 — 화살표 키로 위치 미세이동(Shift면 4배 큰 스텝),
+  // [·]로 미세 각도 조절(±FINE_ANGLE_STEP_DEG)도 여기 추가했다 — 2D/3D
+  // 어느 모드를 보고 있어도(이 핸들러는 모드와 무관하게 항상 붙어 있다)
+  // 똑같이 동작해서 "3D 화면에서도 미세조절"을 만족한다. 입력창(치수
+  // 입력 등)에 포커스가 있을 때는 무시 — 안 그러면 숫자를 지우려고
+  // Backspace를 눌렀는데 방금 선택한 가구가 같이 지워진다.
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
       const tag = (document.activeElement?.tagName ?? "").toLowerCase();
@@ -71,13 +82,34 @@ export function StudioPreviewPanel({ step }: { step: number }) {
       if (e.key === "Delete" || e.key === "Backspace") {
         if (selectedOpeningId) removeOpening(selectedOpeningId);
         else if (selectedFurnitureId) removeFurniture(selectedFurnitureId);
-      } else if ((e.key === "r" || e.key === "R") && selectedFurnitureId) {
+        return;
+      }
+      if (!selectedFurnitureId) return;
+      if (e.key === "r" || e.key === "R") {
         rotateFurniture(selectedFurnitureId);
+      } else if (e.key === "[") {
+        nudgeFurnitureAngle(selectedFurnitureId, -FINE_ANGLE_STEP_DEG);
+      } else if (e.key === "]") {
+        nudgeFurnitureAngle(selectedFurnitureId, FINE_ANGLE_STEP_DEG);
+      } else if (e.key.startsWith("Arrow")) {
+        e.preventDefault(); // 화살표 키의 기본 동작(페이지 스크롤)을 막는다.
+        const step = e.shiftKey ? POSITION_NUDGE_STEP_CM * 4 : POSITION_NUDGE_STEP_CM;
+        const dx = e.key === "ArrowLeft" ? -step : e.key === "ArrowRight" ? step : 0;
+        const dz = e.key === "ArrowUp" ? -step : e.key === "ArrowDown" ? step : 0;
+        if (dx || dz) nudgeFurniturePosition(selectedFurnitureId, dx, dz);
       }
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectedOpeningId, selectedFurnitureId, removeOpening, removeFurniture, rotateFurniture]);
+  }, [
+    selectedOpeningId,
+    selectedFurnitureId,
+    removeOpening,
+    removeFurniture,
+    rotateFurniture,
+    nudgeFurnitureAngle,
+    nudgeFurniturePosition,
+  ]);
 
   const areaM2 = getFloorAreaM2(roomPolygon);
   const spanWidthCm = Math.max(...roomPolygon.map((p) => p.x));
@@ -122,16 +154,100 @@ export function StudioPreviewPanel({ step }: { step: number }) {
         </div>
       </div>
 
-      {/* 3D는 항상 마운트해두고 표시만 토글 — 리마운트되면 카메라 각도가 사라진다.
-          하단 뷰 전환 툴바(STEP 16)도 같은 relative 박스 안에서 캔버스 위에
-          떠 있어야 하니 3D 표시 토글과 한 wrapper로 묶는다. visible={false}일
-          땐 RoomStudioScene3D가 렌더 루프 자체를 멈춘다(안 보이는 WebGL 씬이
-          계속 프레임을 그리며 배터리·GPU를 쓰는 걸 막는 모바일 최적화). */}
-      <div className="relative" style={{ display: mode === "3d" ? "block" : "none" }}>
-        <RoomStudioScene3D visible={mode === "3d"} />
-        <RoomViewToolbar />
+      {/* 2D/3D 공통 relative 래퍼 — FurnitureFineTunePanel(STEP 21)이 선택된
+          가구가 있으면 어느 모드든 위에 떠 있어야 해서(요청: "3D 화면에서도
+          미세조절"), 이제 3D 전용이던 relative 박스를 2D·3D 둘 다 감싸는
+          바깥 하나로 옮겼다. */}
+      <div className="relative">
+        {/* 3D는 항상 마운트해두고 표시만 토글 — 리마운트되면 카메라 각도가 사라진다.
+            하단 뷰 전환 툴바(STEP 16)도 이 안에서 캔버스 위에 떠 있어야 하니
+            같은 wrapper 안에 둔다. visible={false}일 땐 RoomStudioScene3D가
+            렌더 루프 자체를 멈춘다(안 보이는 WebGL 씬이 계속 프레임을 그리며
+            배터리·GPU를 쓰는 걸 막는 모바일 최적화). */}
+        <div style={{ display: mode === "3d" ? "block" : "none" }}>
+          <RoomStudioScene3D visible={mode === "3d"} />
+          <RoomViewToolbar />
+        </div>
+        <div style={{ display: mode === "2d" ? "block" : "none" }}>{plan2D}</div>
+        <FurnitureFineTunePanel />
       </div>
-      <div style={{ display: mode === "2d" ? "block" : "none" }}>{plan2D}</div>
+    </div>
+  );
+}
+
+/**
+ * STEP 21 — 선택된 가구가 있을 때 프리뷰 위(2D든 3D든)에 떠서 위치·각도를
+ * 미세조절하는 오버레이. 기존엔 회전이 90도 스냅 하나뿐이고 이동은 2D
+ * 평면도 드래그로만 됐는데("코너 소파를 방 어느 귀퉁이에도 맞추고 싶다",
+ * "3D 화면에서도 조절하고 싶다") — 여기 버튼은 store의
+ * nudgeFurnitureAngle/nudgeFurniturePosition을 그대로 호출해서 2D 캔버스
+ * 드래그·키보드([·]/화살표, StudioPreviewPanel 최상단 핸들러)와 같은
+ * 값을 공유한다. 3D를 보는 중에도 이 패널이 뜨는 이유가 바로 이거다 —
+ * 3D 캔버스 자체에 레이캐스팅 드래그를 넣는 대신(범위가 커서 STEP 16이
+ * 미뤄둔 부분), 뷰와 무관하게 항상 같은 위치에 뜨는 이 컨트롤로 "3D
+ * 화면에서도 미세조절"을 만족시킨다.
+ */
+function FurnitureFineTunePanel() {
+  const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);
+  const furniture = useRoomBuilderStore((s) => s.furniture);
+  const nudgeFurnitureAngle = useRoomBuilderStore((s) => s.nudgeFurnitureAngle);
+  const nudgeFurniturePosition = useRoomBuilderStore((s) => s.nudgeFurniturePosition);
+
+  const item = selectedFurnitureId ? furniture.find((f) => f.id === selectedFurnitureId) : undefined;
+  if (!item) return null;
+  const def = furnitureDefById.get(item.defId);
+  const fineAngleDeg = item.fineAngleDeg ?? 0;
+
+  const nudgeBtnClass =
+    "flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-hair text-[11px] leading-none transition hover:border-olive hover:text-olive";
+
+  return (
+    <div
+      className="absolute top-3 right-3 z-20 flex flex-col gap-2 rounded-[14px] px-3 py-2.5 backdrop-blur-[16px]"
+      style={{ background: "rgba(247,246,242,0.92)", border: "1px solid var(--color-hair)" }}
+      title="키보드 [ ]로 회전, 화살표로 이동돼요(Shift로 크게)"
+    >
+      <span className="label-mono text-[9px] text-faint">{def?.label ?? "가구"} 미세조절</span>
+
+      <div className="flex items-center gap-1.5">
+        <button type="button" aria-label="왼쪽으로 미세 회전" onClick={() => nudgeFurnitureAngle(item.id, -FINE_ANGLE_STEP_DEG)} className={nudgeBtnClass}>
+          ↺
+        </button>
+        <input
+          type="range"
+          min={-FINE_ANGLE_MAX_DEG}
+          max={FINE_ANGLE_MAX_DEG}
+          step={1}
+          value={fineAngleDeg}
+          onChange={(e) => nudgeFurnitureAngle(item.id, Number(e.target.value) - fineAngleDeg)}
+          className="w-16 accent-[var(--color-olive)]"
+          aria-label="미세 회전 각도"
+        />
+        <button type="button" aria-label="오른쪽으로 미세 회전" onClick={() => nudgeFurnitureAngle(item.id, FINE_ANGLE_STEP_DEG)} className={nudgeBtnClass}>
+          ↻
+        </button>
+        <span className="label-mono w-7 shrink-0 text-right text-[10px] text-muted">
+          {fineAngleDeg > 0 ? "+" : ""}
+          {fineAngleDeg}°
+        </span>
+      </div>
+
+      {/* 위치 미세이동 — 세로 3x3 그리드 대신 한 줄로 눕혀서 자리를 덜 차지한다. */}
+      <div className="flex items-center gap-1.5">
+        <button type="button" aria-label="왼쪽으로 이동" onClick={() => nudgeFurniturePosition(item.id, -POSITION_NUDGE_STEP_CM, 0)} className={nudgeBtnClass}>
+          ◀
+        </button>
+        <button type="button" aria-label="위로 이동" onClick={() => nudgeFurniturePosition(item.id, 0, -POSITION_NUDGE_STEP_CM)} className={nudgeBtnClass}>
+          ▲
+        </button>
+        <button type="button" aria-label="아래로 이동" onClick={() => nudgeFurniturePosition(item.id, 0, POSITION_NUDGE_STEP_CM)} className={nudgeBtnClass}>
+          ▼
+        </button>
+        <button type="button" aria-label="오른쪽으로 이동" onClick={() => nudgeFurniturePosition(item.id, POSITION_NUDGE_STEP_CM, 0)} className={nudgeBtnClass}>
+          ▶
+        </button>
+        <span className="label-mono text-[9px] text-faint">이동</span>
+      </div>
     </div>
   );
 }

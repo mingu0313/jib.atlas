@@ -251,7 +251,7 @@ function FurnitureItem({ item }: { item: PlacedStudioFurniture }) {
   return (
     <group
       position={[toM(item.cx), y, toM(item.cz)]}
-      rotation={[0, item.rotated ? Math.PI / 2 : 0, 0]}
+      rotation={[0, (item.rotated ? Math.PI / 2 : 0) + ((item.fineAngleDeg ?? 0) * Math.PI) / 180, 0]}
       onPointerDown={(e) => {
         // 바닥의 배치/선택해제 핸들러로 이 클릭이 새지 않게(가구를 클릭했는데
         // 그 자리에 다른 가구가 놓이거나 선택이 풀리는 걸 막는다).

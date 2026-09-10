@@ -168,7 +168,10 @@ function FurnitureItem({ item }: { item: StudioRoomSnapshot["furniture"][number]
   const y = def.layer === "floor" ? 0.004 : 0;
 
   return (
-    <group position={[toM(item.cx), y, toM(item.cz)]} rotation={[0, item.rotated ? Math.PI / 2 : 0, 0]}>
+    <group
+      position={[toM(item.cx), y, toM(item.cz)]}
+      rotation={[0, (item.rotated ? Math.PI / 2 : 0) + ((item.fineAngleDeg ?? 0) * Math.PI) / 180, 0]}
+    >
       <FurnitureVisual def={effectiveDef ?? def} width={width} depth={depth} height={height} />
     </group>
   );

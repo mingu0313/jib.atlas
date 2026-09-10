@@ -196,7 +196,23 @@ export interface PlacedStudioFurniture {
    * 기본색(def.materialOverride)을 그대로 쓴다. 놓인 가구마다 따로 갖는
    * 값이라, 같은 defId를 색만 다르게 여러 개 놓을 수 있다. */
   colorKey?: PaletteKey;
+  /**
+   * STEP 21 — rotated(0/90도 스냅) 위에 얹는 미세 회전(도). 배치 판정
+   * (canPlaceFurniture)은 여전히 rotated 기준 축정렬 바운딩박스만 보고
+   * 이 값은 안 본다 — 코너 소파를 방 네 귀퉁이 중 어디에도 맞추거나
+   * 의자를 살짜기 튼 느낌을 주는 정도의 "보기용 미세조정"이라, 범위를
+   * ±45도로 좁혀서(그 이상은 rotated 90도 스냅이 담당) 충돌 판정을
+   * 다시 계산하지 않고도 실제로는 거의 항상 같은 바운딩박스 안에 머문다.
+   * 없으면 0(기존 동작과 동일). */
+  fineAngleDeg?: number;
 }
+
+/** fineAngleDeg 허용 범위 — 이 이상은 rotated(90도 스냅)로 커버한다. */
+export const FINE_ANGLE_MAX_DEG = 45;
+/** 각도 조절 버튼 한 번에 움직이는 양. */
+export const FINE_ANGLE_STEP_DEG = 5;
+/** 위치 미세이동 버튼/화살표 키 한 번에 움직이는 양(cm). */
+export const POSITION_NUDGE_STEP_CM = 5;
 
 /**
  * (cx,cz)에 def(rotated 방향)를 놓을 수 있는지 — 방 폴리곤을 완전히
@@ -336,6 +352,14 @@ interface RoomBuilderState {
    * "놓기 전"에만 되던 회전(furnitureRotated)과 달리, 이미 놓인 가구를
    * 지우고 다시 놓지 않아도 방향을 바꿀 수 있게 해준다. */
   rotateFurniture: (id: string) => void;
+  /** STEP 21 — 90도 스냅 위에 얹는 미세 각도 조절(±FINE_ANGLE_MAX_DEG).
+   * 배치 판정을 다시 안 하므로(주석 참고) 항상 성공 — moveFurniture처럼
+   * "조용히 무시"할 실패 케이스가 없다. */
+  nudgeFurnitureAngle: (id: string, deltaDeg: number) => void;
+  /** 위치 미세이동(화살표 키·D패드 버튼) — 방향 하나(dx,dz 중 하나만
+   * ±POSITION_NUDGE_STEP_CM)만큼 옮기고, moveFurniture와 같은 배치 판정을
+   * 거친다(놓을 수 없으면 조용히 무시). */
+  nudgeFurniturePosition: (id: string, dxCm: number, dzCm: number) => void;
 
   /** STEP 16 — 3D 프리뷰의 카메라 뷰 모드. "aerial"(기본, 자유 오빗) /
    * "top"(진짜 위→아래, 사실상 평면도 역할) / "side"(선택한 벽 정면).
@@ -538,6 +562,26 @@ export const useRoomBuilderStore = create<RoomBuilderState>((set, get) => ({
         return state;
       }
       return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, rotated: nextRotated } : f)) };
+    }),
+  nudgeFurnitureAngle: (id, deltaDeg) =>
+    set((state) => ({
+      furniture: state.furniture.map((f) => {
+        if (f.id !== id) return f;
+        const next = Math.max(-FINE_ANGLE_MAX_DEG, Math.min(FINE_ANGLE_MAX_DEG, (f.fineAngleDeg ?? 0) + deltaDeg));
+        return { ...f, fineAngleDeg: next };
+      }),
+    })),
+  nudgeFurniturePosition: (id, dxCm, dzCm) =>
+    set((state) => {
+      const target = state.furniture.find((f) => f.id === id);
+      const def = target ? furnitureDefById.get(target.defId) : undefined;
+      if (!target || !def) return state;
+      const nextCx = target.cx + dxCm;
+      const nextCz = target.cz + dzCm;
+      if (!canPlaceFurniture(nextCx, nextCz, def, target.rotated, state.roomShape, state.roomPolygon, state.furniture, id)) {
+        return state;
+      }
+      return { furniture: state.furniture.map((f) => (f.id === id ? { ...f, cx: nextCx, cz: nextCz } : f)) };
     }),
 
   viewMode: "aerial",
