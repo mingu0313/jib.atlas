@@ -9,7 +9,7 @@ import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/supabase/useUser";
-import { HOUSE_PHOTOS_BUCKET, MAX_PHOTOS_PER_POST, stripExifAndResize } from "@/lib/houseAtlas";
+import { HOUSE_PHOTOS_BUCKET, MAX_PHOTOS_PER_POST, RATE_LIMIT_ERROR_PREFIX, stripExifAndResize } from "@/lib/houseAtlas";
 import type { Answer } from "@/lib/types";
 
 const TOTAL_QUESTION_COUNT = 23;
@@ -137,6 +137,14 @@ export default function EnglishAtlasNewPage() {
         })
         .select()
         .single();
+      // 레이트리밋(0007_house_posts_rate_limit.sql의 DB 트리거)은 "그냥
+      // 실패"가 아니라 전용 안내 문구로 보여준다.
+      if (postErr?.message?.startsWith(RATE_LIMIT_ERROR_PREFIX)) {
+        setError("You've reached today's posting limit. Please try again tomorrow.");
+        setSubmitting(false);
+        setStatusText("");
+        return;
+      }
       if (postErr || !postRow) throw postErr ?? new Error("Couldn't create the post.");
 
       const { error: photosErr } = await supabase.from("house_photos").insert(

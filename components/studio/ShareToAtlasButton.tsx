@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { HOUSE_PHOTOS_BUCKET } from "@/lib/houseAtlas";
+import { HOUSE_PHOTOS_BUCKET, RATE_LIMIT_ERROR_PREFIX } from "@/lib/houseAtlas";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersona, getRarityTier } from "@/lib/persona";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
@@ -161,6 +161,13 @@ export function ShareToAtlasButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
         })
         .select()
         .single();
+      // 레이트리밋(0007_house_posts_rate_limit.sql의 DB 트리거)은 "그냥
+      // 실패"가 아니라 전용 안내 문구로 보여준다.
+      if (postErr?.message?.startsWith(RATE_LIMIT_ERROR_PREFIX)) {
+        setError(isEn ? "You've reached today's posting limit. Please try again tomorrow." : "오늘 등록 가능한 횟수를 다 쓰셨어요. 내일 다시 시도해주세요.");
+        setStatus("error");
+        return;
+      }
       if (postErr || !postRow) throw postErr ?? new Error(isEn ? "Couldn't create the post." : "게시물을 만들지 못했어요.");
 
       const { error: photoErr } = await supabase

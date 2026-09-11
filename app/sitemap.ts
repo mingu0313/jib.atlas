@@ -23,6 +23,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/en/studio`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${SITE_URL}/atlas`, changeFrequency: "daily", priority: 0.8 },
     { url: `${SITE_URL}/en/atlas`, changeFrequency: "daily", priority: 0.8 },
+    { url: `${SITE_URL}/privacy`, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${SITE_URL}/en/privacy`, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   let postRoutes: MetadataRoute.Sitemap = [];

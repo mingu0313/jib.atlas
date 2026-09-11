@@ -9,7 +9,7 @@ import { calculateScores } from "@/lib/scoring";
 import { useTestStore } from "@/lib/store";
 import { createClient } from "@/lib/supabase/client";
 import { useUser } from "@/lib/supabase/useUser";
-import { HOUSE_PHOTOS_BUCKET, MAX_PHOTOS_PER_POST, stripExifAndResize } from "@/lib/houseAtlas";
+import { HOUSE_PHOTOS_BUCKET, MAX_PHOTOS_PER_POST, RATE_LIMIT_ERROR_PREFIX, stripExifAndResize } from "@/lib/houseAtlas";
 import type { Answer } from "@/lib/types";
 
 const TOTAL_QUESTION_COUNT = 23;
@@ -135,6 +135,15 @@ export default function AtlasNewPage() {
         })
         .select()
         .single();
+      // 레이트리밋(0007_house_posts_rate_limit.sql의 DB 트리거)은 "그냥
+      // 실패"가 아니라 전용 안내 문구로 보여준다 — throw해서 catch의
+      // 범용 메시지로 뭉개지 않고 여기서 바로 처리하고 끝낸다.
+      if (postErr?.message?.startsWith(RATE_LIMIT_ERROR_PREFIX)) {
+        setError("오늘 등록 가능한 횟수를 다 쓰셨어요. 내일 다시 시도해주세요.");
+        setSubmitting(false);
+        setStatusText("");
+        return;
+      }
       if (postErr || !postRow) throw postErr ?? new Error("게시물을 만들지 못했어요.");
 
       const { error: photosErr } = await supabase.from("house_photos").insert(

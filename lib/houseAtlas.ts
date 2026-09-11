@@ -6,6 +6,15 @@ export const HOUSE_PHOTOS_BUCKET = "house-photos";
 /** 게시물 하나에 허용하는 최대 사진 수. */
 export const MAX_PHOTOS_PER_POST = 6;
 
+/** 24시간 내 게시물 레이트리밋(0007_house_posts_rate_limit.sql의 DB 트리거)
+ * 에 걸렸을 때 Postgres 에러 메시지가 시작하는 접두사 — 인스타그램 공유 전
+ * 검토에서 나온 "게시물 개수 제한이 없다" 이슈 대응. 실제 방어는 DB 트리거가
+ * 하고(브라우저에서 API를 직접 호출해도 우회 불가), 여기 상수는 클라이언트
+ * (app/atlas/new/page.tsx·app/en/atlas/new/page.tsx·
+ * components/studio/ShareToAtlasButton.tsx) 세 곳이 "그냥 실패"와 "레이트
+ * 리밋 걸림"을 구분해서 전용 안내 문구를 보여주기 위한 용도로만 쓴다. */
+export const RATE_LIMIT_ERROR_PREFIX = "RATE_LIMIT_EXCEEDED";
+
 /**
  * 업로드 전 브라우저에서 사진을 캔버스에 다시 그려 JPEG로 내보낸다.
  *
