@@ -84,7 +84,7 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
     <div className="pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-between gap-4 px-6 py-[22px] sm:px-10 sm:py-[28px]">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 top-0 h-[130px] backdrop-blur-[10px]"
+        className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[130px] backdrop-blur-[10px]"
         style={{ background: "linear-gradient(to bottom, rgba(247,246,242,0.85) 0%, rgba(247,246,242,0.55) 55%, rgba(247,246,242,0) 100%)" }}
       />
       <Link
