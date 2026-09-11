@@ -13,38 +13,41 @@ function byId(id: string) {
 }
 
 /** 전체 템플릿 중 성향이 뚜렷하게 갈리는 4개를 대표로 뽑는다 — DESIGN-HANDOFF-V2.md
- * "집 유형 4칸"의 사진과 실제 결이 맞는 템플릿으로 짝지었다. "영문명"은 실제 데이터에
- * 없는 필드라, 지어낸 고유명 대신 무드를 요약하는 짧은 영문 태그로 대체했다(진짜
- * 유형명은 그 아래 한글로 그대로 보여준다).
+ * "집 유형 4칸"의 사진·이름이 실제 결이 맞는 템플릿으로 짝지었다. "영문명"은 실제
+ * 데이터에 없는 필드라, 지어낸 고유명 대신 무드를 요약하는 짧은 영문 태그로
+ * 대체했다(진짜 유형명은 그 아래 한글로 그대로 보여준다 — house-templates.json의
+ * name을 임의로 바꿔 쓰지 않는다. 이 이름은 진단 결과 페이지 등 다른 화면에서도
+ * 같은 뜻으로 쓰이는 실제 유형명이라, 랜딩에서만 다른 문구로 보여주면 둘이
+ * 어긋나 보인다).
  *
  * 사진 출처 — "4칸이 다 같은 베이지 원룸 사진처럼 보이고, 설명이랑도 안 맞는다"는
- * 피드백을 받았다(예: "실용적·붙박이 수납" 설명에 가구 하나 없는 새하얀 빈 공간
- * 사진, "온 가족" 설명에 좁은 바 카운터 사진). type-*.jpg 4장은 애초에 한 촬영
- * 톤(따뜻한 베이지, 1인 원룸 스케일)으로만 골라져 있어서 구조적으로 서로 안 갈렸다.
- * 대신 data/interior-styles.json(결과 페이지 인테리어 매칭용 10개 스타일, 각각
- * 공간감·색감이 뚜렷이 다름)에서 실제로 설명과 맞는 사진을 가져왔다 — 스타일
- * 매칭 로직(lib/interiorMatching.ts)과는 별개로 사진 에셋만 재사용하는 것이라
- * 서로 영향 없음.
- *   - Serene Nest(t9, 조용한 스튜디오): 기존 그대로 — 나무 사이로 볕 드는 창가
- *     리딩 체어, 1인 스케일이 문구와 잘 맞았음.
- *   - Open Loft(t1, 천장까지 트인 개방감): interior-industrial-loft.jpg — 나선
- *     계단 + 복층 + 높은 천장이 있는 실제 로프트 구조라 "탁 트인" 문구에 훨씬
- *     직접적으로 맞음.
- *   - Precision Box(t11, 붙박이 수납·효율적 동선): 처음엔 interior-scandinavian-calm.jpg를
- *     썼는데 "Open Loft랑 너무 겹쳐 보인다"는 피드백을 받았다 — 둘 다 "가구
- *     몇 개 놓인 널찍한 방" 와이드샷이라, 사진만으론 실루엣이 비슷했다.
- *     Serene Nest처럼 성격이 뚜렷한 사진이 필요해서 interior-artisan-studio.jpg로
- *     교체 — 마주보게 짝지은 쿠션·오토만, 리본 창까지 좌우 대칭으로 딱 맞춘
- *     구도 자체가 "제자리에 정확히" 있다는 인상을 준다. 톤(카키 벽)도 Open
- *     Loft(어두운 인더스트리얼)·Social House(중성 그레이)와 겹치지 않음.
- *   - Social House(t5, 대가족이 모여 사는 집): interior-active-urban.jpg — 아일랜드
- *     바스툴 4개 + 넉넉한 거실 + 정원으로 이어지는 슬라이딩 도어까지, "사람이
- *     모이는 걸 전제로 지어진 집" 스케일이 실제로 느껴짐.
+ * 피드백을 받아서(예: "실용적·붙박이 수납" 설명에 가구 하나 없는 새하얀 빈 공간
+ * 사진, "온 가족" 설명에 좁은 바 카운터 사진), type-*.jpg 4장 대신
+ * data/interior-styles.json(결과 페이지 인테리어 매칭용 10개 스타일, 공간감·색감이
+ * 뚜렷이 다름)에서 실제로 설명과 맞는 사진을 가져왔다 — 스타일 매칭 로직
+ * (lib/interiorMatching.ts)과는 별개로 사진 에셋만 재사용하는 것이라 서로 영향
+ * 없음.
+ *
+ * 템플릿 선택 — 그다음엔 "탁 트인 원룸(t1)·깔끔하고 실용적인 원룸(t11) 둘 다
+ * '원룸'으로 끝나서 문구가 겹쳐 보인다"는 피드백을 받았다. t11 대신, minimalism
+ * 축에서 t11(90)보다도 더 극단적인(95, 30개 중 최고) t2("깔끔한 화이트
+ * 인테리어")로 교체 — 이름이 "원룸"과 안 겹치고, features[0]("화이트 톤 공간")·
+ * features[1]("붙박이 수납장으로 정리")이 흰 붙박이 수납장이 있는
+ * interior-scandinavian-calm.jpg와도 문구 그대로 맞아떨어진다. 나머지 3장 이름
+ * (스튜디오/원룸/집)과도 안 겹침.
+ *   - Serene Nest → t9(혼자만의 조용한 스튜디오): type-serene.jpg — 나무 사이로
+ *     볕 드는 창가 리딩 체어, 1인 스케일.
+ *   - Open Loft → t1(탁 트인 원룸): interior-industrial-loft.jpg — 나선계단 +
+ *     복층 + 높은 천장의 실제 로프트 구조.
+ *   - Precision Box → t2(깔끔한 화이트 인테리어): interior-scandinavian-calm.jpg
+ *     — 벽 한쪽을 채운 흰 붙박이 수납장.
+ *   - Social House → t5(온 가족이 함께 사는 집): interior-active-urban.jpg —
+ *     아일랜드 바스툴 4개 + 넉넉한 거실 + 정원 슬라이딩 도어.
  * 네 장 다 이미 4:5 비율로 준비돼 있어 크롭 없이 그대로 들어간다. */
 const FEATURED = [
   { num: "01", tag: "Serene Nest", photo: "/photos/type-serene.jpg", template: byId("t9") },
   { num: "02", tag: "Open Loft", photo: "/photos/interior-industrial-loft.jpg", template: byId("t1") },
-  { num: "03", tag: "Precision Box", photo: "/photos/interior-artisan-studio.jpg", template: byId("t11") },
+  { num: "03", tag: "Precision Box", photo: "/photos/interior-scandinavian-calm.jpg", template: byId("t2") },
   { num: "04", tag: "Social House", photo: "/photos/interior-active-urban.jpg", template: byId("t5") },
 ];
 
