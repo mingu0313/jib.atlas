@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AtlasPostActions } from "@/components/atlas/AtlasPostActions";
@@ -7,6 +8,42 @@ import { StudioRoomViewer } from "@/components/atlas/StudioRoomViewer";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
+
+/**
+ * 게시물마다 다른 title/description/OG 이미지 — 유저가 직접 올린 실제
+ * 콘텐츠라 각자 고유한 색인 가치가 있다(SEO 가이드 "각 페이지마다 고유한
+ * 제목" 항목). 본문 컴포넌트(아래 AtlasPostPage)와 별도로 가볍게 다시
+ * 조회한다 — 이미 있는 Promise.all 조회 구조를 안 건드리는 쪽이 더 안전
+ * 하고, 이 조회 자체도 가벼워서 비용 문제는 없다.
+ */
+export async function generateMetadata({ params }: PageProps<"/atlas/[id]">): Promise<Metadata> {
+  const { id } = await params;
+  const supabase = await createClient();
+  const [{ data: post }, { data: photos }] = await Promise.all([
+    supabase.from("house_posts").select("title, caption").eq("id", id).maybeSingle(),
+    supabase.from("house_photos").select("storage_path").eq("post_id", id).order("sort_order", { ascending: true }).limit(1),
+  ]);
+  if (!post) return {};
+
+  const typedPost = post as Pick<HousePost, "title" | "caption">;
+  // caption을 비워둔 채 올린 게시물도 있어서(사진만 있는 경우), 그럴 땐 빈
+  // <meta description>을 내보내는 대신 제목 기반 기본 문구로 대체한다.
+  const description = typedPost.caption
+    ? typedPost.caption.length > 155
+      ? `${typedPost.caption.slice(0, 154)}…`
+      : typedPost.caption
+    : `${typedPost.title} — jib.atlas 집 아틀라스에 올라온 집이에요.`;
+  const firstPhoto = (photos as Pick<HousePhoto, "storage_path">[] | null)?.[0];
+  const image = firstPhoto ? getHousePhotoUrl(supabase, firstPhoto.storage_path) : undefined;
+
+  return {
+    title: typedPost.title,
+    description,
+    alternates: { canonical: `/atlas/${id}` },
+    openGraph: { title: typedPost.title, description, images: image ? [image] : undefined },
+    twitter: { card: "summary_large_image", title: typedPost.title, description, images: image ? [image] : undefined },
+  };
+}
 
 /**
  * 집 아틀라스 상세 — 지도 위 한 페이지. STEP 9.

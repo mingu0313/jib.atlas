@@ -4,9 +4,13 @@ import { createClient } from "@/lib/supabase/server";
 import type { HousePhoto, HousePost } from "@/lib/types";
 import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
 
+// title은 브랜드 접미사("— jib.atlas") 없이 짧게 둔다 — 루트 레이아웃의
+// title.template("%s — jib.atlas")이 모든 하위 페이지에 자동으로 붙여주므로,
+// 여기서 직접 붙이면 "집 아틀라스 — jib.atlas — jib.atlas"처럼 중복된다.
 export const metadata = {
-  title: "집 아틀라스 — jib.atlas",
+  title: "집 아틀라스",
   description: "유저들이 직접 등록한 집(실사진 또는 인테리어 스튜디오로 꾸민 방)을 모아 보여주는 지도.",
+  alternates: { canonical: "/atlas" },
 };
 
 type PostRow = HousePost & { house_photos: HousePhoto[] };

@@ -13,10 +13,22 @@ const STEPS = [
   { n: "03", text: "Decorate the matched room yourself in a 2D isometric editor." },
 ];
 
+// title은 브랜드 접미사 없이 둔다 — 루트 title.template("%s — jib.atlas")이
+// 자동으로 붙여준다(중복 방지, app/atlas/page.tsx와 같은 이유).
 export const metadata = {
-  title: "jib.atlas — Which house should you live in?",
+  title: "Which house should you live in?",
   description:
     "Take a lifestyle quiz to find the house structure that fits you, then furnish it yourself in a 2D editor.",
+  alternates: {
+    canonical: "/en",
+    languages: { ko: "/", en: "/en" },
+  },
+  openGraph: {
+    title: "jib.atlas — Which house should you live in?",
+    description:
+      "Take a lifestyle quiz to find the house structure that fits you, then furnish it yourself in a 2D editor.",
+    locale: "en_US",
+  },
 };
 
 /**

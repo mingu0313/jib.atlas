@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { DM_Mono, Gowun_Batang, Instrument_Sans, Instrument_Serif, Noto_Sans_KR } from "next/font/google";
 import { MotionProvider } from "@/components/motion/MotionProvider";
+import { SITE_URL } from "@/lib/siteUrl";
 import { getSupabaseEnv } from "@/lib/supabase/env";
 import { getUserSafe } from "@/lib/supabase/server";
 import "./globals.css";
@@ -37,10 +38,52 @@ const dmMono = DM_Mono({
   weight: ["400", "500"],
 });
 
+/** SEO 기본값 — 페이지별 title/description은 각자 export한다(예:
+ * app/atlas/page.tsx, app/atlas/[id]/page.tsx의 generateMetadata). 여기
+ * 루트 값은 그 페이지들이 못 채웠을 때의 폴백이자, title.template으로
+ * 모든 하위 페이지 제목 뒤에 "— jib.atlas"를 자동으로 붙여준다.
+ *
+ * alternates.canonical은 여기서 안 정한다 — 루트에서 정하면 모든 하위
+ * 페이지가 따로 지정하지 않는 한 "/"를 물려받아 버려서(예: /atlas/[id]가
+ * 전부 "/"를 canonical로 잘못 가리킴), 페이지마다 자기 canonical을
+ * 직접 지정하는 쪽이 안전하다.
+ */
 export const metadata: Metadata = {
-  title: "jib.atlas",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: "jib.atlas — 라이프스타일 진단으로 찾는 내 집 구조",
+    template: "%s — jib.atlas",
+  },
   description:
     "라이프스타일 진단으로 나에게 어울리는 집 구조를 찾고, 2D 에디터에서 직접 가구를 배치해보는 웹앱.",
+  openGraph: {
+    type: "website",
+    locale: "ko_KR",
+    siteName: "jib.atlas",
+    title: "jib.atlas — 라이프스타일 진단으로 찾는 내 집 구조",
+    description:
+      "라이프스타일 진단으로 나에게 어울리는 집 구조를 찾고, 2D 에디터에서 직접 가구를 배치해보는 웹앱.",
+    images: [{ url: "/og-image.jpg", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "jib.atlas — 라이프스타일 진단으로 찾는 내 집 구조",
+    description:
+      "라이프스타일 진단으로 나에게 어울리는 집 구조를 찾고, 2D 에디터에서 직접 가구를 배치해보는 웹앱.",
+    images: ["/og-image.jpg"],
+  },
+};
+
+/** 홈페이지 대상 WebSite 구조화 데이터 — SEO 가이드 "구조화된 데이터" 항목.
+ * 검색결과의 사이트링크 검색창 등에 쓰일 수 있다. 모든 페이지 <head>에
+ * 한 번만 있으면 되는 사이트 단위 정보라 루트 레이아웃에 둔다. */
+const WEBSITE_JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "jib.atlas",
+  url: SITE_URL,
+  description: "라이프스타일 진단으로 나에게 어울리는 집 구조를 찾고, 2D 에디터에서 직접 가구를 배치해보는 웹앱.",
+  inLanguage: "ko-KR",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -67,6 +110,10 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
             }}
           />
         )}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(WEBSITE_JSON_LD).replace(/</g, "\\u003c") }}
+        />
       </head>
       {/* v2는 화면마다(랜딩 부유형 필 내비 / 퀴즈·에디터 자체 상단바 / 결과·
           공유는 상단바 없음) 다른 헤더를 쓰는 디자인이라, v1 시절의 전역
