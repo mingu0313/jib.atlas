@@ -62,9 +62,8 @@ const TEXT: Record<Locale, Record<string, string>> = {
  * locale — STEP 11(다국어). 이 컴포넌트는 지금 한국어 랜딩(`/`)과 영문
  * 랜딩(`/en`) 딱 두 군데에서만 쓰이기 때문에(다른 라우트는 각자 자기
  * 헤더를 그림), 언어 전환 링크는 그냥 "/" ↔ "/en"만 오가면 충분하다 —
- * 깊은 경로별 매핑 테이블은 필요 없다. 에디터는 STEP 16부터 `/en/studio`가
- * 생겨서 prefix를 그대로 쓴다 — 집 지도(`/atlas`)는 아직 영문화 전이라
- * en 모드에서도 그대로 한국어 페이지로 링크한다.
+ * 깊은 경로별 매핑 테이블은 필요 없다. 에디터·집 지도는 각각 STEP 16·17
+ * 부터 `/en/studio`·`/en/atlas`가 생겨서 둘 다 prefix를 그대로 쓴다.
  *
  * 협업 문의 — 처음엔 `mailto:` 링크였는데 기기에 기본 메일 앱이 설정돼
  * 있어야만 동작해서, 브라우저로만 지메일 등을 쓰는 사람(맥·아이맥·모바일
@@ -111,7 +110,7 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
         <Link href={`${prefix}/studio`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           {t.editor}
         </Link>
-        <Link href="/atlas" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+        <Link href={`${prefix}/atlas`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           {t.atlas}
         </Link>
       </nav>
@@ -139,6 +138,7 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
           {!userLoading &&
             (user ? (
               <form action={signOut}>
+                <input type="hidden" name="redirectTo" value={locale === "en" ? "/en/login" : "/login"} />
                 <button
                   type="submit"
                   className="text-sm font-semibold text-fg transition hover:text-olive-mid"
@@ -148,7 +148,7 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
               </form>
             ) : (
               <Link
-                href={`/login?next=${encodeURIComponent(pathname)}`}
+                href={`${prefix}/login?next=${encodeURIComponent(pathname)}`}
                 className="text-sm font-semibold text-fg transition hover:text-olive-mid"
               >
                 {t.login}

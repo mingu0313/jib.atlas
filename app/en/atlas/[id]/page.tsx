@@ -11,13 +11,12 @@ import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
 
 /**
- * 게시물마다 다른 title/description/OG 이미지 — 유저가 직접 올린 실제
- * 콘텐츠라 각자 고유한 색인 가치가 있다(SEO 가이드 "각 페이지마다 고유한
- * 제목" 항목). 본문 컴포넌트(아래 AtlasPostPage)와 별도로 가볍게 다시
- * 조회한다 — 이미 있는 Promise.all 조회 구조를 안 건드리는 쪽이 더 안전
- * 하고, 이 조회 자체도 가벼워서 비용 문제는 없다.
+ * app/atlas/[id]/page.tsx의 영문판(`/en/atlas/[id]`) — 마크업·조회 로직
+ * 동일, UI 문구만 영문(STEP 17 다국어 확장). 게시물 자체(title/caption/
+ * 댓글)는 작성자가 쓴 언어 그대로 — 실제 콘텐츠는 안 건드린다는 이 STEP의
+ * 원칙(app/en/atlas/page.tsx 주석 참고).
  */
-export async function generateMetadata({ params }: PageProps<"/atlas/[id]">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/en/atlas/[id]">): Promise<Metadata> {
   const { id } = await params;
   const supabase = await createClient();
   const [{ data: post }, { data: photos }] = await Promise.all([
@@ -27,38 +26,24 @@ export async function generateMetadata({ params }: PageProps<"/atlas/[id]">): Pr
   if (!post) return {};
 
   const typedPost = post as Pick<HousePost, "title" | "caption">;
-  // caption을 비워둔 채 올린 게시물도 있어서(사진만 있는 경우), 그럴 땐 빈
-  // <meta description>을 내보내는 대신 제목 기반 기본 문구로 대체한다.
   const description = typedPost.caption
     ? typedPost.caption.length > 155
       ? `${typedPost.caption.slice(0, 154)}…`
       : typedPost.caption
-    : `${typedPost.title} — jib.atlas 집 아틀라스에 올라온 집이에요.`;
+    : `${typedPost.title} — a home shared on the jib.atlas house atlas.`;
   const firstPhoto = (photos as Pick<HousePhoto, "storage_path">[] | null)?.[0];
   const image = firstPhoto ? getHousePhotoUrl(supabase, firstPhoto.storage_path) : undefined;
 
   return {
     title: typedPost.title,
     description,
-    alternates: { canonical: `/atlas/${id}`, languages: { ko: `/atlas/${id}`, en: `/en/atlas/${id}` } },
+    alternates: { canonical: `/en/atlas/${id}`, languages: { ko: `/atlas/${id}`, en: `/en/atlas/${id}` } },
     openGraph: { title: typedPost.title, description, images: image ? [image] : undefined },
     twitter: { card: "summary_large_image", title: typedPost.title, description, images: image ? [image] : undefined },
   };
 }
 
-/**
- * 집 아틀라스 상세 — 지도 위 한 페이지. STEP 9.
- * 사진·본문은 서버에서 그리고, 좋아요/댓글처럼 유저별로 달라지는 상호작용만
- * 클라이언트 컴포넌트(AtlasPostActions)로 넘긴다.
- *
- * studio_room이 있는 게시물(STEP 18, /studio에서 공유)은 캡처 사진 대신
- * 읽기 전용 3D 뷰(StudioRoomViewer, STEP 19)를 보여준다 — "집지도에서
- * 직접 3D로 돌려보고 싶다"는 요청으로 추가했다. house_photos에 캡처
- * 이미지가 같이 있긴 하지만(카드 썸네일·room_items 게시물의 폴백용),
- * 상세 페이지에선 원본 룸 데이터로 직접 오빗 가능한 3D가 정적 사진보다
- * 항상 더 나은 정보라 대체한다.
- */
-export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">) {
+export default async function EnglishAtlasPostPage({ params }: PageProps<"/en/atlas/[id]">) {
   const { id } = await params;
   const supabase = await createClient();
 
@@ -93,34 +78,34 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(
             breadcrumbJsonLd([
-              { name: "홈", path: "/" },
-              { name: "집 아틀라스", path: "/atlas" },
-              { name: typedPost.title, path: `/atlas/${id}` },
+              { name: "Home", path: "/en" },
+              { name: "House Atlas", path: "/en/atlas" },
+              { name: typedPost.title, path: `/en/atlas/${id}` },
             ]),
           ).replace(/</g, "\\u003c"),
         }}
       />
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-6 py-5 sm:px-8">
         <div className="flex items-center gap-[18px] sm:gap-[22px]">
-          <Link href="/" className="font-display text-[22px] text-fg">
+          <Link href="/en" className="font-display text-[22px] text-fg">
             jib<span className="text-olive-mid">.</span>atlas
           </Link>
           <span className="h-[18px] w-px bg-hair" />
-          <Link href="/atlas" className="label-mono text-[10px] text-olive-mid transition hover:text-fg">
+          <Link href="/en/atlas" className="label-mono text-[10px] text-olive-mid transition hover:text-fg">
             ← House Atlas
           </Link>
         </div>
         <Link
-          href="/atlas/new"
+          href="/en/atlas/new"
           className="rounded-full border border-hair px-6 py-3 text-[12px] font-semibold text-fg transition hover:border-olive hover:text-olive"
         >
-          내 집도 등록하기
+          Add your home too
         </Link>
       </div>
 
       <div className="mx-auto grid w-full max-w-4xl grid-cols-1 gap-8 px-6 py-10 sm:px-8 sm:py-14">
         {typedPost.studio_room ? (
-          <StudioRoomViewer room={typedPost.studio_room} />
+          <StudioRoomViewer room={typedPost.studio_room} lang="en" />
         ) : typedPost.room_items ? (
           <div className="flex items-center justify-center rounded-[16px] bg-panel py-8">
             <RoomIsoCard items={typedPost.room_items} className="h-[420px] max-w-full" />
@@ -132,7 +117,7 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
               <img
                 key={photo.id}
                 src={getHousePhotoUrl(supabase, photo.storage_path)}
-                alt={`${typedPost.title} 사진 ${i + 1}`}
+                alt={`${typedPost.title} photo ${i + 1}`}
                 loading={i === 0 ? "eager" : "lazy"}
                 className={`w-full rounded-[16px] bg-photo-bg object-cover ${
                   i === 0 ? "sm:col-span-2 aspect-[16/10]" : "aspect-square"
@@ -147,12 +132,12 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
             <div className="flex flex-wrap items-center gap-2">
               {typedPost.room_items && (
                 <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
-                  방 미리보기
+                  Room preview
                 </span>
               )}
               {typedPost.studio_room && (
                 <span className="label-mono rounded-full border border-hair px-3 py-1.5 text-[9px] text-muted">
-                  룸빌더로 꾸민 방
+                  Built with room builder
                 </span>
               )}
               {typedPost.rarity_tier && (
@@ -173,20 +158,21 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
               postId={typedPost.id}
               ownerId={typedPost.user_id}
               photoStoragePaths={photos.map((photo) => photo.storage_path)}
+              lang="en"
             />
           </div>
-          <h1 className="font-kr text-[30px] leading-tight sm:text-[36px]">{typedPost.title}</h1>
+          <h1 className="font-display text-[30px] leading-tight sm:text-[36px]">{typedPost.title}</h1>
           {typedPost.persona_name && <p className="text-[14px] text-muted">{typedPost.persona_name}</p>}
           {typedPost.caption && (
             <p className="mt-2 text-[15px] leading-relaxed whitespace-pre-wrap text-fg">{typedPost.caption}</p>
           )}
           <span className="label-mono mt-1 text-[9px] text-faint">
-            {new Date(typedPost.created_at).toLocaleDateString("ko-KR", {
+            Posted{" "}
+            {new Date(typedPost.created_at).toLocaleDateString("en-US", {
               year: "numeric",
               month: "long",
               day: "numeric",
-            })}{" "}
-            등록
+            })}
           </span>
         </div>
 
@@ -196,6 +182,7 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
           initialLiked={liked}
           initialLikeCount={typedPost.like_count}
           initialComments={comments}
+          lang="en"
         />
       </div>
     </main>

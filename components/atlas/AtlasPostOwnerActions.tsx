@@ -11,18 +11,23 @@ import { useUser } from "@/lib/supabase/useUser";
  * house_posts를 지우면 house_photos/house_likes/house_comments는 FK
  * on delete cascade로 자동 정리되지만, Storage의 실제 파일은 DB cascade와
  * 무관해서 여기서 먼저 지워야 고아 파일이 안 남는다.
+ *
+ * lang(기본 "ko") — /en/atlas 다국어 확장(STEP 17).
  */
 export function AtlasPostOwnerActions({
   postId,
   ownerId,
   photoStoragePaths,
+  lang = "ko",
 }: {
   postId: string;
   ownerId: string;
   photoStoragePaths: string[];
+  lang?: "ko" | "en";
 }) {
   const router = useRouter();
   const { user } = useUser();
+  const isEn = lang === "en";
   const [confirming, setConfirming] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +51,12 @@ export function AtlasPostOwnerActions({
 
     const { error: deleteErr } = await supabase.from("house_posts").delete().eq("id", postId);
     if (deleteErr) {
-      setError("삭제에 실패했어요. 다시 시도해주세요.");
+      setError(isEn ? "Couldn't delete it. Please try again." : "삭제에 실패했어요. 다시 시도해주세요.");
       setPending(false);
       return;
     }
 
-    router.push("/atlas");
+    router.push(isEn ? "/en/atlas" : "/atlas");
     router.refresh();
   }
 
@@ -63,11 +68,11 @@ export function AtlasPostOwnerActions({
           onClick={() => setConfirming(true)}
           className="text-[12px] text-muted underline underline-offset-2 transition hover:text-fg"
         >
-          게시물 삭제
+          {isEn ? "Delete post" : "게시물 삭제"}
         </button>
       ) : (
         <div className="flex items-center gap-3 text-[12px]">
-          <span className="text-muted">정말 삭제하시겠습니까? 되돌릴 수 없어요.</span>
+          <span className="text-muted">{isEn ? "Delete this post? This can't be undone." : "정말 삭제하시겠습니까? 되돌릴 수 없어요."}</span>
           <button
             type="button"
             onClick={handleDelete}
@@ -75,7 +80,7 @@ export function AtlasPostOwnerActions({
             className="font-semibold transition disabled:opacity-50"
             style={{ color: "#a3402a" }}
           >
-            {pending ? "삭제 중…" : "삭제"}
+            {isEn ? (pending ? "Deleting…" : "Delete") : pending ? "삭제 중…" : "삭제"}
           </button>
           <button
             type="button"
@@ -83,7 +88,7 @@ export function AtlasPostOwnerActions({
             disabled={pending}
             className="text-faint underline underline-offset-2"
           >
-            취소
+            {isEn ? "Cancel" : "취소"}
           </button>
         </div>
       )}

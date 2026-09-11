@@ -12,17 +12,24 @@ type SignupResult = "idle" | "sent" | "already";
 
 const RESEND_COOLDOWN_SECONDS = 30;
 
-export function LoginForm() {
+/** lang(기본 "ko") — /en/login 다국어 확장(STEP 17). */
+export function LoginForm({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") ?? "/studio";
+  const next = searchParams.get("next") ?? (isEn ? "/en/studio" : "/studio");
 
   // /auth/confirm, /auth/callback이 실패하면 /login?error=...로 되돌려보낸다.
   // 예전엔 이 파라미터를 아예 안 읽어서 로그인 화면에 그냥 멈춰있는 것처럼
   // 보였다 — 원인을 알 수 있게 화면에 표시한다.
   const errorParam = searchParams.get("error");
-  const initialError =
-    errorParam === "oauth-failed"
+  const initialError = isEn
+    ? errorParam === "oauth-failed"
+      ? "Google sign-in failed. Please try again in a moment."
+      : errorParam === "confirm-failed"
+        ? "That email verification link expired or was already used. Please try again."
+        : null
+    : errorParam === "oauth-failed"
       ? "구글 로그인에 실패했어요. 잠시 후 다시 시도해주세요."
       : errorParam === "confirm-failed"
         ? "이메일 인증 링크가 만료됐거나 이미 사용됐어요. 다시 시도해주세요."
@@ -70,7 +77,7 @@ export function LoginForm() {
       }
       // 성공하면 브라우저가 Google 로그인 페이지로 이동하므로 여기서 더 할 일은 없다.
     } catch (err) {
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+      setError(err instanceof Error ? err.message : isEn ? "Something went wrong." : "알 수 없는 오류가 발생했어요.");
       setGooglePending(false);
     }
   }
@@ -115,7 +122,7 @@ export function LoginForm() {
     } catch (err) {
       // createClient()가 던지는 경우(예: env var 누락으로 supabaseUrl이 비어있음)를
       // 포함해서, "처리 중…"에 멈춰있지 않고 항상 에러를 보여준다.
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+      setError(err instanceof Error ? err.message : isEn ? "Something went wrong." : "알 수 없는 오류가 발생했어요.");
     } finally {
       setPending(false);
     }
@@ -141,7 +148,7 @@ export function LoginForm() {
       setForgotSent(true);
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+      setError(err instanceof Error ? err.message : isEn ? "Something went wrong." : "알 수 없는 오류가 발생했어요.");
     } finally {
       setPending(false);
     }
@@ -169,17 +176,18 @@ export function LoginForm() {
       }
       setResendCooldown(RESEND_COOLDOWN_SECONDS);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "알 수 없는 오류가 발생했어요.");
+      setError(err instanceof Error ? err.message : isEn ? "Something went wrong." : "알 수 없는 오류가 발생했어요.");
     }
   }
 
   if (signupResult === "already") {
     return (
       <div className="w-full max-w-sm text-center">
-        <h1 className="font-kr mb-4 text-xl">이미 가입된 이메일이에요</h1>
+        <h1 className="font-kr mb-4 text-xl">{isEn ? "That email is already registered" : "이미 가입된 이메일이에요"}</h1>
         <p className="text-muted">
-          {email}로는 이미 계정이 있어서 새 확인 메일을 보내지 않았어요. 로그인하거나 비밀번호를
-          재설정해보세요.
+          {isEn
+            ? `${email} already has an account, so we didn't send a new confirmation email. Try logging in or resetting your password.`
+            : `${email}로는 이미 계정이 있어서 새 확인 메일을 보내지 않았어요. 로그인하거나 비밀번호를 재설정해보세요.`}
         </p>
         <div className="mt-7 flex flex-col gap-3">
           <button
@@ -187,14 +195,14 @@ export function LoginForm() {
             onClick={() => resetToMode("login")}
             className="w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg"
           >
-            로그인하기
+            {isEn ? "Log in" : "로그인하기"}
           </button>
           <button
             type="button"
             onClick={() => resetToMode("forgot")}
             className="w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
           >
-            비밀번호 재설정
+            {isEn ? "Reset password" : "비밀번호 재설정"}
           </button>
         </div>
       </div>
@@ -204,11 +212,13 @@ export function LoginForm() {
   if (signupResult === "sent") {
     return (
       <div className="w-full max-w-sm text-center">
-        <h1 className="font-kr mb-4 text-xl">가입 확인 이메일을 보냈어요</h1>
+        <h1 className="font-kr mb-4 text-xl">{isEn ? "We sent a confirmation email" : "가입 확인 이메일을 보냈어요"}</h1>
         <p className="text-muted">
-          {email}로 보낸 이메일의 링크를 눌러 인증을 마치면 로그인할 수 있어요.
+          {isEn
+            ? `Click the link in the email we sent to ${email} to finish verifying and log in.`
+            : `${email}로 보낸 이메일의 링크를 눌러 인증을 마치면 로그인할 수 있어요.`}
         </p>
-        <p className="mt-2 text-xs text-muted">메일이 안 보이면 스팸함도 확인해주세요.</p>
+        <p className="mt-2 text-xs text-muted">{isEn ? "Check your spam folder if you don't see it." : "메일이 안 보이면 스팸함도 확인해주세요."}</p>
         {error && (
           <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
             {error}
@@ -220,14 +230,20 @@ export function LoginForm() {
           disabled={resendCooldown > 0}
           className="mt-6 w-full rounded-full border border-hair px-6 py-3 text-[14px] font-semibold text-fg transition hover:border-olive hover:text-olive disabled:opacity-50"
         >
-          {resendCooldown > 0 ? `확인 메일 재전송 (${resendCooldown}초 후 가능)` : "확인 메일 재전송"}
+          {isEn
+            ? resendCooldown > 0
+              ? `Resend confirmation email (available in ${resendCooldown}s)`
+              : "Resend confirmation email"
+            : resendCooldown > 0
+              ? `확인 메일 재전송 (${resendCooldown}초 후 가능)`
+              : "확인 메일 재전송"}
         </button>
         <button
           type="button"
           onClick={() => resetToMode("login")}
           className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
         >
-          로그인으로 돌아가기
+          {isEn ? "Back to login" : "로그인으로 돌아가기"}
         </button>
       </div>
     );
@@ -236,11 +252,13 @@ export function LoginForm() {
   if (mode === "forgot" && forgotSent) {
     return (
       <div className="w-full max-w-sm text-center">
-        <h1 className="font-kr mb-4 text-xl">재설정 링크를 보냈어요</h1>
+        <h1 className="font-kr mb-4 text-xl">{isEn ? "We sent a reset link" : "재설정 링크를 보냈어요"}</h1>
         <p className="text-muted">
-          {email}로 보낸 이메일의 링크를 눌러 새 비밀번호를 설정해주세요.
+          {isEn
+            ? `Click the link in the email we sent to ${email} to set a new password.`
+            : `${email}로 보낸 이메일의 링크를 눌러 새 비밀번호를 설정해주세요.`}
         </p>
-        <p className="mt-2 text-xs text-muted">메일이 안 보이면 스팸함도 확인해주세요.</p>
+        <p className="mt-2 text-xs text-muted">{isEn ? "Check your spam folder if you don't see it." : "메일이 안 보이면 스팸함도 확인해주세요."}</p>
         {error && (
           <p className="mt-3 text-sm" style={{ color: "#a3402a" }}>
             {error}
@@ -252,14 +270,20 @@ export function LoginForm() {
           disabled={resendCooldown > 0}
           className="mt-6 w-full rounded-full border border-hair px-6 py-3 text-[14px] font-semibold text-fg transition hover:border-olive hover:text-olive disabled:opacity-50"
         >
-          {resendCooldown > 0 ? `재설정 링크 재전송 (${resendCooldown}초 후 가능)` : "재설정 링크 재전송"}
+          {isEn
+            ? resendCooldown > 0
+              ? `Resend reset link (available in ${resendCooldown}s)`
+              : "Resend reset link"
+            : resendCooldown > 0
+              ? `재설정 링크 재전송 (${resendCooldown}초 후 가능)`
+              : "재설정 링크 재전송"}
         </button>
         <button
           type="button"
           onClick={() => resetToMode("login")}
           className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
         >
-          로그인으로 돌아가기
+          {isEn ? "Back to login" : "로그인으로 돌아가기"}
         </button>
       </div>
     );
@@ -268,12 +292,14 @@ export function LoginForm() {
   if (mode === "forgot") {
     return (
       <form onSubmit={handleForgotSubmit} className="w-full max-w-sm">
-        <h1 className="font-kr mb-3 text-2xl">비밀번호 재설정</h1>
-        <p className="mb-6 text-sm text-muted">가입한 이메일을 입력하면 재설정 링크를 보내드려요.</p>
+        <h1 className="font-kr mb-3 text-2xl">{isEn ? "Reset password" : "비밀번호 재설정"}</h1>
+        <p className="mb-6 text-sm text-muted">
+          {isEn ? "Enter the email you signed up with and we'll send a reset link." : "가입한 이메일을 입력하면 재설정 링크를 보내드려요."}
+        </p>
         <input
           type="email"
           required
-          placeholder="이메일"
+          placeholder={isEn ? "Email" : "이메일"}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
@@ -288,14 +314,14 @@ export function LoginForm() {
           disabled={pending}
           className="mt-6 w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
         >
-          {pending ? "처리 중…" : "재설정 링크 보내기"}
+          {isEn ? (pending ? "Working…" : "Send reset link") : pending ? "처리 중…" : "재설정 링크 보내기"}
         </button>
         <button
           type="button"
           onClick={() => resetToMode("login")}
           className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
         >
-          로그인으로 돌아가기
+          {isEn ? "Back to login" : "로그인으로 돌아가기"}
         </button>
       </form>
     );
@@ -303,7 +329,9 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-sm">
-      <h1 className="font-kr mb-7 text-2xl">{mode === "login" ? "로그인" : "회원가입"}</h1>
+      <h1 className="font-kr mb-7 text-2xl">
+        {isEn ? (mode === "login" ? "Log in" : "Sign up") : mode === "login" ? "로그인" : "회원가입"}
+      </h1>
 
       <button
         type="button"
@@ -312,12 +340,12 @@ export function LoginForm() {
         className="flex w-full items-center justify-center gap-3 rounded-full border border-hair px-4 py-3 text-[14px] font-medium text-fg transition hover:bg-panel disabled:opacity-50"
       >
         <GoogleIcon />
-        {googlePending ? "이동 중…" : "Google로 계속하기"}
+        {isEn ? (googlePending ? "Redirecting…" : "Continue with Google") : googlePending ? "이동 중…" : "Google로 계속하기"}
       </button>
 
       <div className="my-5 flex items-center gap-3 text-xs text-muted">
         <span className="h-px flex-1 bg-hair" />
-        또는
+        {isEn ? "or" : "또는"}
         <span className="h-px flex-1 bg-hair" />
       </div>
 
@@ -325,7 +353,7 @@ export function LoginForm() {
         <input
           type="email"
           required
-          placeholder="이메일"
+          placeholder={isEn ? "Email" : "이메일"}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
@@ -334,7 +362,7 @@ export function LoginForm() {
           type="password"
           required
           minLength={6}
-          placeholder="비밀번호 (6자 이상)"
+          placeholder={isEn ? "Password (6+ characters)" : "비밀번호 (6자 이상)"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           className="rounded-[14px] border border-hair bg-card px-4 py-3 text-fg outline-none focus:border-olive"
@@ -347,7 +375,7 @@ export function LoginForm() {
           onClick={() => resetToMode("forgot")}
           className="mt-3 text-right text-xs text-muted underline underline-offset-2 transition hover:text-fg"
         >
-          비밀번호를 잊으셨나요?
+          {isEn ? "Forgot your password?" : "비밀번호를 잊으셨나요?"}
         </button>
       )}
 
@@ -362,7 +390,17 @@ export function LoginForm() {
         disabled={pending}
         className="mt-6 w-full rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
       >
-        {pending ? "처리 중…" : mode === "login" ? "로그인" : "가입하기"}
+        {isEn
+          ? pending
+            ? "Working…"
+            : mode === "login"
+              ? "Log in"
+              : "Sign up"
+          : pending
+            ? "처리 중…"
+            : mode === "login"
+              ? "로그인"
+              : "가입하기"}
       </button>
 
       <button
@@ -370,7 +408,13 @@ export function LoginForm() {
         onClick={() => resetToMode(mode === "login" ? "signup" : "login")}
         className="mt-4 w-full text-sm text-muted underline underline-offset-2 transition hover:text-fg"
       >
-        {mode === "login" ? "계정이 없으신가요? 회원가입" : "이미 계정이 있으신가요? 로그인"}
+        {isEn
+          ? mode === "login"
+            ? "Don't have an account? Sign up"
+            : "Already have an account? Log in"
+          : mode === "login"
+            ? "계정이 없으신가요? 회원가입"
+            : "이미 계정이 있으신가요? 로그인"}
       </button>
     </form>
   );

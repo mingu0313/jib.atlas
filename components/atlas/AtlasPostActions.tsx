@@ -13,6 +13,9 @@ import type { HouseComment } from "@/lib/types";
  * 좋아요/댓글 개수는 house_posts.like_count·comment_count에 DB 트리거로
  * 캐시돼 있지만(0002_house_atlas.sql), 여기서는 낙관적으로 로컬 상태만
  * 갱신한다 — 페이지를 새로고침하면 트리거가 반영한 진짜 값으로 다시 맞춰진다.
+ *
+ * lang(기본 "ko") — /en/atlas 다국어 확장(STEP 17). UI 텍스트만 옮기고
+ * 좋아요/댓글 자체(user_id·body)는 언어와 무관한 실제 데이터라 안 건드린다.
  */
 export function AtlasPostActions({
   postId,
@@ -20,15 +23,18 @@ export function AtlasPostActions({
   initialLiked,
   initialLikeCount,
   initialComments,
+  lang = "ko",
 }: {
   postId: string;
   ownerId: string;
   initialLiked: boolean;
   initialLikeCount: number;
   initialComments: HouseComment[];
+  lang?: "ko" | "en";
 }) {
   const router = useRouter();
   const { user } = useUser();
+  const isEn = lang === "en";
   const [liked, setLiked] = useState(initialLiked);
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [likePending, setLikePending] = useState(false);
@@ -40,7 +46,8 @@ export function AtlasPostActions({
   const [error, setError] = useState<string | null>(null);
 
   function requireLogin() {
-    router.push(`/login?next=${encodeURIComponent(`/atlas/${postId}`)}`);
+    const prefix = isEn ? "/en" : "";
+    router.push(`${prefix}/login?next=${encodeURIComponent(`${prefix}/atlas/${postId}`)}`);
   }
 
   async function toggleLike() {
@@ -62,7 +69,7 @@ export function AtlasPostActions({
       // 실패하면 낙관적 갱신을 되돌린다.
       setLiked(!nextLiked);
       setLikeCount((c) => c + (nextLiked ? -1 : 1));
-      setError("좋아요 처리에 실패했어요. 다시 시도해주세요.");
+      setError(isEn ? "Couldn't update your like. Please try again." : "좋아요 처리에 실패했어요. 다시 시도해주세요.");
     }
     setLikePending(false);
   }
@@ -84,7 +91,7 @@ export function AtlasPostActions({
       .single();
 
     if (err || !data) {
-      setError("댓글을 남기지 못했어요. 다시 시도해주세요.");
+      setError(isEn ? "Couldn't post your comment. Please try again." : "댓글을 남기지 못했어요. 다시 시도해주세요.");
     } else {
       setComments((prev) => [...prev, data as HouseComment]);
       setCommentBody("");
@@ -105,7 +112,7 @@ export function AtlasPostActions({
 
     if (err) {
       setComments(prevComments);
-      setError("댓글 삭제에 실패했어요. 다시 시도해주세요.");
+      setError(isEn ? "Couldn't delete the comment. Please try again." : "댓글 삭제에 실패했어요. 다시 시도해주세요.");
     }
     setDeletingCommentIds((prev) => {
       const next = new Set(prev);
@@ -131,9 +138,9 @@ export function AtlasPostActions({
           }}
         >
           <span>{liked ? "♥" : "♡"}</span>
-          좋아요 {likeCount}
+          {isEn ? `Like ${likeCount}` : `좋아요 ${likeCount}`}
         </button>
-        <span className="text-[13px] text-muted">댓글 {comments.length}</span>
+        <span className="text-[13px] text-muted">{isEn ? `Comments ${comments.length}` : `댓글 ${comments.length}`}</span>
       </div>
 
       {error && (
@@ -144,7 +151,9 @@ export function AtlasPostActions({
 
       <div className="flex flex-col gap-5">
         {comments.length === 0 ? (
-          <p className="text-[13px] text-faint">아직 댓글이 없어요. 첫 댓글을 남겨보세요.</p>
+          <p className="text-[13px] text-faint">
+            {isEn ? "No comments yet. Be the first to leave one." : "아직 댓글이 없어요. 첫 댓글을 남겨보세요."}
+          </p>
         ) : (
           <ul className="flex flex-col gap-4">
             {comments.map((comment) => {
@@ -160,11 +169,11 @@ export function AtlasPostActions({
                           className="label-mono rounded-full bg-sage px-2.5 py-1 text-[8px]"
                           style={{ color: "var(--color-sage-ink)" }}
                         >
-                          집주인
+                          {isEn ? "Host" : "집주인"}
                         </span>
                       )}
                       <span className="label-mono text-[9px] text-faint">
-                        {new Date(comment.created_at).toLocaleDateString("ko-KR", {
+                        {new Date(comment.created_at).toLocaleDateString(isEn ? "en-US" : "ko-KR", {
                           month: "short",
                           day: "numeric",
                         })}
@@ -173,7 +182,7 @@ export function AtlasPostActions({
                     {canDelete &&
                       (confirmingCommentId === comment.id ? (
                         <div className="flex items-center gap-2 text-[11px]">
-                          <span className="text-faint">정말 삭제하시겠습니까?</span>
+                          <span className="text-faint">{isEn ? "Delete this comment?" : "정말 삭제하시겠습니까?"}</span>
                           <button
                             type="button"
                             onClick={() => deleteComment(comment.id)}
@@ -181,7 +190,13 @@ export function AtlasPostActions({
                             className="font-semibold transition disabled:opacity-50"
                             style={{ color: "#a3402a" }}
                           >
-                            {deletingCommentIds.has(comment.id) ? "삭제 중…" : "삭제"}
+                            {isEn
+                              ? deletingCommentIds.has(comment.id)
+                                ? "Deleting…"
+                                : "Delete"
+                              : deletingCommentIds.has(comment.id)
+                                ? "삭제 중…"
+                                : "삭제"}
                           </button>
                           <button
                             type="button"
@@ -189,7 +204,7 @@ export function AtlasPostActions({
                             disabled={deletingCommentIds.has(comment.id)}
                             className="text-faint underline underline-offset-2"
                           >
-                            취소
+                            {isEn ? "Cancel" : "취소"}
                           </button>
                         </div>
                       ) : (
@@ -198,7 +213,7 @@ export function AtlasPostActions({
                           onClick={() => setConfirmingCommentId(comment.id)}
                           className="text-[11px] text-faint underline underline-offset-2 transition hover:text-fg"
                         >
-                          삭제
+                          {isEn ? "Delete" : "삭제"}
                         </button>
                       ))}
                   </div>
@@ -216,7 +231,15 @@ export function AtlasPostActions({
             onFocus={() => {
               if (!user) requireLogin();
             }}
-            placeholder={user ? "댓글을 남겨보세요" : "로그인하면 댓글을 남길 수 있어요"}
+            placeholder={
+              isEn
+                ? user
+                  ? "Leave a comment"
+                  : "Log in to leave a comment"
+                : user
+                  ? "댓글을 남겨보세요"
+                  : "로그인하면 댓글을 남길 수 있어요"
+            }
             rows={3}
             maxLength={500}
             className="w-full resize-none rounded-[14px] border border-hair bg-card px-4 py-3 text-[14px] text-fg outline-none focus:border-olive"
@@ -226,7 +249,7 @@ export function AtlasPostActions({
             disabled={commentPending || !commentBody.trim()}
             className="self-end rounded-full bg-olive px-6 py-2.5 text-[13px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
           >
-            {commentPending ? "등록 중…" : "댓글 남기기"}
+            {isEn ? (commentPending ? "Posting…" : "Post comment") : commentPending ? "등록 중…" : "댓글 남기기"}
           </button>
         </form>
       </div>

@@ -38,11 +38,10 @@ type Status = "idle" | "capturing" | "submitting" | "error";
  * room_items(옛 /editor 게시물)과 구분되는 뱃지는 app/atlas/page.tsx·
  * app/atlas/[id]/page.tsx에서 studio_room 존재 여부로 붙인다.
  *
- * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). 이 버튼 자체의 UI
- * 텍스트만 옮기고, 실제 공유 대상(/atlas 갤러리 자체, /login 페이지)은
- * 아직 한국어만 있다 — 사용자가 지도에 올리는 글은 원래도 자기가 직접
- * 쓰는 제목/캡션이라 언어를 강제할 이유가 없어서, /atlas·/login 링크는
- * 그대로 둔다.
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). /atlas·/login도
+ * STEP 17부터 영문판이 생겨서, 제출 후 이동·로그인 유도 링크 둘 다
+ * lang에 맞는 prefix(/en)를 붙인다. 다만 게시물 자체(title/caption)는
+ * 원래도 사용자가 직접 쓰는 텍스트라 언어를 강제하지 않는다.
  */
 export function ShareToAtlasButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
   const isEn = lang === "en";
@@ -169,7 +168,7 @@ export function ShareToAtlasButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
         .insert({ post_id: postRow.id, storage_path: path, sort_order: 0 });
       if (photoErr) throw photoErr;
 
-      router.push(`/atlas/${postRow.id}`);
+      router.push(`${isEn ? "/en" : ""}/atlas/${postRow.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : isEn ? "Couldn't post it. Please try again." : "등록에 실패했어요. 다시 시도해주세요.");
       setStatus("error");
@@ -221,7 +220,7 @@ export function ShareToAtlasButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
                   {isEn ? "Log in to post the room you just decorated to the house atlas." : "로그인하면 지금 꾸민 방을 집지도에 올릴 수 있어요."}
                 </p>
                 <Link
-                  href={`/login?next=${encodeURIComponent(pathname)}`}
+                  href={`${isEn ? "/en" : ""}/login?next=${encodeURIComponent(pathname)}`}
                   className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg"
                 >
                   {isEn ? "Log in / Sign up" : "로그인 / 회원가입"}

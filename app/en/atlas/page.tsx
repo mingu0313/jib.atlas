@@ -5,52 +5,29 @@ import { createClient } from "@/lib/supabase/server";
 import type { HousePhoto, HousePost } from "@/lib/types";
 import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
 
-// title은 브랜드 접미사("— jib.atlas") 없이 짧게 둔다 — 루트 레이아웃의
-// title.template("%s — jib.atlas")이 모든 하위 페이지에 자동으로 붙여주므로,
-// 여기서 직접 붙이면 "집 아틀라스 — jib.atlas — jib.atlas"처럼 중복된다.
+/**
+ * 영문 집 아틀라스(`/en/atlas`) — app/atlas/page.tsx와 데이터 조회·마크업
+ * 구조는 완전히 동일하고 UI 문구만 영문으로 바꿨다(STEP 17 다국어 확장).
+ * house_posts는 한/영 스튜디오 어느 쪽에서 올렸든 같은 테이블에 섞여 있고,
+ * 실제 콘텐츠(title/caption/template_name 등)는 작성자가 쓴 언어 그대로
+ * 보여준다 — UI 챠트만 번역하고 유저 콘텐츠는 손대지 않는 게 이 STEP의
+ * 일관된 원칙(components/studio/ShareToAtlasButton.tsx 주석 참고).
+ */
 export const metadata = {
-  title: "집 아틀라스",
-  description: "유저들이 직접 등록한 집(실사진 또는 인테리어 스튜디오로 꾸민 방)을 모아 보여주는 지도.",
-  alternates: { canonical: "/atlas", languages: { ko: "/atlas", en: "/en/atlas" } },
+  title: "House Atlas",
+  description: "A gallery of real homes and studio-decorated rooms that users have shared.",
+  alternates: { canonical: "/en/atlas", languages: { ko: "/atlas", en: "/en/atlas" } },
 };
 
 type PostRow = HousePost & { house_photos: HousePhoto[] };
 
-/**
- * 집 아틀라스 갤러리 — 유저들이 등록한 집을 모아 보여주는 "지도" 메인 페이지.
- * STEP 9 + 콜드스타트 해결(STEP 10): 실사진뿐 아니라 예전엔 /editor에서
- * 클릭 한 번으로 올린 "방 미리보기"(room_items) 게시물도 같은 갤러리에
- * 섞여 나왔다 — 업로드 마찰 없는 콘텐츠로 갤러리가 안 비어보이게 하는 게
- * 목적이다. 서버 컴포넌트라 로그인 여부와 무관하게(house_posts는 public
- * read 정책) 첫 렌더에 목록이 채워진다. ?template=t3 쿼리로 유형별 탐색을
- * 기본 화면 경험으로 둔다(등록보다 구경이 먼저).
- *
- * "방 꾸미고 공유하기" 버튼은 /editor(격자+박스가구, room_items 스키마)
- * 대신 이제 /studio(폴리곤 룸빌더)로 보낸다 — /editor는 진단이 매칭한
- * 하우스 타입 전용이라 진단 없이 못 들어가고, /studio는 진단 여부와 무관
- * 하게 바로 방을 꾸밀 수 있어서 이 진입점엔 더 맞는다.
- *
- * /studio의 가구 배치(자유 x/z cm 좌표, 임의 폴리곤 방)는 옛 room_items
- * 스키마(col/row 격자, /editor 전용)로 변환되지 않아서 그 컬럼을 그대로
- * 못 쓴다 — 대신 STEP 18부터 studio_room(0006_house_atlas_studio_room.sql)
- * 이라는 별도 컬럼에 원본 룸 데이터를, house_photos엔 3D 캡처 이미지를
- * 같이 저장한다(components/studio/ShareToAtlasButton.tsx). 이 게시물은
- * room_items 게시물과 달리 항상 사진이 있어서 RoomIsoCard 같은 SVG
- * 특수 렌더링이 필요 없고, 아래 카드 렌더링에서 뱃지만 다르게 붙인다.
- */
-/** 게시물 종류 필터 — "실제 사진 공간"과 "인테리어 스튜디오로 만든 공간"
- * 두 칸으로 나눠서 보고 싶다는 요청 반영. room_items(옛 /editor, 이제
- * 삭제됨)와 studio_room(현재 /studio) 둘 다 "실사진이 아니라 직접 만든
- * 방"이라는 점은 같아서(app/atlas/page.tsx 상단 주석 참고 — 둘 다 뱃지만
- * 다를 뿐 같은 취급), 이 둘을 합쳐 "studio" 한 칸으로 묶는다 — "실사진
- * 없이 도구로 만든 방" vs "진짜 우리 집 사진", 딱 두 공간이면 충분하다. */
 type KindFilter = "photo" | "studio" | null;
 
 function parseKindFilter(value: string | string[] | undefined): KindFilter {
   return value === "photo" || value === "studio" ? value : null;
 }
 
-export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
+export default async function EnglishAtlasPage({ searchParams }: PageProps<"/en/atlas">) {
   const { template, kind } = await searchParams;
   const templateFilter = typeof template === "string" ? template : null;
   const kindFilter = parseKindFilter(kind);
@@ -68,7 +45,6 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
   const { data, error } = await query;
   const posts = (data as PostRow[] | null) ?? [];
 
-  // 필터 칩 목록 — 실제로 게시물이 있는 유형만 보여준다(빈 칩 방지).
   const { data: templateRows } = await supabase
     .from("house_posts")
     .select("template_id, template_name")
@@ -80,22 +56,24 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
         .filter((row): row is { template_id: string; template_name: string } => Boolean(row.template_id))
         .map((row) => [row.template_id, row.template_name]),
     ),
-  ).sort((a, b) => a[1].localeCompare(b[1], "ko"));
+  ).sort((a, b) => a[1].localeCompare(b[1]));
 
   return (
     <main className="flex min-h-screen flex-col bg-bg text-fg">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(breadcrumbJsonLd([{ name: "홈", path: "/" }, { name: "집 아틀라스", path: "/atlas" }])).replace(
-            /</g,
-            "\\u003c",
-          ),
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "Home", path: "/en" },
+              { name: "House Atlas", path: "/en/atlas" },
+            ]),
+          ).replace(/</g, "\\u003c"),
         }}
       />
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-6 py-5 sm:px-8">
         <div className="flex items-center gap-[18px] sm:gap-[22px]">
-          <Link href="/" className="font-display text-[22px] text-fg">
+          <Link href="/en" className="font-display text-[22px] text-fg">
             jib<span className="text-olive-mid">.</span>atlas
           </Link>
           <span className="h-[18px] w-px bg-hair" />
@@ -103,43 +81,46 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
         </div>
         <div className="flex items-center gap-3">
           <Link
-            href="/studio"
+            href="/en/studio"
             className="rounded-full border border-hair px-6 py-3 text-[12px] font-semibold text-fg transition hover:border-olive hover:text-olive"
           >
-            방 꾸미고 공유하기
+            Decorate & share a room
           </Link>
           <Link
-            href="/atlas/new"
+            href="/en/atlas/new"
             className="rounded-full bg-olive px-6 py-3 text-[12px] font-semibold text-cream transition hover:bg-fg"
           >
-            실사진 등록하기 ↗
+            Share a real photo ↗
           </Link>
         </div>
       </div>
 
       <div className="px-6 py-10 sm:px-8 sm:py-14">
-        <h1 className="font-kr max-w-xl text-[32px] leading-[1.2] sm:text-[40px]">
-          유저들이 직접 올린 집을 모아, 하나의 지도로<span className="text-olive-mid">.</span>
+        <h1 className="font-display max-w-xl text-[32px] leading-[1.2] sm:text-[40px]">
+          Homes shared by our users, gathered into one map<span className="text-olive-mid">.</span>
         </h1>
         <p className="mt-3 max-w-lg text-[14px] text-muted">
-          실제 사는 집 사진이거나, 인테리어 스튜디오로 꾸민 방이에요. 어느 쪽이든 이 지도 위 한 페이지가 됩니다.
+          Real photos of where people live, or rooms decorated in the interior studio — either way, they become a
+          page on this map.
         </p>
 
-        {/* 종류 탭 — "실사진 공간"과 "스튜디오로 만든 공간" 두 칸을 볼 수
-            있으면 좋겠다는 요청으로 추가. 아래 유형 칩(template)과는 별도
-            축이라 둘 다 동시에 걸 수 있다(예: kind=studio&template=t3) —
-            링크에 서로의 현재 값을 그대로 이어붙인다. */}
         <div className="mt-8 flex flex-wrap gap-2">
           {(
             [
-              [null, "전체"],
-              ["photo", "실제 사진"],
-              ["studio", "스튜디오로 만든 방"],
+              [null, "All"],
+              ["photo", "Real photos"],
+              ["studio", "Studio-decorated"],
             ] as const
           ).map(([value, label]) => (
             <Link
               key={label}
-              href={value ? `/atlas?kind=${value}${templateFilter ? `&template=${templateFilter}` : ""}` : templateFilter ? `/atlas?template=${templateFilter}` : "/atlas"}
+              href={
+                value
+                  ? `/en/atlas?kind=${value}${templateFilter ? `&template=${templateFilter}` : ""}`
+                  : templateFilter
+                    ? `/en/atlas?template=${templateFilter}`
+                    : "/en/atlas"
+              }
               className="rounded-full px-5 py-2.5 text-[13px] font-semibold transition"
               style={
                 kindFilter === value
@@ -154,7 +135,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
 
         <div className="mt-4 flex flex-wrap gap-2">
           <Link
-            href={kindFilter ? `/atlas?kind=${kindFilter}` : "/atlas"}
+            href={kindFilter ? `/en/atlas?kind=${kindFilter}` : "/en/atlas"}
             className="label-mono rounded-full px-4 py-2 text-[9px] transition"
             style={
               templateFilter
@@ -162,12 +143,12 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                 : { background: "var(--color-olive)", color: "var(--color-cream)" }
             }
           >
-            전체 유형
+            All types
           </Link>
           {templateChips.map(([id, name]) => (
             <Link
               key={id}
-              href={`/atlas?template=${id}${kindFilter ? `&kind=${kindFilter}` : ""}`}
+              href={`/en/atlas?template=${id}${kindFilter ? `&kind=${kindFilter}` : ""}`}
               className="label-mono rounded-full px-4 py-2 text-[9px] transition"
               style={
                 templateFilter === id
@@ -182,36 +163,36 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
 
         {error && (
           <p className="mt-8 text-sm" style={{ color: "#a3402a" }}>
-            목록을 불러오지 못했어요. 잠시 후 다시 시도해주세요.
+            Couldn&apos;t load the list. Please try again in a moment.
           </p>
         )}
 
         {!error && posts.length === 0 && (
           <div className="mt-14 flex flex-col items-center gap-4 rounded-[24px] border border-hair bg-panel px-8 py-16 text-center">
-            <p className="font-kr text-lg">
+            <p className="font-display text-lg">
               {templateFilter
-                ? "이 유형엔 아직 등록된 집이 없어요"
+                ? "No homes registered for this type yet"
                 : kindFilter === "photo"
-                  ? "아직 등록된 실제 집 사진이 없어요"
+                  ? "No real home photos yet"
                   : kindFilter === "studio"
-                    ? "아직 스튜디오로 만든 방이 없어요"
-                    : "아직 지도에 등록된 집이 없어요"}
+                    ? "No studio-decorated rooms yet"
+                    : "Nothing on the map yet"}
             </p>
             <p className="text-sm text-muted">
-              사진이 없어도 괜찮아요 — 인테리어 스튜디오에서 꾸민 방을 클릭 한 번으로 올릴 수 있어요.
+              No photo needed — you can post a room decorated in the interior studio with one click.
             </p>
             <div className="mt-2 flex flex-wrap items-center justify-center gap-3">
               <Link
-                href="/studio"
+                href="/en/studio"
                 className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg"
               >
-                방 꾸미고 공유하기
+                Decorate & share a room
               </Link>
               <Link
-                href="/atlas/new"
+                href="/en/atlas/new"
                 className="rounded-full border border-hair px-6 py-3 text-[13px] font-semibold text-fg transition hover:border-olive hover:text-olive"
               >
-                실사진으로 등록하기
+                Share a real photo
               </Link>
             </div>
           </div>
@@ -224,7 +205,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
             return (
               <Link
                 key={post.id}
-                href={`/atlas/${post.id}`}
+                href={`/en/atlas/${post.id}`}
                 className="group flex flex-col overflow-hidden rounded-[20px] border border-hair bg-card transition hover:border-olive"
               >
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-photo-bg">
@@ -237,7 +218,6 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                     </div>
                   ) : (
                     coverUrl && (
-                      // Storage에서 온 유저 사진이라 next/image remotePatterns에 프로젝트 도메인을 안 묶는다.
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={coverUrl}
@@ -253,7 +233,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                         className="label-mono rounded-full px-3 py-1.5 text-[9px]"
                         style={{ background: "rgba(247,246,242,0.86)", color: "var(--color-muted)" }}
                       >
-                        방 미리보기
+                        Room preview
                       </span>
                     )}
                     {post.studio_room && (
@@ -261,7 +241,7 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                         className="label-mono rounded-full px-3 py-1.5 text-[9px]"
                         style={{ background: "rgba(247,246,242,0.86)", color: "var(--color-muted)" }}
                       >
-                        룸빌더로 꾸민 방
+                        Built with room builder
                       </span>
                     )}
                     {post.rarity_tier && (
@@ -275,10 +255,8 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
                   </div>
                 </div>
                 <div className="flex flex-1 flex-col gap-2 px-5 py-4">
-                  <span className="font-kr text-[17px] leading-tight">{post.title}</span>
-                  {post.persona_name && (
-                    <span className="text-[12px] text-muted">{post.persona_name}</span>
-                  )}
+                  <span className="font-display text-[17px] leading-tight">{post.title}</span>
+                  {post.persona_name && <span className="text-[12px] text-muted">{post.persona_name}</span>}
                   <div className="mt-auto flex items-center gap-4 pt-2 text-[11px] text-faint">
                     <span>♥ {post.like_count}</span>
                     <span>💬 {post.comment_count}</span>
