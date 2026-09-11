@@ -242,6 +242,19 @@ export const CATEGORY_LABELS: Record<FurnitureCategory, string> = {
   desk: "책상/사무용의자",
 };
 
+/** CATEGORY_LABELS의 영문판(STEP 16 다국어 확장) — /en/studio(FurniturePalette
+ * lang prop)용. AXIS_LABELS_EN·ROOM_TYPE_LABELS_EN과 같은 `_EN` 관례. */
+export const CATEGORY_LABELS_EN: Record<FurnitureCategory, string> = {
+  storage: "Storage",
+  "storage-item": "Storage Items",
+  bed: "Bed/Mattress",
+  textile: "Textile/Rug",
+  sofa: "Sofa/Armchair",
+  plant: "Plant",
+  dining: "Dining Table/Chair",
+  desk: "Desk/Office Chair",
+};
+
 export interface IsoFurnitureDef {
   id: string;
   label: string;

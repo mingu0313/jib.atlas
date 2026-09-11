@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import houseTemplatesEnData from "@/data/house-templates.en.json";
 import lifestyleQuestionsEnData from "@/data/lifestyle-questions.en.json";
 import mbtiQuestionsEnData from "@/data/mbti-questions.en.json";
 import { FloorPlan } from "@/components/FloorPlan";
+import { DiagnosisLoader } from "@/components/quiz/DiagnosisLoader";
 import { generateExplanationEn } from "@/lib/explainEn";
 import { matchHouseTemplate } from "@/lib/matching";
 import { generatePersonaEn, getRarityTierEn } from "@/lib/persona";
@@ -24,14 +26,26 @@ const houseTemplatesEn = houseTemplatesEnData as HouseTemplate[];
  * lib/persona.ts의 *En, lib/explainEn.ts)로 바꿨다. 단일 진단 게이트(23문항)·
  * 스펙트럼 문장도 한국어판과 동일한 로직 — 정밀도 배지는 2단계 구조 폐기와
  * 함께 제거됨.
+ *
+ * "AI Interior Match" CTA·/studio 링크는 원래 이 파일에 없었다(그때는
+ * /en/studio·/en/result/interiors 자체가 없었다) — 둘 다 생기면서
+ * app/result/page.tsx와 동일하게 채워 넣었다.
  */
 
 const TOTAL_QUESTION_COUNT = lifestyleQuestionsEnData.length + mbtiQuestionsEnData.length; // 23
+
+const INTERIOR_LOADING_MESSAGES = [
+  "Revisiting your five-axis profile…",
+  "Finding spaces that suit you…",
+  "Picked 4 interior styles!",
+];
+const INTERIOR_LOADING_FINAL_CTA = "See your recommendations?";
 
 export default function EnglishResultPage() {
   const router = useRouter();
   const answers = useTestStore((state) => state.answers);
   const reset = useTestStore((state) => state.reset);
+  const [showInteriorLoader, setShowInteriorLoader] = useState(false);
 
   const answeredCount = Object.keys(answers).length;
   if (answeredCount < TOTAL_QUESTION_COUNT) {
@@ -43,6 +57,19 @@ export default function EnglishResultPage() {
           Take the quiz
         </Link>
       </main>
+    );
+  }
+
+  if (showInteriorLoader) {
+    return (
+      <DiagnosisLoader
+        messages={INTERIOR_LOADING_MESSAGES}
+        finalCta={INTERIOR_LOADING_FINAL_CTA}
+        onDone={() => {
+          window.scrollTo(0, 0);
+          router.push("/en/result/interiors");
+        }}
+      />
     );
   }
 
@@ -127,16 +154,26 @@ export default function EnglishResultPage() {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-[22px]">
-            <Link
-              href="/studio"
-              className="rounded-full bg-olive px-[42px] py-5 text-[15px] font-semibold text-cream transition hover:bg-fg"
+          <div className="flex flex-col gap-5 border-t border-hair pt-6">
+            <button
+              type="button"
+              onClick={() => setShowInteriorLoader(true)}
+              className="w-fit rounded-full border border-fg/70 px-[30px] py-4 text-[14px] font-semibold text-fg transition hover:bg-fg hover:text-cream"
             >
-              Decorate this room
-            </Link>
-            <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
-              Retake the quiz
+              See AI-recommended interiors for you
             </button>
+
+            <div className="flex flex-wrap items-center gap-[22px]">
+              <Link
+                href="/en/studio"
+                className="rounded-full bg-olive px-[42px] py-5 text-[15px] font-semibold text-cream transition hover:bg-fg"
+              >
+                Decorate this room
+              </Link>
+              <button type="button" onClick={retake} className="text-[13px] text-muted transition hover:text-fg">
+                Retake the quiz
+              </button>
+            </div>
           </div>
         </div>
 
@@ -247,7 +284,7 @@ export default function EnglishResultPage() {
               the real dimensions, add doors and windows, and furnish it freely with real furniture.
             </p>
             <Link
-              href="/studio"
+              href="/en/studio"
               className="w-fit rounded-full bg-sage px-[34px] py-4 text-[13px] font-semibold text-sage-ink transition hover:bg-cream"
             >
               Decorate it now

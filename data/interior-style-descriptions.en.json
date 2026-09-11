@@ -1,0 +1,27 @@
+{
+  "sociability": {
+    "high": "room for everyone to gather",
+    "mid": "room for both solo time and company",
+    "low": "a cozy corner all your own"
+  },
+  "minimalism": {
+    "high": "clean, open lines",
+    "mid": "a tidily organized layout",
+    "low": "room for all the things you love"
+  },
+  "activity": {
+    "high": "a layout built for moving around",
+    "mid": "an easygoing flow",
+    "low": "a spot made for resting"
+  },
+  "openness": {
+    "high": "a wide-open layout",
+    "mid": "a fairly open layout",
+    "low": "a cozy, divided layout"
+  },
+  "nature": {
+    "high": "warm natural light",
+    "mid": "a touch of soft daylight",
+    "low": "a clean, finished look"
+  }
+}

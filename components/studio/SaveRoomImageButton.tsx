@@ -24,8 +24,11 @@ function sleep(ms: number) {
  * (1) previewMode를 3D로 맞춰 사용자가 뭘 저장하는지 보게 하고
  * (2) 카메라 전환이 끝날 시간을 준 뒤 (3) 캡처를 요청해서
  * (4) 받은 Blob을 파일로 내려받게 하는 것까지만 담당한다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16).
  */
-export function SaveRoomImageButton() {
+export function SaveRoomImageButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   const previewMode = useRoomBuilderStore((s) => s.previewMode);
   const setPreviewMode = useRoomBuilderStore((s) => s.setPreviewMode);
   const [status, setStatus] = useState<Status>("idle");
@@ -52,11 +55,11 @@ export function SaveRoomImageButton() {
         disabled={status === "saving"}
         className="rounded-full border border-hair px-6 py-3 text-[13px] font-semibold text-fg transition hover:border-olive hover:text-olive disabled:cursor-wait disabled:opacity-60"
       >
-        {status === "saving" ? "저장 중…" : "이미지로 저장하기 ⤓"}
+        {isEn ? (status === "saving" ? "Saving…" : "Save as image ⤓") : status === "saving" ? "저장 중…" : "이미지로 저장하기 ⤓"}
       </button>
       {status === "error" && (
         <p className="text-[12px]" style={{ color: "#a3402a" }}>
-          이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.
+          {isEn ? "Couldn't create the image. Please try again in a moment." : "이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요."}
         </p>
       )}
     </div>

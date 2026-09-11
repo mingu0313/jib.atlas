@@ -7,11 +7,15 @@ import { DOOR_PRESETS, WINDOW_PRESETS } from "@/lib/roomStyle";
  * 문/창문 프리셋 팔레트 — /editor 가구 팔레트(selectDef → 타일 클릭)와 같은
  * "선택 → 클릭으로 배치" 관례. 고른 프리셋은 store.pendingOpening에
  * 담기고, RoomPlanCanvas의 벽 클릭이 실제 배치를 한다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). DoorPreset/WindowPreset의
+ * labelEn(lib/roomStyle.ts)으로 갈아끼운다.
  */
-export function OpeningPalette() {
+export function OpeningPalette({ lang = "ko" }: { lang?: "ko" | "en" }) {
   const pendingOpening = useRoomBuilderStore((s) => s.pendingOpening);
   const selectOpeningPreset = useRoomBuilderStore((s) => s.selectOpeningPreset);
   const openingWarn = useRoomBuilderStore((s) => s.openingWarn);
+  const isEn = lang === "en";
 
   return (
     <div className="flex flex-col gap-5">
@@ -32,7 +36,7 @@ export function OpeningPalette() {
                   color: selected ? "var(--color-sage-ink)" : "var(--color-fg)",
                 }}
               >
-                {preset.label}
+                {isEn ? preset.labelEn : preset.label}
               </button>
             );
           })}
@@ -56,7 +60,7 @@ export function OpeningPalette() {
                   color: selected ? "var(--color-sage-ink)" : "var(--color-fg)",
                 }}
               >
-                {preset.label}
+                {isEn ? preset.labelEn : preset.label}
               </button>
             );
           })}
@@ -64,12 +68,20 @@ export function OpeningPalette() {
       </div>
 
       <p className="text-[12px] leading-[1.8] text-muted">
-        {pendingOpening
-          ? openingWarn
-            ? "그 자리엔 놓을 수 없어요 — 벽이 너무 짧거나 다른 문/창문과 겹쳐요."
-            : "평면도의 벽을 클릭하면 그 자리에 놓여요."
-          : "먼저 위에서 문이나 창문을 골라주세요."}{" "}
-        놓인 문/창문은 드래그로 옮기고, 클릭하면 삭제 버튼이 떠요(키보드 Delete도 돼요).
+        {isEn
+          ? pendingOpening
+            ? openingWarn
+              ? "Can't place it there — the wall's too short or it overlaps another door/window."
+              : "Click a wall on the floor plan to place it there."
+            : "First pick a door or window above."
+          : pendingOpening
+            ? openingWarn
+              ? "그 자리엔 놓을 수 없어요 — 벽이 너무 짧거나 다른 문/창문과 겹쳐요."
+              : "평면도의 벽을 클릭하면 그 자리에 놓여요."
+            : "먼저 위에서 문이나 창문을 골라주세요."}{" "}
+        {isEn
+          ? "Drag a placed door/window to move it, or click it for a delete button (keyboard Delete works too)."
+          : "놓인 문/창문은 드래그로 옮기고, 클릭하면 삭제 버튼이 떠요(키보드 Delete도 돼요)."}
       </p>
     </div>
   );

@@ -27,7 +27,9 @@ function thumbnailStyle(preset: FloorStylePreset): CSSProperties {
   };
 }
 
-export function FloorStyleCards() {
+/** lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). FloorStylePreset.labelEn
+ * (lib/roomStyle.ts)으로 갈아끼운다. */
+export function FloorStyleCards({ lang = "ko" }: { lang?: "ko" | "en" }) {
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
   const setFloorStyle = useRoomBuilderStore((s) => s.setFloorStyle);
 
@@ -46,7 +48,7 @@ export function FloorStyleCards() {
               style={{ borderColor: selected ? "var(--color-olive)" : "var(--color-hair)" }}
             >
               <span className="block h-14 w-full rounded-[10px]" style={thumbnailStyle(preset)} aria-hidden />
-              <span className="text-[12px] text-fg">{preset.label}</span>
+              <span className="text-[12px] text-fg">{lang === "en" ? preset.labelEn : preset.label}</span>
             </button>
           );
         })}

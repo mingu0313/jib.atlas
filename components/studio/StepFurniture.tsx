@@ -16,35 +16,46 @@ import { StepNav } from "@/components/studio/StepNav";
  * 여기 붙였다. ShareToAtlasButton(STEP 18)을 primary(올리브 채움),
  * SaveRoomImageButton을 secondary(테두리만)로 나란히 둔다 — 지도 공유가
  * 더 눈에 띄어야 할 액션이라고 판단했다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). 자식 컴포넌트에도
+ * 그대로 흘려보낸다.
  */
-export function StepFurniture({ onBack }: { onBack: () => void }) {
+export function StepFurniture({ onBack, lang = "ko" }: { onBack: () => void; lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
         {/* StepShape.tsx와 같은 이유로 h2 — 페이지 h1은 app/studio/page.tsx. */}
         <h2 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
-          가구를 놓아보세요<span className="heading-dot">.</span>
+          {isEn ? (
+            <>Add some furniture<span className="heading-dot">.</span></>
+          ) : (
+            <>가구를 놓아보세요<span className="heading-dot">.</span></>
+          )}
         </h2>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          원하는 자리에 자유롭게 놓을 수 있어요. 아래에서 가구를 고르면 오른쪽 평면도가 바로 반응해요. 놓인 가구는
-          클릭하면 회전·삭제 버튼이 떠요.
+          {isEn
+            ? "Place it wherever you like. Pick a piece below and the floor plan on the right responds right away. Click a placed piece for rotate/delete buttons."
+            : "원하는 자리에 자유롭게 놓을 수 있어요. 아래에서 가구를 고르면 오른쪽 평면도가 바로 반응해요. 놓인 가구는 클릭하면 회전·삭제 버튼이 떠요."}
         </p>
       </div>
 
-      <FurniturePalette />
+      <FurniturePalette lang={lang} />
 
       <div className="flex flex-col items-start gap-4 rounded-[22px] border border-hair px-6 py-7 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-1.5">
           <span className="label-mono text-[10px] text-olive-mid">Finished</span>
-          <p className="text-[14px] text-fg">방을 다 꾸미셨나요? 집지도에 공유하거나 이미지로 남겨보세요.</p>
+          <p className="text-[14px] text-fg">
+            {isEn ? "Done decorating? Share it to the house atlas or save it as an image." : "방을 다 꾸미셨나요? 집지도에 공유하거나 이미지로 남겨보세요."}
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-3">
-          <ShareToAtlasButton />
-          <SaveRoomImageButton />
+          <ShareToAtlasButton lang={lang} />
+          <SaveRoomImageButton lang={lang} />
         </div>
       </div>
 
-      <StepNav onBack={onBack} />
+      <StepNav onBack={onBack} lang={lang} />
     </div>
   );
 }

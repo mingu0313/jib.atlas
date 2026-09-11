@@ -15,12 +15,31 @@ import type { IsoFurnitureDef } from "@/lib/types";
 const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
+/** IsoFurnitureDef.en("SOFA" 같은 대문자 짧은 이름)을 Title Case로 —
+ * FurniturePalette.tsx의 같은 이름 헬퍼와 동일 목적. */
+function toTitleCase(upper: string): string {
+  return upper
+    .toLowerCase()
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 // three.js Canvas는 WebGL이라 SSR 불가 — 예전엔 StepFinish/StepFurniture
 // 두 곳에서 각자 이렇게 동적 로드했는데, 이제 이 패널 하나로 합쳤다(아래
 // PreviewMode 주석 참고 — 그게 이 통합의 핵심 이유다).
-const RoomStudioScene3D = dynamic(
+//
+// dynamic()의 loading 옵션은 렌더 시점에 props(lang)를 못 받는 정적
+// 컴포넌트라(/en/studio 다국어 확장, STEP 16), 로딩 문구만 다른 래퍼 두
+// 개를 각각 만들어둔다 — 실제 청크(RoomStudioScene3D 모듈)는 동일해서
+// 중복 로드는 없다.
+const RoomStudioScene3DKo = dynamic(
   () => import("@/components/studio/RoomStudioScene3D").then((m) => m.RoomStudioScene3D),
   { ssr: false, loading: () => <div className="flex h-[420px] items-center justify-center text-sm text-muted">3D 미리보기 불러오는 중…</div> },
+);
+const RoomStudioScene3DEn = dynamic(
+  () => import("@/components/studio/RoomStudioScene3D").then((m) => m.RoomStudioScene3D),
+  { ssr: false, loading: () => <div className="flex h-[420px] items-center justify-center text-sm text-muted">Loading 3D preview…</div> },
 );
 
 const CANVAS_HEIGHT = "h-[420px]";
@@ -42,8 +61,13 @@ const CANVAS_HEIGHT = "h-[420px]";
  * store(lib/roomBuilderStore.ts)에 있다 — "이미지로 저장하기" 버튼이
  * 형제 컴포넌트(StepFurniture)에서 저장 직전 3D 탭으로 강제 전환해야
  * 해서, 이 패널 밖에서도 건드릴 수 있어야 한다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). 자식 캔버스·툴바에도
+ * 그대로 흘려보낸다.
  */
-export function StudioPreviewPanel({ step }: { step: number }) {
+export function StudioPreviewPanel({ step, lang = "ko" }: { step: number; lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
+  const RoomStudioScene3D = isEn ? RoomStudioScene3DEn : RoomStudioScene3DKo;
   const mode = useRoomBuilderStore((s) => s.previewMode);
   const setMode = useRoomBuilderStore((s) => s.setPreviewMode);
 
@@ -118,8 +142,8 @@ export function StudioPreviewPanel({ step }: { step: number }) {
   let plan2D: React.ReactNode;
   if (step === 1) plan2D = <RoomPolygonPreview polygon={roomPolygon} className={`mx-auto ${CANVAS_HEIGHT} w-full`} strokeWidth={4} />;
   else if (step === 2) plan2D = <RoomDimensionCanvas className={`mx-auto ${CANVAS_HEIGHT} w-full`} />;
-  else if (step === 3) plan2D = <RoomPlanCanvas className={`mx-auto ${CANVAS_HEIGHT} w-full`} />;
-  else plan2D = <RoomFurnitureCanvas className={`mx-auto ${CANVAS_HEIGHT} w-full`} />;
+  else if (step === 3) plan2D = <RoomPlanCanvas className={`mx-auto ${CANVAS_HEIGHT} w-full`} lang={lang} />;
+  else plan2D = <RoomFurnitureCanvas className={`mx-auto ${CANVAS_HEIGHT} w-full`} lang={lang} />;
 
   return (
     <div className="flex flex-col gap-4 rounded-[28px] bg-panel px-6 py-8 sm:px-8">
@@ -138,7 +162,7 @@ export function StudioPreviewPanel({ step }: { step: number }) {
                   color: active ? "var(--color-cream)" : "var(--color-muted)",
                 }}
               >
-                {m === "2d" ? "평면도" : "3D 보기"}
+                {isEn ? (m === "2d" ? "Floor Plan" : "3D View") : m === "2d" ? "평면도" : "3D 보기"}
               </button>
             );
           })}
@@ -150,7 +174,7 @@ export function StudioPreviewPanel({ step }: { step: number }) {
           <span>
             {Math.round(spanWidthCm)}×{Math.round(spanDepthCm)}cm
           </span>
-          <span>천장 {Math.round(wallHeightCm)}cm</span>
+          <span>{isEn ? `Ceiling ${Math.round(wallHeightCm)}cm` : `천장 ${Math.round(wallHeightCm)}cm`}</span>
         </div>
       </div>
 
@@ -166,10 +190,10 @@ export function StudioPreviewPanel({ step }: { step: number }) {
             배터리·GPU를 쓰는 걸 막는 모바일 최적화). */}
         <div style={{ display: mode === "3d" ? "block" : "none" }}>
           <RoomStudioScene3D visible={mode === "3d"} />
-          <RoomViewToolbar />
+          <RoomViewToolbar lang={lang} />
         </div>
         <div style={{ display: mode === "2d" ? "block" : "none" }}>{plan2D}</div>
-        <FurnitureFineTunePanel />
+        <FurnitureFineTunePanel lang={lang} />
       </div>
     </div>
   );
@@ -187,8 +211,11 @@ export function StudioPreviewPanel({ step }: { step: number }) {
  * 자유 드래그가 생겼지만, 그건 "대략 이 근처" 배치용이고 코너에 딱 맞추는
  * 것 같은 정밀 조정은 여전히 숫자 스텝 버튼이 편하다 — 뷰와 무관하게 항상
  * 같은 위치에 뜨는 이 컨트롤로 "3D 화면에서도 미세조절"을 만족시킨다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16).
  */
-function FurnitureFineTunePanel() {
+function FurnitureFineTunePanel({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   const selectedFurnitureId = useRoomBuilderStore((s) => s.selectedFurnitureId);
   const furniture = useRoomBuilderStore((s) => s.furniture);
   const nudgeFurnitureAngle = useRoomBuilderStore((s) => s.nudgeFurnitureAngle);
@@ -198,6 +225,7 @@ function FurnitureFineTunePanel() {
   const item = selectedFurnitureId ? furniture.find((f) => f.id === selectedFurnitureId) : undefined;
   if (!item) return null;
   const def = furnitureDefById.get(item.defId);
+  const defLabel = def ? (isEn ? toTitleCase(def.en) : def.label) : isEn ? "Furniture" : "가구";
   const fineAngleDeg = item.fineAngleDeg ?? 0;
 
   const nudgeBtnClass =
@@ -207,17 +235,21 @@ function FurnitureFineTunePanel() {
     <div
       className="absolute top-3 right-3 z-20 flex flex-col gap-2 rounded-[14px] px-3 py-2.5 backdrop-blur-[16px]"
       style={{ background: "rgba(247,246,242,0.92)", border: "1px solid var(--color-hair)" }}
-      title="키보드 Delete/Backspace로도 뺄 수 있어요, [ ]로 회전, 화살표로 이동돼요(Shift로 크게)"
+      title={
+        isEn
+          ? "You can also remove it with keyboard Delete/Backspace, rotate with [ ], and move with arrow keys (Shift for bigger steps)"
+          : "키보드 Delete/Backspace로도 뺄 수 있어요, [ ]로 회전, 화살표로 이동돼요(Shift로 크게)"
+      }
     >
       <div className="flex items-center justify-between gap-3">
-        <span className="label-mono text-[9px] text-faint">{def?.label ?? "가구"} 미세조절</span>
+        <span className="label-mono text-[9px] text-faint">{isEn ? `Adjust ${defLabel}` : `${defLabel} 미세조절`}</span>
         {/* 키보드 Delete/Backspace(StudioPreviewPanel 최상단 핸들러)와 같은
             동작 — 터치 기기에선 키보드가 없어 이 패널에서 뺄 방법이 아예
             없었다("기구를 다시 뺄 수 있는 기능"). */}
         <button
           type="button"
-          aria-label="가구 빼기"
-          title="가구 빼기"
+          aria-label={isEn ? "Remove furniture" : "가구 빼기"}
+          title={isEn ? "Remove furniture" : "가구 빼기"}
           onClick={() => removeFurniture(item.id)}
           className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-hair text-[11px] leading-none text-muted transition hover:border-[#b5453a] hover:text-[#b5453a]"
         >
@@ -226,7 +258,12 @@ function FurnitureFineTunePanel() {
       </div>
 
       <div className="flex items-center gap-1.5">
-        <button type="button" aria-label="왼쪽으로 미세 회전" onClick={() => nudgeFurnitureAngle(item.id, -FINE_ANGLE_STEP_DEG)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Rotate left slightly" : "왼쪽으로 미세 회전"}
+          onClick={() => nudgeFurnitureAngle(item.id, -FINE_ANGLE_STEP_DEG)}
+          className={nudgeBtnClass}
+        >
           ↺
         </button>
         <input
@@ -237,9 +274,14 @@ function FurnitureFineTunePanel() {
           value={fineAngleDeg}
           onChange={(e) => nudgeFurnitureAngle(item.id, Number(e.target.value) - fineAngleDeg)}
           className="w-16 accent-[var(--color-olive)]"
-          aria-label="미세 회전 각도"
+          aria-label={isEn ? "Fine rotation angle" : "미세 회전 각도"}
         />
-        <button type="button" aria-label="오른쪽으로 미세 회전" onClick={() => nudgeFurnitureAngle(item.id, FINE_ANGLE_STEP_DEG)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Rotate right slightly" : "오른쪽으로 미세 회전"}
+          onClick={() => nudgeFurnitureAngle(item.id, FINE_ANGLE_STEP_DEG)}
+          className={nudgeBtnClass}
+        >
           ↻
         </button>
         <span className="label-mono w-7 shrink-0 text-right text-[10px] text-muted">
@@ -250,19 +292,39 @@ function FurnitureFineTunePanel() {
 
       {/* 위치 미세이동 — 세로 3x3 그리드 대신 한 줄로 눕혀서 자리를 덜 차지한다. */}
       <div className="flex items-center gap-1.5">
-        <button type="button" aria-label="왼쪽으로 이동" onClick={() => nudgeFurniturePosition(item.id, -POSITION_NUDGE_STEP_CM, 0)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Move left" : "왼쪽으로 이동"}
+          onClick={() => nudgeFurniturePosition(item.id, -POSITION_NUDGE_STEP_CM, 0)}
+          className={nudgeBtnClass}
+        >
           ◀
         </button>
-        <button type="button" aria-label="위로 이동" onClick={() => nudgeFurniturePosition(item.id, 0, -POSITION_NUDGE_STEP_CM)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Move up" : "위로 이동"}
+          onClick={() => nudgeFurniturePosition(item.id, 0, -POSITION_NUDGE_STEP_CM)}
+          className={nudgeBtnClass}
+        >
           ▲
         </button>
-        <button type="button" aria-label="아래로 이동" onClick={() => nudgeFurniturePosition(item.id, 0, POSITION_NUDGE_STEP_CM)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Move down" : "아래로 이동"}
+          onClick={() => nudgeFurniturePosition(item.id, 0, POSITION_NUDGE_STEP_CM)}
+          className={nudgeBtnClass}
+        >
           ▼
         </button>
-        <button type="button" aria-label="오른쪽으로 이동" onClick={() => nudgeFurniturePosition(item.id, POSITION_NUDGE_STEP_CM, 0)} className={nudgeBtnClass}>
+        <button
+          type="button"
+          aria-label={isEn ? "Move right" : "오른쪽으로 이동"}
+          onClick={() => nudgeFurniturePosition(item.id, POSITION_NUDGE_STEP_CM, 0)}
+          className={nudgeBtnClass}
+        >
           ▶
         </button>
-        <span className="label-mono text-[9px] text-faint">이동</span>
+        <span className="label-mono text-[9px] text-faint">{isEn ? "Move" : "이동"}</span>
       </div>
     </div>
   );

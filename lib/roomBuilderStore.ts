@@ -18,6 +18,10 @@ export interface RoomShapePreset {
   label: string;
   /** 카드 서브텍스트 */
   helper: string;
+  /** label의 영문판(STEP 16 다국어 확장) — /en/studio(StepShape lang prop)용. */
+  labelEn: string;
+  /** helper의 영문판. */
+  helperEn: string;
   /** 시계방향, 첫 점은 원점(0,0). cm 단위. */
   defaultPolygon: Point[];
 }
@@ -42,6 +46,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "square",
     label: "정사각형",
     helper: "군더더기 없는 원룸형",
+    labelEn: "Square",
+    helperEn: "A clean, no-fuss studio",
     defaultPolygon: [
       { x: 0, z: 0 },
       { x: 400, z: 0 },
@@ -53,6 +59,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "rectangle",
     label: "직사각형",
     helper: "가장 무난한 기본형",
+    labelEn: "Rectangle",
+    helperEn: "The safest, most standard shape",
     defaultPolygon: [
       { x: 0, z: 0 },
       { x: 500, z: 0 },
@@ -64,6 +72,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "clippedCorner",
     label: "잘라내기",
     helper: "모서리 하나를 비스듬히 자른 형태",
+    labelEn: "Clipped Corner",
+    helperEn: "One corner cut at an angle",
     // (0,0)→(W-C,0)→(W,C)→(W,D)→(0,D). 우상단 모서리를 대각선으로 자른다.
     defaultPolygon: [
       { x: 0, z: 0 },
@@ -77,6 +87,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "lshape",
     label: "L자형",
     helper: "거실+주방 분리형",
+    labelEn: "L-Shape",
+    helperEn: "Living room + kitchen, separated",
     defaultPolygon: [
       { x: 0, z: 0 },
       { x: 300, z: 0 },
@@ -90,6 +102,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "tshape",
     label: "T자형",
     helper: "넓은 거실 + 좁은 복도형 돌출부",
+    labelEn: "T-Shape",
+    helperEn: "A wide living area with a narrow hallway extension",
     // 위쪽 넓은 바 + 아래로 뻗은 좁은 스템. (0,0)→(W,0)→(W,B)→
     // ((W+SW)/2,B)→((W+SW)/2,B+SD)→((W-SW)/2,B+SD)→((W-SW)/2,B)→(0,B).
     defaultPolygon: [
@@ -107,6 +121,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "ushape",
     label: "U자형",
     helper: "가운데가 뚫린 안뜰형",
+    labelEn: "U-Shape",
+    helperEn: "An open courtyard cut into the middle",
     // 위쪽 가운데를 노치로 파낸 형태. (0,0)→((W-NW)/2,0)→((W-NW)/2,ND)→
     // ((W+NW)/2,ND)→((W+NW)/2,0)→(W,0)→(W,D)→(0,D).
     defaultPolygon: [
@@ -124,6 +140,8 @@ export const ROOM_SHAPE_PRESETS: RoomShapePreset[] = [
     id: "angled",
     label: "경사진",
     helper: "한쪽 벽이 비스듬한 다락방형",
+    labelEn: "Angled",
+    helperEn: "An attic-style room with one slanted wall",
     // 윗변 전체가 대각선(왼쪽이 낮고 오른쪽이 깊은 한쪽 벽 전체 경사).
     // (0,0)→(W,S)→(W,D)→(0,D).
     defaultPolygon: [

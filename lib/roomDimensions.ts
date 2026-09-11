@@ -37,36 +37,46 @@ export function parseLengthInput(raw: string, unit: RoomUnit): number | null {
 export interface DimensionField {
   id: string;
   label: string;
+  /** label의 영문판(STEP 16 다국어 확장) — /en/studio(StepDimensions lang prop)용. */
+  labelEn: string;
   min: number; // cm
   max: number; // cm
 }
 
-function field(id: string, label: string): DimensionField {
-  return { id, label, min: MIN_DIMENSION_CM, max: MAX_DIMENSION_CM };
+function field(id: string, label: string, labelEn: string): DimensionField {
+  return { id, label, labelEn, min: MIN_DIMENSION_CM, max: MAX_DIMENSION_CM };
 }
 
-const SQUARE_FIELDS: DimensionField[] = [field("side", "한 변")];
-const RECTANGLE_FIELDS: DimensionField[] = [field("width", "가로"), field("depth", "깊이")];
-const CLIPPED_CORNER_FIELDS: DimensionField[] = [field("width", "가로"), field("depth", "깊이"), field("cut", "잘린 모서리")];
+const SQUARE_FIELDS: DimensionField[] = [field("side", "한 변", "Side")];
+const RECTANGLE_FIELDS: DimensionField[] = [field("width", "가로", "Width"), field("depth", "깊이", "Depth")];
+const CLIPPED_CORNER_FIELDS: DimensionField[] = [
+  field("width", "가로", "Width"),
+  field("depth", "깊이", "Depth"),
+  field("cut", "잘린 모서리", "Cut Corner"),
+];
 const LSHAPE_FIELDS: DimensionField[] = [
-  field("mainWidth", "전체 가로"),
-  field("mainDepth", "전체 깊이"),
-  field("notchWidth", "잘린 폭"),
-  field("notchDepth", "잘린 깊이"),
+  field("mainWidth", "전체 가로", "Overall Width"),
+  field("mainDepth", "전체 깊이", "Overall Depth"),
+  field("notchWidth", "잘린 폭", "Notch Width"),
+  field("notchDepth", "잘린 깊이", "Notch Depth"),
 ];
 const TSHAPE_FIELDS: DimensionField[] = [
-  field("mainWidth", "전체 가로"),
-  field("barDepth", "위쪽 바 깊이"),
-  field("stemWidth", "돌출부 폭"),
-  field("stemDepth", "돌출부 깊이"),
+  field("mainWidth", "전체 가로", "Overall Width"),
+  field("barDepth", "위쪽 바 깊이", "Top Bar Depth"),
+  field("stemWidth", "돌출부 폭", "Stem Width"),
+  field("stemDepth", "돌출부 깊이", "Stem Depth"),
 ];
 const USHAPE_FIELDS: DimensionField[] = [
-  field("mainWidth", "전체 가로"),
-  field("mainDepth", "전체 깊이"),
-  field("notchWidth", "안뜰 폭"),
-  field("notchDepth", "안뜰 깊이"),
+  field("mainWidth", "전체 가로", "Overall Width"),
+  field("mainDepth", "전체 깊이", "Overall Depth"),
+  field("notchWidth", "안뜰 폭", "Courtyard Width"),
+  field("notchDepth", "안뜰 깊이", "Courtyard Depth"),
 ];
-const ANGLED_FIELDS: DimensionField[] = [field("width", "가로"), field("depth", "깊이"), field("slope", "경사 깊이")];
+const ANGLED_FIELDS: DimensionField[] = [
+  field("width", "가로", "Width"),
+  field("depth", "깊이", "Depth"),
+  field("slope", "경사 깊이", "Slope Depth"),
+];
 
 /**
  * 프리셋별로 노출할 치수 입력 필드. "정사각형"은 가로/세로를 따로 두면

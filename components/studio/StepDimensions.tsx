@@ -5,9 +5,9 @@ import { StepNav } from "@/components/studio/StepNav";
 import { useRoomBuilderStore } from "@/lib/roomBuilderStore";
 import { getDimensionFields, MAX_WALL_HEIGHT_CM, MIN_WALL_HEIGHT_CM, readDimensions, type RoomUnit } from "@/lib/roomDimensions";
 
-const UNIT_OPTIONS: { id: RoomUnit; label: string }[] = [
-  { id: "cm", label: "센티미터" },
-  { id: "ft", label: "피트" },
+const UNIT_OPTIONS: { id: RoomUnit; label: string; labelEn: string }[] = [
+  { id: "cm", label: "센티미터", labelEn: "Centimeters" },
+  { id: "ft", label: "피트", labelEn: "Feet" },
 ];
 
 /**
@@ -16,8 +16,11 @@ const UNIT_OPTIONS: { id: RoomUnit; label: string }[] = [
  * 계속 깎여나가지 않는다(lib/roomDimensions.ts 주석 참고). 드래그로 바꾸는
  * 평면도는 오른쪽 상시 패널(StudioPreviewPanel)에 있다 — 여기 숫자 입력과
  * 같은 store 액션(setDimension)을 쓰니 둘은 항상 같은 값에 수렴한다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). DimensionField.labelEn
+ * (lib/roomDimensions.ts)으로 필드 라벨을 갈아끼운다.
  */
-export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
+export function StepDimensions({ onBack, onNext, lang = "ko" }: { onBack: () => void; onNext: () => void; lang?: "ko" | "en" }) {
   const roomShape = useRoomBuilderStore((s) => s.roomShape);
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const unit = useRoomBuilderStore((s) => s.unit);
@@ -25,6 +28,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
   const setUnit = useRoomBuilderStore((s) => s.setUnit);
   const setDimension = useRoomBuilderStore((s) => s.setDimension);
   const setWallHeight = useRoomBuilderStore((s) => s.setWallHeight);
+  const isEn = lang === "en";
 
   const fields = getDimensionFields(roomShape);
   const dims = readDimensions(roomShape, roomPolygon);
@@ -34,11 +38,16 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
       <div className="flex flex-col gap-3">
         {/* StepShape.tsx와 같은 이유로 h2 — 페이지 h1은 app/studio/page.tsx. */}
         <h2 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
-          치수를 정해보세요<span className="heading-dot">.</span>
+          {isEn ? (
+            <>Set the dimensions<span className="heading-dot">.</span></>
+          ) : (
+            <>치수를 정해보세요<span className="heading-dot">.</span></>
+          )}
         </h2>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
-          숫자를 직접 입력해도 되고, 오른쪽 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만
-          조정돼요.
+          {isEn
+            ? "Type the numbers directly, or drag the walls on the floor plan to the right. Adjustable between 20cm and 1000cm."
+            : "숫자를 직접 입력해도 되고, 오른쪽 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만 조정돼요."}
         </p>
       </div>
 
@@ -57,7 +66,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
                 color: active ? "var(--color-cream)" : "var(--color-muted)",
               }}
             >
-              {opt.label}
+              {isEn ? opt.labelEn : opt.label}
             </button>
           );
         })}
@@ -67,7 +76,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
         {fields.map((field) => (
           <DimensionInput
             key={field.id}
-            label={field.label}
+            label={isEn ? field.labelEn : field.label}
             valueCm={dims[field.id]}
             min={field.min}
             max={field.max}
@@ -76,7 +85,7 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
           />
         ))}
         <DimensionInput
-          label="천장 높이"
+          label={isEn ? "Ceiling Height" : "천장 높이"}
           valueCm={wallHeightCm}
           min={MIN_WALL_HEIGHT_CM}
           max={MAX_WALL_HEIGHT_CM}
@@ -85,7 +94,12 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
         />
       </div>
 
-      <StepNav onBack={onBack} onNext={onNext} nextLabel="다음: 문/창문·마감재 →" />
+      <StepNav
+        onBack={onBack}
+        onNext={onNext}
+        nextLabel={isEn ? "Next: Doors, windows & finishes →" : "다음: 문/창문·마감재 →"}
+        lang={lang}
+      />
     </div>
   );
 }

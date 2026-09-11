@@ -32,7 +32,21 @@ function toSvgPoint(svg: SVGSVGElement, clientX: number, clientY: number): Point
  * 살짝 띄워서 벽 자체를 가리지 않는다(오프셋 방향은 RoomDimensionCanvas의
  * 치수 라벨과 같은 outward-normal 트릭: 우리 폴리곤은 항상 시계방향이라
  * 진행 방향 (dirX,dirZ)를 오른쪽으로 90도 돌린 (dirZ,-dirX)가 바깥쪽이다). */
-function OpeningToolbar({ cx, cz, dirX, dirZ, onDelete }: { cx: number; cz: number; dirX: number; dirZ: number; onDelete: () => void }) {
+function OpeningToolbar({
+  cx,
+  cz,
+  dirX,
+  dirZ,
+  onDelete,
+  lang = "ko",
+}: {
+  cx: number;
+  cz: number;
+  dirX: number;
+  dirZ: number;
+  onDelete: () => void;
+  lang?: "ko" | "en";
+}) {
   const nx = dirZ;
   const nz = -dirX;
   const bx = cx + nx * TOOLBAR_OFFSET_CM;
@@ -57,12 +71,12 @@ function OpeningToolbar({ cx, cz, dirX, dirZ, onDelete }: { cx: number; cz: numb
       >
         ×
       </text>
-      <title>삭제</title>
+      <title>{lang === "en" ? "Delete" : "삭제"}</title>
     </g>
   );
 }
 
-function OpeningMarker({ opening, wallLength }: { opening: PlacedOpening; wallLength: number }) {
+function OpeningMarker({ opening, wallLength, lang = "ko" }: { opening: PlacedOpening; wallLength: number; lang?: "ko" | "en" }) {
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const moveOpening = useRoomBuilderStore((s) => s.moveOpening);
   const removeOpening = useRoomBuilderStore((s) => s.removeOpening);
@@ -121,10 +135,14 @@ function OpeningMarker({ opening, wallLength }: { opening: PlacedOpening; wallLe
         }}
         style={{ cursor: "grab" }}
       >
-        <title>클릭하면 선택돼요(삭제 버튼이 떠요) — 더블클릭하면 바로 삭제돼요</title>
+        <title>
+          {lang === "en"
+            ? "Click to select (shows a delete button) — double-click to delete right away"
+            : "클릭하면 선택돼요(삭제 버튼이 떠요) — 더블클릭하면 바로 삭제돼요"}
+        </title>
       </line>
       {isSelected && (
-        <OpeningToolbar cx={cx} cz={cz} dirX={dirX} dirZ={dirZ} onDelete={() => removeOpening(opening.id)} />
+        <OpeningToolbar cx={cx} cz={cz} dirX={dirX} dirZ={dirZ} onDelete={() => removeOpening(opening.id)} lang={lang} />
       )}
     </>
   );
@@ -146,7 +164,7 @@ function OpeningMarker({ opening, wallLength }: { opening: PlacedOpening; wallLe
  * 더블클릭만 있던 예전 방식은 발견하기 어려워서(특히 모바일) 기본 흐름을
  * 클릭 선택으로 바꾸고, 더블클릭은 단축키로 남겨뒀다.
  */
-export function RoomPlanCanvas({ className }: { className?: string }) {
+export function RoomPlanCanvas({ className, lang = "ko" }: { className?: string; lang?: "ko" | "en" }) {
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const wallColorHex = useRoomBuilderStore((s) => s.wallColorHex);
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
@@ -188,7 +206,7 @@ export function RoomPlanCanvas({ className }: { className?: string }) {
       {openings.map((opening) => {
         const wall = walls[opening.wallIndex];
         if (!wall) return null;
-        return <OpeningMarker key={opening.id} opening={opening} wallLength={wall.length} />;
+        return <OpeningMarker key={opening.id} opening={opening} wallLength={wall.length} lang={lang} />;
       })}
     </svg>
   );

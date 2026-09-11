@@ -4,12 +4,19 @@ import {
   generateInteriorExplanation,
   matchInteriorStyles,
 } from "@/lib/interiorMatching";
+import { badgeLabelForEn, generateInteriorExplanationEn, interiorStylesEn } from "@/lib/interiorMatchingEn";
 import type { AxisScores } from "@/lib/types";
 
 /**
  * 결과 페이지 "AI 인테리어 추천" — 2x2 비대칭 그리드 카드 4개(STEP 8).
  * 카드별 radius/뱃지 배경을 일부러 맞추지 않는다(jib-atlas 기존 원칙,
  * app/result/page.tsx의 rounded-[22px]/[28px]/[36px]/[18px] 패턴과 동일).
+ *
+ * lang(기본 "ko") — /en/result/interiors(신규)에서 lang="en"으로 호출하면
+ * lib/interiorMatchingEn.ts의 영문 데이터·함수로 갈아끼운다. matchInteriorStyles
+ * 자체는 profiles 파라미터를 받는 언어 무관 순수 함수라 두 언어가 같은 함수를
+ * 공유하고(lib/matching.ts의 templates 파라미터와 같은 패턴), badge/설명
+ * 문장 조립만 lib/persona.ts처럼 *En 짝을 따로 둔다.
  */
 const CARD_STYLE = [
   { radius: "rounded-[30px]", badgeBg: "bg-olive", badgeText: "text-cream" },
@@ -18,16 +25,17 @@ const CARD_STYLE = [
   { radius: "rounded-[36px]", badgeBg: "bg-olive-mid", badgeText: "text-cream" },
 ];
 
-export function InteriorRecommendations({ axisScores }: { axisScores: AxisScores }) {
-  const matches = matchInteriorStyles(axisScores);
+export function InteriorRecommendations({ axisScores, lang = "ko" }: { axisScores: AxisScores; lang?: "ko" | "en" }) {
+  const matches = lang === "en" ? matchInteriorStyles(axisScores, 4, interiorStylesEn) : matchInteriorStyles(axisScores);
 
   return (
     <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 sm:gap-x-7 sm:gap-y-14">
       {matches.map((match, i) => {
         const style = CARD_STYLE[i % CARD_STYLE.length];
         const numLabel = String(i + 1).padStart(2, "0");
-        const badge = badgeLabelFor(axisScores, match, i);
-        const explanation = generateInteriorExplanation(axisScores, match, i);
+        const badge = lang === "en" ? badgeLabelForEn(axisScores, match, i) : badgeLabelFor(axisScores, match, i);
+        const explanation =
+          lang === "en" ? generateInteriorExplanationEn(axisScores, match, i) : generateInteriorExplanation(axisScores, match, i);
 
         return (
           <div

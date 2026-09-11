@@ -1,0 +1,27 @@
+{
+  "sociability": {
+    "high": "who loves being around people",
+    "mid": "who enjoys both solo time and company",
+    "low": "who treasures time alone"
+  },
+  "minimalism": {
+    "high": "who loves keeping things clean and clutter-free",
+    "mid": "who likes to keep things reasonably tidy",
+    "low": "who keeps every favorite thing close by"
+  },
+  "activity": {
+    "high": "who likes staying active even at home",
+    "mid": "who enjoys both resting and moving",
+    "low": "who values resting completely at home"
+  },
+  "openness": {
+    "high": "who loves wide-open spaces",
+    "mid": "who likes a fairly open space",
+    "low": "who loves a cozy, divided space"
+  },
+  "nature": {
+    "high": "who always makes room for light and greenery",
+    "mid": "who likes a touch of nature",
+    "low": "who puts practicality before nature"
+  }
+}

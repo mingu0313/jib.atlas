@@ -5,9 +5,21 @@ import { useState } from "react";
 import furnitureCatalogData from "@/data/furniture-catalog.json";
 import { furnitureThumbnailUrl, PALETTE } from "@/lib/furniturePalette";
 import { furnitureFootprintCm, useRoomBuilderStore } from "@/lib/roomBuilderStore";
-import { CATEGORY_LABELS } from "@/lib/types";
+import { CATEGORY_LABELS, CATEGORY_LABELS_EN } from "@/lib/types";
 import type { FurnitureCategory, IsoFurnitureDef } from "@/lib/types";
 import type { PaletteKey } from "@/lib/furniturePalette";
+
+/** IsoFurnitureDef.en("SOFA", "BED SINGLE" 같은 대문자 짧은 이름 — 지금은
+ * 안 쓰이던 필드, data/furniture-catalog.json 참고)을 화면에 걸기 좋은
+ * Title Case로 바꾼다 — /en/studio 다국어 확장(STEP 16)에서 새 영문 이름
+ * 데이터를 따로 안 만들고 이미 있던 이 필드를 재사용한다. */
+function toTitleCase(upper: string): string {
+  return upper
+    .toLowerCase()
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
 
 /** 색상 스와치 표시 순서 — 밝은 톤 → 어두운 톤, 그레이지 → 코퍼 → 뉴트럴 →
  * 그린 순으로 lib/furniturePalette.ts PALETTE 키를 나열한다(Object.keys
@@ -84,8 +96,12 @@ function FurnitureThumbnail({ def }: { def: IsoFurnitureDef }) {
  * store.selectedFurnitureDefId로 따른다. 실제 배치는 RoomFurnitureCanvas의
  * 바닥 클릭이 한다. 카드마다 실제 비율 썸네일 + 실치수(cm)를 보여줘서,
  * 놓기 전에 "이게 방에 맞는 크기인지" 감을 잡을 수 있게 한다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). 카테고리 탭은
+ * CATEGORY_LABELS_EN(lib/types.ts), 가구 이름은 def.en을 Title Case로
+ * 바꿔서 쓴다.
  */
-export function FurniturePalette() {
+export function FurniturePalette({ lang = "ko" }: { lang?: "ko" | "en" }) {
   const [activeCategory, setActiveCategory] = useState<FurnitureCategory>(CATEGORY_ORDER[0]);
   const selectedFurnitureDefId = useRoomBuilderStore((s) => s.selectedFurnitureDefId);
   const selectFurnitureDef = useRoomBuilderStore((s) => s.selectFurnitureDef);
@@ -94,8 +110,10 @@ export function FurniturePalette() {
   const furnitureWarn = useRoomBuilderStore((s) => s.furnitureWarn);
   const selectedColorKey = useRoomBuilderStore((s) => s.selectedColorKey);
   const selectColor = useRoomBuilderStore((s) => s.selectColor);
+  const isEn = lang === "en";
 
   const selectedDef = selectedFurnitureDefId ? furnitureCatalog.find((d) => d.id === selectedFurnitureDefId) : null;
+  const furnitureLabel = (def: IsoFurnitureDef) => (isEn ? toTitleCase(def.en) : def.label);
 
   return (
     <div className="flex flex-col gap-4">
@@ -114,7 +132,7 @@ export function FurniturePalette() {
                 color: active ? "var(--color-sage-ink)" : "var(--color-fg)",
               }}
             >
-              {CATEGORY_LABELS[cat]}
+              {isEn ? CATEGORY_LABELS_EN[cat] : CATEGORY_LABELS[cat]}
             </button>
           );
         })}
@@ -138,7 +156,7 @@ export function FurniturePalette() {
                 }}
               >
                 <FurnitureThumbnail def={def} />
-                <span className="text-[12px] leading-tight text-fg">{def.label}</span>
+                <span className="text-[12px] leading-tight text-fg">{furnitureLabel(def)}</span>
                 <span className="label-mono text-[10px] text-faint">
                   {Math.round(widthCm)}×{Math.round(depthCm)}cm
                 </span>
@@ -154,18 +172,18 @@ export function FurniturePalette() {
             onClick={toggleFurnitureRotate}
             className="w-fit rounded-full border border-hair px-4 py-2 text-[11px] text-[#5f5f57] transition hover:border-olive hover:text-fg"
           >
-            ↻ 놓을 방향{furnitureRotated ? " — 90도 돌림" : ""}
+            {isEn ? `↻ Orientation${furnitureRotated ? " — rotated 90°" : ""}` : `↻ 놓을 방향${furnitureRotated ? " — 90도 돌림" : ""}`}
           </button>
 
           <div className="flex items-center gap-2">
-            <span className="label-mono text-[10px] text-faint">색상</span>
+            <span className="label-mono text-[10px] text-faint">{isEn ? "Color" : "색상"}</span>
             {COLOR_SWATCH_ORDER.map((key) => {
               const active = selectedColorKey === key;
               return (
                 <button
                   key={key}
                   type="button"
-                  aria-label={`${key} 색상 선택`}
+                  aria-label={isEn ? `Select ${key} color` : `${key} 색상 선택`}
                   aria-pressed={active}
                   onClick={() => selectColor(key)}
                   className="h-6 w-6 shrink-0 rounded-full border-2 transition"
@@ -182,12 +200,20 @@ export function FurniturePalette() {
       )}
 
       <p className="text-[12px] leading-[1.8] text-muted">
-        {selectedDef
-          ? furnitureWarn
-            ? "그 자리엔 놓을 수 없어요 — 방을 벗어나거나 다른 가구와 겹쳐요."
-            : `${selectedDef.label} 선택됨 — 평면도를 클릭하면 놓여요.`
-          : "가구를 고르면 평면도를 클릭해 놓을 수 있어요."}{" "}
-        놓인 가구는 드래그로 옮기고, 클릭하면 회전·삭제 버튼이 떠요(키보드 R·Delete도 돼요).
+        {isEn
+          ? selectedDef
+            ? furnitureWarn
+              ? "Can't place it there — it's outside the room or overlaps other furniture."
+              : `${furnitureLabel(selectedDef)} selected — click the floor plan to place it.`
+            : "Pick a piece, then click the floor plan to place it."
+          : selectedDef
+            ? furnitureWarn
+              ? "그 자리엔 놓을 수 없어요 — 방을 벗어나거나 다른 가구와 겹쳐요."
+              : `${selectedDef.label} 선택됨 — 평면도를 클릭하면 놓여요.`
+            : "가구를 고르면 평면도를 클릭해 놓을 수 있어요."}{" "}
+        {isEn
+          ? "Drag a placed piece to move it, or click it for rotate/delete buttons (keyboard R/Delete work too)."
+          : "놓인 가구는 드래그로 옮기고, 클릭하면 회전·삭제 버튼이 떠요(키보드 R·Delete도 돼요)."}
       </p>
     </div>
   );

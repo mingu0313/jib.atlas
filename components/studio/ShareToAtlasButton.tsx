@@ -37,8 +37,15 @@ type Status = "idle" | "capturing" | "submitting" | "error";
  *
  * room_items(옛 /editor 게시물)과 구분되는 뱃지는 app/atlas/page.tsx·
  * app/atlas/[id]/page.tsx에서 studio_room 존재 여부로 붙인다.
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16). 이 버튼 자체의 UI
+ * 텍스트만 옮기고, 실제 공유 대상(/atlas 갤러리 자체, /login 페이지)은
+ * 아직 한국어만 있다 — 사용자가 지도에 올리는 글은 원래도 자기가 직접
+ * 쓰는 제목/캡션이라 언어를 강제할 이유가 없어서, /atlas·/login 링크는
+ * 그대로 둔다.
  */
-export function ShareToAtlasButton() {
+export function ShareToAtlasButton({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   const router = useRouter();
   const pathname = usePathname();
   const { user, loading: userLoading } = useUser();
@@ -92,7 +99,7 @@ export function ShareToAtlasButton() {
 
     const trimmedTitle = title.trim();
     if (!trimmedTitle) {
-      setError("제목을 입력해주세요.");
+      setError(isEn ? "Please enter a title." : "제목을 입력해주세요.");
       return;
     }
 
@@ -102,7 +109,7 @@ export function ShareToAtlasButton() {
     await sleep(SWITCH_TO_3D_DELAY_MS);
     const blob = await requestStudioCapture();
     if (!blob) {
-      setError("방 이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
+      setError(isEn ? "Couldn't create the room image. Please try again in a moment." : "방 이미지를 만들지 못했어요. 잠시 후 다시 시도해주세요.");
       setStatus("error");
       return;
     }
@@ -155,7 +162,7 @@ export function ShareToAtlasButton() {
         })
         .select()
         .single();
-      if (postErr || !postRow) throw postErr ?? new Error("게시물을 만들지 못했어요.");
+      if (postErr || !postRow) throw postErr ?? new Error(isEn ? "Couldn't create the post." : "게시물을 만들지 못했어요.");
 
       const { error: photoErr } = await supabase
         .from("house_photos")
@@ -164,7 +171,7 @@ export function ShareToAtlasButton() {
 
       router.push(`/atlas/${postRow.id}`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "등록에 실패했어요. 다시 시도해주세요.");
+      setError(err instanceof Error ? err.message : isEn ? "Couldn't post it. Please try again." : "등록에 실패했어요. 다시 시도해주세요.");
       setStatus("error");
     }
   }
@@ -176,7 +183,7 @@ export function ShareToAtlasButton() {
         onClick={() => setOpen(true)}
         className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg"
       >
-        집지도에 공유하기
+        {isEn ? "Share to house atlas" : "집지도에 공유하기"}
       </button>
 
       {open && (
@@ -184,7 +191,7 @@ export function ShareToAtlasButton() {
           className="fixed inset-0 z-[60] flex items-center justify-center p-6"
           role="dialog"
           aria-modal="true"
-          aria-label="집지도에 공유하기"
+          aria-label={isEn ? "Share to house atlas" : "집지도에 공유하기"}
         >
           <button
             type="button"
@@ -200,7 +207,7 @@ export function ShareToAtlasButton() {
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                aria-label="닫기"
+                aria-label={isEn ? "Close" : "닫기"}
                 className="absolute top-5 right-5 flex h-8 w-8 items-center justify-center rounded-full text-muted transition hover:bg-panel hover:text-fg"
               >
                 ✕
@@ -209,20 +216,24 @@ export function ShareToAtlasButton() {
 
             {!userLoading && !user ? (
               <div className="flex flex-col items-center gap-4 py-6 text-center">
-                <span className="font-kr text-xl">로그인하고 공유해보세요</span>
-                <p className="text-[13px] text-muted">로그인하면 지금 꾸민 방을 집지도에 올릴 수 있어요.</p>
+                <span className="font-kr text-xl">{isEn ? "Log in to share" : "로그인하고 공유해보세요"}</span>
+                <p className="text-[13px] text-muted">
+                  {isEn ? "Log in to post the room you just decorated to the house atlas." : "로그인하면 지금 꾸민 방을 집지도에 올릴 수 있어요."}
+                </p>
                 <Link
                   href={`/login?next=${encodeURIComponent(pathname)}`}
                   className="rounded-full bg-olive px-6 py-3 text-[13px] font-semibold text-cream transition hover:bg-fg"
                 >
-                  로그인 / 회원가입
+                  {isEn ? "Log in / Sign up" : "로그인 / 회원가입"}
                 </Link>
               </div>
             ) : (
               <>
-                <h2 className="font-kr text-2xl">집지도에 공유할까요?</h2>
+                <h2 className="font-kr text-2xl">{isEn ? "Share to the house atlas?" : "집지도에 공유할까요?"}</h2>
                 <p className="mt-2 text-[13px] text-muted">
-                  지금 3D 룸 뷰를 캡처해 함께 올려요. 제목만 적어도 등록할 수 있어요.
+                  {isEn
+                    ? "We'll capture the 3D room view and post it along with your title. A title is all that's required."
+                    : "지금 3D 룸 뷰를 캡처해 함께 올려요. 제목만 적어도 등록할 수 있어요."}
                 </p>
 
                 <form onSubmit={handleSubmit} className="mt-6 flex flex-col gap-3">
@@ -232,7 +243,7 @@ export function ShareToAtlasButton() {
                     maxLength={60}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="예: 초록이 가득한 5평 원룸"
+                    placeholder={isEn ? "e.g. A 200 sqft studio full of greenery" : "예: 초록이 가득한 5평 원룸"}
                     className="rounded-[14px] border border-hair bg-bg px-4 py-3 text-[14px] text-fg outline-none focus:border-olive"
                   />
                   <textarea
@@ -240,12 +251,16 @@ export function ShareToAtlasButton() {
                     onChange={(e) => setCaption(e.target.value)}
                     rows={3}
                     maxLength={1000}
-                    placeholder="이 방만의 포인트를 자유롭게 적어주세요(선택)."
+                    placeholder={isEn ? "Feel free to describe what makes this room yours (optional)." : "이 방만의 포인트를 자유롭게 적어주세요(선택)."}
                     className="resize-none rounded-[14px] border border-hair bg-bg px-4 py-3 text-[14px] text-fg outline-none focus:border-olive"
                   />
 
                   {hasDiagnosis && (
-                    <p className="text-[12px] text-muted">진단 결과의 유형·페르소나 배지가 이 게시물에 함께 기록돼요.</p>
+                    <p className="text-[12px] text-muted">
+                      {isEn
+                        ? "Your house type and character badge from your quiz result will be recorded with this post."
+                        : "진단 결과의 유형·페르소나 배지가 이 게시물에 함께 기록돼요."}
+                    </p>
                   )}
 
                   {error && (
@@ -259,11 +274,17 @@ export function ShareToAtlasButton() {
                     disabled={busy}
                     className="mt-1 rounded-full bg-olive px-6 py-3 text-[14px] font-semibold text-cream transition hover:bg-fg disabled:opacity-50"
                   >
-                    {status === "capturing"
-                      ? "방 이미지 만드는 중…"
-                      : status === "submitting"
-                        ? "등록하는 중…"
-                        : "지도에 등록하기"}
+                    {isEn
+                      ? status === "capturing"
+                        ? "Creating room image…"
+                        : status === "submitting"
+                          ? "Posting…"
+                          : "Post to the atlas"
+                      : status === "capturing"
+                        ? "방 이미지 만드는 중…"
+                        : status === "submitting"
+                          ? "등록하는 중…"
+                          : "지도에 등록하기"}
                   </button>
                 </form>
               </>

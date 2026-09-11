@@ -11,6 +11,16 @@ import type { IsoFurnitureDef } from "@/lib/types";
 const furnitureCatalog = furnitureCatalogData as IsoFurnitureDef[];
 const furnitureDefById = new Map(furnitureCatalog.map((d) => [d.id, d]));
 
+/** IsoFurnitureDef.en("SOFA" 같은 대문자 짧은 이름)을 Title Case로 —
+ * FurniturePalette.tsx의 같은 이름 헬퍼와 동일 목적. */
+function toTitleCase(upper: string): string {
+  return upper
+    .toLowerCase()
+    .split(" ")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
 const WALL_THICKNESS_CM = 10;
 /** RoomPlanCanvas와 같은 기준 — 이 거리(px) 미만 이동이면 드래그가 아니라
  * 클릭(선택)으로 본다. */
@@ -98,11 +108,13 @@ function FurnitureToolbar({
   topZ,
   onRotate,
   onDelete,
+  lang = "ko",
 }: {
   cx: number;
   topZ: number;
   onRotate: () => void;
   onDelete: () => void;
+  lang?: "ko" | "en";
 }) {
   const btnY = topZ - TOOLBAR_GAP_CM;
   const gap = TOOLBAR_BTN_R * 2.4;
@@ -119,7 +131,7 @@ function FurnitureToolbar({
         <text textAnchor="middle" dominantBaseline="central" fontSize={TOOLBAR_BTN_R * 1.2} fill="var(--color-cream)" style={{ pointerEvents: "none" }}>
           ↻
         </text>
-        <title>회전(R)</title>
+        <title>{lang === "en" ? "Rotate (R)" : "회전(R)"}</title>
       </g>
       <g
         transform={`translate(${cx + gap / 2} ${btnY})`}
@@ -132,13 +144,13 @@ function FurnitureToolbar({
         <text textAnchor="middle" dominantBaseline="central" fontSize={TOOLBAR_BTN_R * 1.3} fill="var(--color-cream)" style={{ pointerEvents: "none" }}>
           ×
         </text>
-        <title>삭제(Delete)</title>
+        <title>{lang === "en" ? "Delete" : "삭제(Delete)"}</title>
       </g>
     </g>
   );
 }
 
-function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
+function FurnitureMarker({ item, lang = "ko" }: { item: PlacedStudioFurniture; lang?: "ko" | "en" }) {
   const moveFurniture = useRoomBuilderStore((s) => s.moveFurniture);
   const removeFurniture = useRoomBuilderStore((s) => s.removeFurniture);
   const rotateFurniture = useRoomBuilderStore((s) => s.rotateFurniture);
@@ -192,13 +204,18 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
         stroke={isSelected ? "var(--color-olive)" : "rgba(18,18,15,0.35)"}
         strokeWidth={isSelected ? 3.5 : 2}
       />
-      <title>{`${def.label} — 클릭하면 선택돼요(회전·삭제 버튼이 떠요), 드래그로 이동, 더블클릭으로 바로 삭제`}</title>
+      <title>
+        {lang === "en"
+          ? `${toTitleCase(def.en)} — click to select (rotate/delete buttons), drag to move, double-click to delete right away`
+          : `${def.label} — 클릭하면 선택돼요(회전·삭제 버튼이 떠요), 드래그로 이동, 더블클릭으로 바로 삭제`}
+      </title>
       {isSelected && (
         <FurnitureToolbar
           cx={item.cx}
           topZ={topZ}
           onRotate={() => rotateFurniture(item.id)}
           onDelete={() => removeFurniture(item.id)}
+          lang={lang}
         />
       )}
     </g>
@@ -212,7 +229,7 @@ function FurnitureMarker({ item }: { item: PlacedStudioFurniture }) {
  * (cx,cz)라는 점이 다르다. 문/창문은 여기선 위치 참고용으로만 그리고(읽기
  * 전용, pointerEvents:none) 이동/삭제는 3단계 캔버스에서만 한다.
  */
-export function RoomFurnitureCanvas({ className }: { className?: string }) {
+export function RoomFurnitureCanvas({ className, lang = "ko" }: { className?: string; lang?: "ko" | "en" }) {
   const roomPolygon = useRoomBuilderStore((s) => s.roomPolygon);
   const wallColorHex = useRoomBuilderStore((s) => s.wallColorHex);
   const floorStyleId = useRoomBuilderStore((s) => s.floorStyleId);
@@ -280,7 +297,7 @@ export function RoomFurnitureCanvas({ className }: { className?: string }) {
         );
       })}
       {furniture.map((item) => (
-        <FurnitureMarker key={item.id} item={item} />
+        <FurnitureMarker key={item.id} item={item} lang={lang} />
       ))}
     </svg>
   );

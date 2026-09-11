@@ -3,6 +3,8 @@
 export interface DoorPreset {
   id: string;
   label: string;
+  /** label의 영문판(STEP 16 다국어 확장) — /en/studio(OpeningPalette lang prop)용. */
+  labelEn: string;
   widthCm: number;
   heightCm: number;
 }
@@ -10,6 +12,7 @@ export interface DoorPreset {
 export interface WindowPreset {
   id: string;
   label: string;
+  labelEn: string;
   widthCm: number;
   heightCm: number;
   /** 창턱 높이(바닥 기준) — 벽에서 창문이 시작되는 높이. */
@@ -17,20 +20,22 @@ export interface WindowPreset {
 }
 
 export const DOOR_PRESETS: DoorPreset[] = [
-  { id: "door-80", label: "여닫이문 80cm", widthCm: 80, heightCm: 200 },
-  { id: "door-90", label: "여닫이문 90cm", widthCm: 90, heightCm: 200 },
-  { id: "door-slide-120", label: "슬라이딩 도어 120cm", widthCm: 120, heightCm: 210 },
+  { id: "door-80", label: "여닫이문 80cm", labelEn: "Hinged Door 80cm", widthCm: 80, heightCm: 200 },
+  { id: "door-90", label: "여닫이문 90cm", labelEn: "Hinged Door 90cm", widthCm: 90, heightCm: 200 },
+  { id: "door-slide-120", label: "슬라이딩 도어 120cm", labelEn: "Sliding Door 120cm", widthCm: 120, heightCm: 210 },
 ];
 
 export const WINDOW_PRESETS: WindowPreset[] = [
-  { id: "window-60", label: "소형 창 60×100", widthCm: 60, heightCm: 100, sillHeightCm: 100 },
-  { id: "window-120", label: "일반 창 120×100", widthCm: 120, heightCm: 100, sillHeightCm: 90 },
-  { id: "window-180", label: "대형 창 180×120", widthCm: 180, heightCm: 120, sillHeightCm: 70 },
+  { id: "window-60", label: "소형 창 60×100", labelEn: "Small Window 60×100", widthCm: 60, heightCm: 100, sillHeightCm: 100 },
+  { id: "window-120", label: "일반 창 120×100", labelEn: "Standard Window 120×100", widthCm: 120, heightCm: 100, sillHeightCm: 90 },
+  { id: "window-180", label: "대형 창 180×120", labelEn: "Large Window 180×120", widthCm: 180, heightCm: 120, sillHeightCm: 70 },
 ];
 
 export interface WallColorPreset {
   id: string;
   label: string;
+  /** label의 영문판 — /en/studio(WallColorPicker·RoomViewToolbar lang prop)용. */
+  labelEn: string;
   hex: string;
 }
 
@@ -43,22 +48,24 @@ export interface WallColorPreset {
  * StepFinish의 WallColorPicker가 이 배열 하나를 공유한다 — 색상 목록이
  * 두 군데서 따로 놀지 않도록. */
 export const WALL_COLOR_PRESETS: WallColorPreset[] = [
-  { id: "warm-white", label: "웜 화이트", hex: "#F5F1E8" },
-  { id: "linen", label: "리넨", hex: "#EFE7D8" },
-  { id: "oatmeal", label: "오트밀", hex: "#E4D9C4" },
-  { id: "greige", label: "그레이지", hex: "#D7CBB8" },
-  { id: "warm-gray", label: "웜 그레이", hex: "#C9C0B2" },
-  { id: "taupe", label: "타우프", hex: "#B7A98F" },
-  { id: "mocha", label: "모카", hex: "#A08D74" },
-  { id: "clay", label: "클레이", hex: "#BC8F6D" },
-  { id: "terracotta", label: "테라코타", hex: "#C3714A" },
-  { id: "copper", label: "카퍼", hex: "#B5673E" },
-  { id: "dark-roast", label: "다크 로스트", hex: "#4A3E30" },
+  { id: "warm-white", label: "웜 화이트", labelEn: "Warm White", hex: "#F5F1E8" },
+  { id: "linen", label: "리넨", labelEn: "Linen", hex: "#EFE7D8" },
+  { id: "oatmeal", label: "오트밀", labelEn: "Oatmeal", hex: "#E4D9C4" },
+  { id: "greige", label: "그레이지", labelEn: "Greige", hex: "#D7CBB8" },
+  { id: "warm-gray", label: "웜 그레이", labelEn: "Warm Gray", hex: "#C9C0B2" },
+  { id: "taupe", label: "타우프", labelEn: "Taupe", hex: "#B7A98F" },
+  { id: "mocha", label: "모카", labelEn: "Mocha", hex: "#A08D74" },
+  { id: "clay", label: "클레이", labelEn: "Clay", hex: "#BC8F6D" },
+  { id: "terracotta", label: "테라코타", labelEn: "Terracotta", hex: "#C3714A" },
+  { id: "copper", label: "카퍼", labelEn: "Copper", hex: "#B5673E" },
+  { id: "dark-roast", label: "다크 로스트", labelEn: "Dark Roast", hex: "#4A3E30" },
 ];
 
 export interface FloorStylePreset {
   id: string;
   label: string;
+  /** label의 영문판 — /en/studio(FloorStyleCards lang prop)용. */
+  labelEn: string;
   base: string;
   accent: string;
   pattern: "wood" | "tile" | "carpet";
@@ -68,10 +75,10 @@ export interface FloorStylePreset {
  * 근사한다(질감 사진 에셋을 새로 안 늘리려고 — CSS/three.js 색상만으로
  * 구현). 첫 번째(원목)가 /studio 기본값. */
 export const FLOOR_STYLE_PRESETS: FloorStylePreset[] = [
-  { id: "oak", label: "원목 마루", base: "#C9A876", accent: "#B08F5E", pattern: "wood" },
-  { id: "walnut", label: "다크 원목", base: "#7A5A3C", accent: "#644A31", pattern: "wood" },
-  { id: "tile-light", label: "라이트 타일", base: "#E7E3D9", accent: "#CFCABC", pattern: "tile" },
-  { id: "carpet", label: "카펫", base: "#B7A99A", accent: "#A0917F", pattern: "carpet" },
+  { id: "oak", label: "원목 마루", labelEn: "Oak Flooring", base: "#C9A876", accent: "#B08F5E", pattern: "wood" },
+  { id: "walnut", label: "다크 원목", labelEn: "Dark Wood", base: "#7A5A3C", accent: "#644A31", pattern: "wood" },
+  { id: "tile-light", label: "라이트 타일", labelEn: "Light Tile", base: "#E7E3D9", accent: "#CFCABC", pattern: "tile" },
+  { id: "carpet", label: "카펫", labelEn: "Carpet", base: "#B7A99A", accent: "#A0917F", pattern: "carpet" },
 ];
 
 export const DEFAULT_WALL_COLOR_HEX = WALL_COLOR_PRESETS[0].hex;

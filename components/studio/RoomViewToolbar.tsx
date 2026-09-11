@@ -77,10 +77,10 @@ function ResetIcon() {
   );
 }
 
-const VIEW_TABS: { mode: RoomViewMode; label: string; icon: React.ReactNode }[] = [
-  { mode: "aerial", label: "항공뷰", icon: <AerialIcon /> },
-  { mode: "top", label: "상단뷰", icon: <TopIcon /> },
-  { mode: "side", label: "사이드뷰", icon: <SideIcon /> },
+const VIEW_TABS: { mode: RoomViewMode; label: string; labelEn: string; icon: React.ReactNode }[] = [
+  { mode: "aerial", label: "항공뷰", labelEn: "Aerial", icon: <AerialIcon /> },
+  { mode: "top", label: "상단뷰", labelEn: "Top", icon: <TopIcon /> },
+  { mode: "side", label: "사이드뷰", labelEn: "Side", icon: <SideIcon /> },
 ];
 
 /**
@@ -93,8 +93,11 @@ const VIEW_TABS: { mode: RoomViewMode; label: string; icon: React.ReactNode }[] 
  * "지금 팝오버가 열려 있는지"는 다른 화면·새로고침에 걸쳐 기억할 필요가
  * 없는 순간적인 UI 상태라 store에는 안 둔다(store엔 스펙이 명시한
  * viewMode/sideViewWallId/measurementVisible 세 필드만 추가했다).
+ *
+ * lang(기본 "ko") — /en/studio 다국어 확장(STEP 16).
  */
-export function RoomViewToolbar() {
+export function RoomViewToolbar({ lang = "ko" }: { lang?: "ko" | "en" }) {
+  const isEn = lang === "en";
   const containerRef = useRef<HTMLDivElement>(null);
   const [wallListOpen, setWallListOpen] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -147,7 +150,7 @@ export function RoomViewToolbar() {
               <button
                 type="button"
                 onClick={() => selectTab(tab.mode)}
-                title={tab.label}
+                title={isEn ? tab.labelEn : tab.label}
                 className="flex items-center gap-1 rounded-full px-2.5 py-2 text-[12px] font-semibold transition-colors sm:gap-1.5 sm:px-3"
                 style={{
                   background: active ? ACCENT : "transparent",
@@ -159,12 +162,12 @@ export function RoomViewToolbar() {
                     구분선+아이콘 버튼 2개가 한 줄에 다 안 들어가 "상/단/뷰"
                     식으로 한 글자씩 줄바꿈되던 문제(실기기 스크린샷으로 확인)
                     를 아이콘만 남기는 걸로 해결 — title 속성이 대신 설명한다. */}
-                <span className="hidden sm:inline">{tab.label}</span>
+                <span className="hidden sm:inline">{isEn ? tab.labelEn : tab.label}</span>
                 {tab.mode === "side" && (
                   <span
                     role="button"
                     tabIndex={0}
-                    aria-label="벽 선택"
+                    aria-label={isEn ? "Select wall" : "벽 선택"}
                     onClick={(e) => {
                       e.stopPropagation();
                       setPaletteOpen(false);
@@ -199,7 +202,7 @@ export function RoomViewToolbar() {
                           color: selected ? "var(--color-sage-ink)" : "var(--color-fg)",
                         }}
                       >
-                        벽 {i + 1} · {formatLength(wall.length, unit)}
+                        {isEn ? `Wall ${i + 1}` : `벽 ${i + 1}`} · {formatLength(wall.length, unit)}
                         {unit}
                       </button>
                     );
@@ -216,8 +219,8 @@ export function RoomViewToolbar() {
           type="button"
           onClick={toggleMeasurement}
           aria-pressed={measurementVisible}
-          aria-label="측정 오버레이 토글"
-          title="측정 오버레이"
+          aria-label={isEn ? "Toggle measurement overlay" : "측정 오버레이 토글"}
+          title={isEn ? "Measurements" : "측정 오버레이"}
           className="flex items-center justify-center rounded-full p-2.5 transition-colors"
           style={{
             background: measurementVisible ? ACCENT : "transparent",
@@ -235,8 +238,8 @@ export function RoomViewToolbar() {
               setPaletteOpen((o) => !o);
             }}
             aria-pressed={paletteOpen}
-            aria-label="벽 색상 팔레트"
-            title="벽 색상"
+            aria-label={isEn ? "Wall color palette" : "벽 색상 팔레트"}
+            title={isEn ? "Wall Color" : "벽 색상"}
             className="flex items-center justify-center rounded-full p-2.5 transition-colors"
             style={{
               background: paletteOpen ? ACCENT : "transparent",
@@ -254,21 +257,22 @@ export function RoomViewToolbar() {
               <button
                 type="button"
                 onClick={() => setWallColor(DEFAULT_WALL_COLOR_HEX)}
-                title="색상 초기화"
-                aria-label="색상 초기화"
+                title={isEn ? "Reset color" : "색상 초기화"}
+                aria-label={isEn ? "Reset color" : "색상 초기화"}
                 className="flex h-8 w-8 items-center justify-center rounded-full border border-hair text-faint"
               >
                 <ResetIcon />
               </button>
               {WALL_COLOR_PRESETS.map((preset) => {
                 const selected = wallColorHex.toLowerCase() === preset.hex.toLowerCase();
+                const presetLabel = isEn ? preset.labelEn : preset.label;
                 return (
                   <button
                     key={preset.id}
                     type="button"
                     onClick={() => setWallColor(preset.hex)}
-                    title={preset.label}
-                    aria-label={preset.label}
+                    title={presetLabel}
+                    aria-label={presetLabel}
                     className="h-8 w-8 rounded-full transition-transform"
                     style={{
                       background: preset.hex,

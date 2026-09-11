@@ -1,0 +1,92 @@
+[
+  {
+    "id": "minimal-zen",
+    "name": "Minimal Zen Studio",
+    "badgeLabel": "Minimalist",
+    "styleBlurb": "A studio stripped down to bare space and smooth finishes, calm with nothing extra.",
+    "scoreProfile": { "sociability": 50, "minimalism": 95, "activity": 45, "openness": 35, "nature": 20 },
+    "photoPath": "/photos/interior-minimal-zen.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "social-lounge",
+    "name": "Social Lounge Loft",
+    "badgeLabel": "Social Space",
+    "styleBlurb": "Low sofas and generous flow keep it a lounge that never feels crowded, even with people over.",
+    "scoreProfile": { "sociability": 90, "minimalism": 35, "activity": 55, "openness": 80, "nature": 30 },
+    "photoPath": "/photos/interior-social-lounge.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "botanical-retreat",
+    "name": "Botanical Greenhouse",
+    "badgeLabel": "Nature-Forward",
+    "styleBlurb": "A light-filled space dotted with plants throughout, so you feel the seasons change even indoors.",
+    "scoreProfile": { "sociability": 30, "minimalism": 50, "activity": 25, "openness": 60, "nature": 90 },
+    "photoPath": "/photos/interior-botanical-retreat.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "industrial-loft",
+    "name": "Industrial Open Loft",
+    "badgeLabel": "Open & Airy",
+    "styleBlurb": "High ceilings with walls knocked down make even a small home feel much bigger.",
+    "scoreProfile": { "sociability": 55, "minimalism": 70, "activity": 45, "openness": 90, "nature": 25 },
+    "photoPath": "/photos/interior-industrial-loft.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "maximalist-vintage",
+    "name": "Maximalist Vintage Den",
+    "badgeLabel": "Maximalist",
+    "styleBlurb": "A one-of-a-kind space layered with vintage pieces and color, stacked deep.",
+    "scoreProfile": { "sociability": 75, "minimalism": 15, "activity": 30, "openness": 40, "nature": 45 },
+    "photoPath": "/photos/interior-maximalist-vintage.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "active-urban",
+    "name": "Active Urban Base",
+    "badgeLabel": "Active Space",
+    "styleBlurb": "Room for your gear and a flow that still feels easy, making an active day come naturally.",
+    "scoreProfile": { "sociability": 55, "minimalism": 55, "activity": 90, "openness": 60, "nature": 30 },
+    "photoPath": "/photos/interior-active-urban.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "scandinavian-calm",
+    "name": "Scandinavian Calm Nest",
+    "badgeLabel": "Minimalist",
+    "styleBlurb": "Warm wood and muted tones, tidy and quiet — a space that's easy to just stay in.",
+    "scoreProfile": { "sociability": 35, "minimalism": 85, "activity": 30, "openness": 50, "nature": 55 },
+    "photoPath": "/photos/interior-scandinavian-calm.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "open-family",
+    "name": "Open Family Commons",
+    "badgeLabel": "Open & Airy",
+    "styleBlurb": "Living room and kitchen flow into one, so everyone can be together and still keep their own space.",
+    "scoreProfile": { "sociability": 85, "minimalism": 45, "activity": 55, "openness": 85, "nature": 50 },
+    "photoPath": "/photos/interior-open-family.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "artisan-studio",
+    "name": "Artisan Workshop Studio",
+    "badgeLabel": "Active Space",
+    "styleBlurb": "A workbench and storage brought together in one space built for hands-on work.",
+    "scoreProfile": { "sociability": 30, "minimalism": 35, "activity": 80, "openness": 55, "nature": 40 },
+    "photoPath": "/photos/interior-artisan-studio.jpg",
+    "productLinks": []
+  },
+  {
+    "id": "coastal-airy",
+    "name": "Coastal Airy Sunroom",
+    "badgeLabel": "Nature-Forward",
+    "styleBlurb": "Light from big windows and natural materials keep the air feeling fresh all day.",
+    "scoreProfile": { "sociability": 50, "minimalism": 65, "activity": 35, "openness": 80, "nature": 80 },
+    "photoPath": "/photos/interior-coastal-airy.jpg",
+    "productLinks": []
+  }
+]
