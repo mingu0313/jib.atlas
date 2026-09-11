@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { submitCollabInquiry } from "@/app/actions/collabInquiry";
+import { COLLAB_EMAIL } from "@/lib/contactEmail";
 
 type Locale = "ko" | "en";
-
-const COLLAB_EMAIL = "hyo5418@gmail.com";
 
 const TEXT: Record<Locale, Record<string, string>> = {
   ko: {
