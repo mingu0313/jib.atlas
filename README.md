@@ -47,6 +47,7 @@
 - [x] STEP 13. 하우스 타입마다 다른 3D 방 구조 — HouseTemplate.rooms를 그대로 3D에 반영
 - [x] STEP 14. 가구를 박스 대신 실제 가구 형태로 — 프로시저럴 지오메트리(다리·등받이·팔걸이 등)
 - [x] STEP 15. Kenney Furniture Kit(CC0) GLTF 가구 38종 통합 — 카테고리 탭 팔레트, 씬 라이트 그레이지+코퍼 리컬러
+- [x] STEP 16. 다국어(영문) 확장 — `/en/studio`(3D 룸빌더), `/en/result/interiors`(AI 인테리어 추천) 번역 (집 아틀라스·로그인은 계속 한국어만)
 
 ## 시작하기
 
