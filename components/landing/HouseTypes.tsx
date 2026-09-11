@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import houseTemplatesData from "@/data/house-templates.json";
+import houseTemplatesEnData from "@/data/house-templates.en.json";
 import type { HouseTemplate } from "@/lib/types";
 
 const houseTemplates = houseTemplatesData as HouseTemplate[];
+const houseTemplatesEn = houseTemplatesEnData as HouseTemplate[];
 const TEMPLATE_COUNT = houseTemplates.length; // 30 (STEP 11-B에서 22 → 30으로 확장)
 
-function byId(id: string) {
-  const t = houseTemplates.find((h) => h.id === id);
+function byId(id: string, templates: HouseTemplate[]) {
+  const t = templates.find((h) => h.id === id);
   if (!t) throw new Error(`house-types: missing template id ${id}`);
   return t;
 }
@@ -44,32 +46,45 @@ function byId(id: string) {
  *   - Social House → t5(온 가족이 함께 사는 집): interior-active-urban.jpg —
  *     아일랜드 바스툴 4개 + 넉넉한 거실 + 정원 슬라이딩 도어.
  * 네 장 다 이미 4:5 비율로 준비돼 있어 크롭 없이 그대로 들어간다. */
-const FEATURED = [
-  { num: "01", tag: "Serene Nest", photo: "/photos/type-serene.jpg", template: byId("t9") },
-  { num: "02", tag: "Open Loft", photo: "/photos/interior-industrial-loft.jpg", template: byId("t1") },
-  { num: "03", tag: "Precision Box", photo: "/photos/interior-scandinavian-calm.jpg", template: byId("t2") },
-  { num: "04", tag: "Social House", photo: "/photos/interior-active-urban.jpg", template: byId("t5") },
+const FEATURED_IDS = [
+  { num: "01", tag: "Serene Nest", photo: "/photos/type-serene.jpg", id: "t9" },
+  { num: "02", tag: "Open Loft", photo: "/photos/interior-industrial-loft.jpg", id: "t1" },
+  { num: "03", tag: "Precision Box", photo: "/photos/interior-scandinavian-calm.jpg", id: "t2" },
+  { num: "04", tag: "Social House", photo: "/photos/interior-active-urban.jpg", id: "t5" },
 ];
 
-export function HouseTypes() {
+/** locale(기본 "ko") — /en 랜딩 다국어 확장(STEP 18). 골라둔 4개 템플릿
+ * (id 기준, house-templates.json/house-templates.en.json이 1:1 대응)은
+ * 그대로 두고, 보여줄 이름·설명만 언어별 데이터에서 다시 조회한다. */
+export function HouseTypes({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
+  const templates = isEn ? houseTemplatesEn : houseTemplates;
+  const FEATURED = FEATURED_IDS.map((f) => ({ ...f, template: byId(f.id, templates) }));
+
   return (
     <section id="house-types" className="px-6 pt-[100px] pb-[150px] sm:px-10">
       <div className="mb-14 flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-end" data-reveal>
         <div className="flex flex-col gap-3">
           <span className="label-mono text-[10px] text-olive-mid">House Types</span>
-          <h2 className="font-kr text-[clamp(28px,4vw,52px)] leading-[1.1] tracking-[-0.02em]">
-            당신의 공간은 어떤 성격인가요<span className="heading-dot">.</span>
+          <h2 className={`${isEn ? "font-display" : "font-kr"} text-[clamp(28px,4vw,52px)] leading-[1.1] tracking-[-0.02em]`}>
+            {isEn ? (
+              <>What kind of space are you<span className="heading-dot">.</span></>
+            ) : (
+              <>당신의 공간은 어떤 성격인가요<span className="heading-dot">.</span></>
+            )}
           </h2>
         </div>
         <Link
-          href="/test"
+          href={isEn ? "/en/test" : "/test"}
           className="rounded-full border border-fg/70 px-6 py-3 text-[13px] font-semibold text-fg transition hover:bg-fg hover:text-cream"
         >
-          진단으로 찾아보기 →
+          {isEn ? "Find out with the quiz →" : "진단으로 찾아보기 →"}
         </Link>
       </div>
       <p className="mb-10 max-w-lg text-[14px] leading-[1.8] text-muted" data-reveal>
-        {TEMPLATE_COUNT}가지 집 구조 중 성향이 뚜렷하게 갈리는 4가지를 먼저 보여드려요.
+        {isEn
+          ? `Here are 4 of the ${TEMPLATE_COUNT} house structures, chosen for how differently they read your personality.`
+          : `${TEMPLATE_COUNT}가지 집 구조 중 성향이 뚜렷하게 갈리는 4가지를 먼저 보여드려요.`}
       </p>
 
       <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-11">
@@ -94,7 +109,7 @@ export function HouseTypes() {
             </div>
             <span className="label-mono mt-5 text-[10px] text-olive-mid">{item.num}</span>
             <span className="font-display mt-2 text-[29px] leading-[1.1] text-fg">{item.tag}</span>
-            <span className="font-kr mt-1 text-[15px] text-fg">{item.template.name}</span>
+            <span className={`${isEn ? "font-display" : "font-kr"} mt-1 text-[15px] text-fg`}>{item.template.name}</span>
             <p className="mt-3 text-[14px] leading-[1.7] text-muted">{item.template.features[0]?.text}</p>
           </div>
         ))}

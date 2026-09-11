@@ -9,6 +9,14 @@ const STEPS = [
   { n: "04", text: "카탈로그에서 가구를 골라 원하는 자리에 자유롭게 배치해보세요." },
 ];
 
+/** STEPS의 영문판 — /en 랜딩 다국어 확장(STEP 18). */
+const STEPS_EN = [
+  { n: "01", text: "Pick a room shape — square, rectangle, or L-shaped — and enter the real dimensions in cm/ft." },
+  { n: "02", text: "Place doors and windows on the walls, and choose a wall color and floor style." },
+  { n: "03", text: "Check it in 3D as you go, and freely tweak it until it feels right." },
+  { n: "04", text: "Pick furniture from the catalog and place it wherever you like." },
+];
+
 /**
  * 랜딩 "에디터 프리뷰" 섹션 — 원래 STEP 8(격자+박스가구 아이소메트릭
  * 에디터, `/editor`)을 설명했지만, `/studio`(STEP 11~14 정밀 룸빌더)로
@@ -22,8 +30,13 @@ const STEPS = [
  * 삭제하면서 여기 카피도 실제로 남은 마지막 단계(가구 배치)로 바꿨다 —
  * 위 문단이 경고한 "실제로 없는 기능을 약속" 문제가 그대로 재발할
  * 뻔했다.
+ *
+ * locale(기본 "ko") — /en 랜딩 다국어 확장(STEP 18). "/studio" 링크도
+ * locale에 맞춰 "/en/studio"로 바뀐다.
  */
-export function EditorPreview() {
+export function EditorPreview({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
+  const steps = isEn ? STEPS_EN : STEPS;
   return (
     // min-h-[92vh]는 lg 전용이다 — 모바일(grid-cols-1)에서 컨테이너 전체에
     // 걸면, 텍스트 칸(짧다)과 사진 칸을 합친 자연 높이가 92vh보다 모자랄 때
@@ -33,15 +46,20 @@ export function EditorPreview() {
     // 맞추는 용도라 그대로 둔다.
     <section className="grid grid-cols-1 lg:min-h-[92vh] lg:grid-cols-2">
       <div className="flex flex-col justify-center gap-8 px-6 py-16 sm:px-10 lg:px-16" data-reveal>
-        <h2 className="font-kr text-[clamp(28px,4vw,52px)] leading-[1.1] tracking-[-0.02em]">
-          방을 직접 꾸며보세요<span className="heading-dot">.</span>
+        <h2 className={`${isEn ? "font-display" : "font-kr"} text-[clamp(28px,4vw,52px)] leading-[1.1] tracking-[-0.02em]`}>
+          {isEn ? (
+            <>Decorate the room yourself<span className="heading-dot">.</span></>
+          ) : (
+            <>방을 직접 꾸며보세요<span className="heading-dot">.</span></>
+          )}
         </h2>
         <p className="max-w-[420px] text-[15px] leading-[1.8] text-muted">
-          매칭된 집 구조에 맞춘 모양·벽색·바닥을 기본값 삼아, 방 크기와 문/창문까지 직접 정하고 가구까지
-          자유롭게 배치하는 인테리어 스튜디오입니다.
+          {isEn
+            ? "An interior studio that starts from the shape, wall color, and floor matched to your house structure, then lets you set the exact room size and doors/windows, and furnish it freely."
+            : "매칭된 집 구조에 맞춘 모양·벽색·바닥을 기본값 삼아, 방 크기와 문/창문까지 직접 정하고 가구까지 자유롭게 배치하는 인테리어 스튜디오입니다."}
         </p>
         <div className="flex flex-col">
-          {STEPS.map((step) => (
+          {steps.map((step) => (
             <div key={step.n} className="grid grid-cols-[52px_1fr] items-start gap-2 border-t border-hair py-5 last:border-b last:border-hair">
               <span className="label-mono text-[11px] text-olive-mid">{step.n}</span>
               <span className="text-[14px] leading-[1.7] text-fg">{step.text}</span>
@@ -49,10 +67,10 @@ export function EditorPreview() {
           ))}
         </div>
         <Link
-          href="/studio"
+          href={isEn ? "/en/studio" : "/studio"}
           className="w-fit rounded-full bg-sage px-8 py-4 text-[13px] font-semibold text-sage-ink transition hover:bg-olive hover:text-cream"
         >
-          스튜디오 열어보기
+          {isEn ? "Open the studio" : "스튜디오 열어보기"}
         </Link>
       </div>
 
@@ -62,7 +80,7 @@ export function EditorPreview() {
       >
         <Image
           src="/photos/editor-studio.jpg"
-          alt="스튜디오 인테리어 사진"
+          alt={isEn ? "Studio interior photo" : "스튜디오 인테리어 사진"}
           fill
           sizes="(min-width: 1024px) 50vw, 100vw"
           className="object-cover"

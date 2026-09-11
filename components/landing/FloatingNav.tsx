@@ -102,11 +102,9 @@ export function FloatingNav({ locale = "ko" }: { locale?: Locale }) {
         <Link href={`${prefix}/test`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           {t.diagnosis}
         </Link>
-        {locale === "ko" && (
-          <Link href="/#house-types" className="text-sm font-semibold text-fg transition hover:text-olive-mid">
-            {t.houseTypes}
-          </Link>
-        )}
+        <Link href={`${prefix}/#house-types`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
+          {t.houseTypes}
+        </Link>
         <Link href={`${prefix}/studio`} className="text-sm font-semibold text-fg transition hover:text-olive-mid">
           {t.editor}
         </Link>

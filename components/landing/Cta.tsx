@@ -4,8 +4,10 @@ import Link from "next/link";
 const QUESTION_COUNT = 23;
 
 /** DESIGN-HANDOFF-V2.md "CTA" — 올리브 단색 배경이 아니라 사진 + 어두운
- * 오버레이가 이 섹션의 방식이다. */
-export function Cta() {
+ * 오버레이가 이 섹션의 방식이다. locale(기본 "ko") — /en 랜딩 다국어
+ * 확장(STEP 18). */
+export function Cta({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
   return (
     <section className="px-6 pt-[60px] pb-[100px] sm:px-10 sm:pb-[150px]">
       <div
@@ -15,7 +17,7 @@ export function Cta() {
       >
         <Image
           src="/photos/cta-cabin.jpg"
-          alt="숲 속 오두막 사진"
+          alt={isEn ? "A cabin in the woods" : "숲 속 오두막 사진"}
           fill
           sizes="100vw"
           className="object-cover"
@@ -29,24 +31,31 @@ export function Cta() {
         />
         <div className="relative flex flex-col items-center gap-7">
           <span className="label-mono text-[10px] text-cream/80">
-            {QUESTION_COUNT}문항 · 5분
+            {isEn ? `${QUESTION_COUNT} questions · 5 min` : `${QUESTION_COUNT}문항 · 5분`}
           </span>
-          <h2 className="font-kr text-[clamp(34px,6vw,96px)] leading-[1]" style={{ color: "#f7f6f2" }}>
-            지금 찾아보세요<span style={{ color: "#c9d3a8" }}>.</span>
+          <h2
+            className={`${isEn ? "font-display" : "font-kr"} text-[clamp(34px,6vw,96px)] leading-[1]`}
+            style={{ color: "#f7f6f2" }}
+          >
+            {isEn ? (
+              <>Find it now<span style={{ color: "#c9d3a8" }}>.</span></>
+            ) : (
+              <>지금 찾아보세요<span style={{ color: "#c9d3a8" }}>.</span></>
+            )}
           </h2>
           <Link
-            href="/test"
+            href={isEn ? "/en/test" : "/test"}
             className="rounded-full bg-bg px-[52px] py-[18px] text-[13px] font-semibold text-fg transition hover:bg-cream"
           >
-            진단 시작하기 ↗
+            {isEn ? "Start the quiz ↗" : "진단 시작하기 ↗"}
           </Link>
           {/* STEP 15 — 진단과 무관한 독립 룸빌더 진입. primary보다 눈에
            * 덜 띄게 텍스트 링크로만, 위치도 primary 바로 아래로 종속시킨다. */}
           <Link
-            href="/studio"
+            href={isEn ? "/en/studio" : "/studio"}
             className="text-[12px] text-cream/70 underline underline-offset-4 transition hover:text-cream"
           >
-            진단 없이 바로 꾸며보기 →
+            {isEn ? "Jump straight to decorating →" : "진단 없이 바로 꾸며보기 →"}
           </Link>
         </div>
       </div>

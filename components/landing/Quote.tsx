@@ -1,7 +1,9 @@
 import Image from "next/image";
 
-/** DESIGN-HANDOFF-V2.md "인용" 섹션. */
-export function Quote() {
+/** DESIGN-HANDOFF-V2.md "인용" 섹션. locale(기본 "ko") — /en 랜딩 다국어
+ * 확장(STEP 18). */
+export function Quote({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
   return (
     <section className="grid grid-cols-1 gap-10 px-6 py-[100px] sm:px-10 sm:py-[170px] lg:grid-cols-[42fr_58fr] lg:gap-[70px]">
       <div
@@ -12,15 +14,17 @@ export function Quote() {
       >
         <Image
           src="/photos/quote-wall.jpg"
-          alt="질감이 있는 벽 사진"
+          alt={isEn ? "A textured wall photo" : "질감이 있는 벽 사진"}
           fill
           sizes="(min-width: 1024px) 42vw, 100vw"
           className="object-cover"
         />
       </div>
       <div className="flex flex-col justify-center gap-8" data-reveal>
-        <p className="font-kr text-[clamp(26px,3.4vw,52px)] leading-[1.32] tracking-[-0.02em] text-fg">
-          “집은 취향의 결과가 아니라, 취향을 만드는 조건이다.”
+        <p className={`${isEn ? "font-display" : "font-kr"} text-[clamp(26px,3.4vw,52px)] leading-[1.32] tracking-[-0.02em] text-fg`}>
+          {isEn
+            ? "“A home isn’t the result of taste — it’s the condition that shapes it.”"
+            : "“집은 취향의 결과가 아니라, 취향을 만드는 조건이다.”"}
         </p>
         <div className="flex flex-col gap-1.5">
           <span className="text-[14px] text-fg">jib.atlas</span>

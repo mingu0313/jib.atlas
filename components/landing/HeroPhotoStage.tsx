@@ -18,6 +18,9 @@ import { useMotion } from "@/components/motion/MotionProvider";
  *
  * 자동 전환은 useMotion().reduced(사용자 토글 + prefers-reduced-motion)를
  * 그대로 따른다 — 꺼져 있으면 멈추지만, 점 인디케이터로 수동 이동은 항상 된다.
+ *
+ * locale(기본 "ko") — /en 랜딩 다국어 확장(STEP 18). caption·alt만
+ * 언어별로 갈아끼운다(사진·타이밍·로직은 언어와 무관).
  */
 
 const HERO_SLIDES = [
@@ -25,50 +28,65 @@ const HERO_SLIDES = [
     src: "/photos/hero-open.jpg",
     pos: "center 55%",
     alt: "열린 마당이 있는 집",
+    altEn: "A house with an open yard",
     caption: "수평선 — 안과 밖이 나뉘지 않는 하루",
+    captionEn: "Horizon — a day where inside and outside aren't divided",
   },
   {
     src: "/photos/hero-solitude.jpg",
     pos: "center 42%",
     alt: "짙은 초록 벽 아래, 책과 커피만 놓인 조용한 아침 식탁",
+    altEn: "A quiet morning table with just a book and coffee, under a deep green wall",
     caption: "고요 — 문 하나로 완성되는 혼자만의 시간",
+    captionEn: "Quiet — solitude, complete behind one door",
   },
   {
     src: "/photos/hero-openview.jpg",
     pos: "center 62%",
     alt: "유리 슬라이딩 도어 하나로만 나뉜 침실과 도심 야경",
+    altEn: "A bedroom divided from the city night view by only a glass sliding door",
     caption: "개방 — 벽이 없어도 되는 이유",
+    captionEn: "Open — why you don't need walls",
   },
   {
     src: "/photos/type-precision.jpg",
     pos: "center 50%",
     alt: "정밀한 공간 유형의 집",
+    altEn: "A precisely arranged house",
     caption: "여백 — 꼭 필요한 것만 남은 방",
+    captionEn: "Space — a room with only what's essential",
   },
   {
     src: "/photos/axis-nature.jpg",
     pos: "center 54%",
     alt: "자연친화도 축을 보여주는 사진",
+    altEn: "A photo illustrating the nature-affinity axis",
     caption: "초록 — 계단 끝에서 만나는 정원",
+    captionEn: "Green — a garden at the top of the stairs",
   },
   {
     src: "/photos/hero-gather.jpg",
     pos: "center 62%",
     alt: "화분과 나무 사이, 손님을 기다리는 빈 테이블과 의자",
+    altEn: "An empty table and chairs waiting for guests, among plants and trees",
     caption: "환대 — 누군가 곧 채울 빈자리",
+    captionEn: "Welcome — an empty seat, soon to be filled",
   },
   {
     src: "/photos/hero-courtyard.jpg",
     pos: "center 50%",
     alt: "돌과 화단으로 채운 중정을 위에서 내려다본 사진",
+    altEn: "An overhead view of a courtyard filled with stone and flower beds",
     caption: "안뜰 — 쉼을 닮은 마당",
+    captionEn: "Courtyard — a yard shaped like rest",
   },
 ] as const;
 
 const INTERVAL_MS = 4000;
 const FADE_MS = 1100;
 
-export function HeroPhotoStage() {
+export function HeroPhotoStage({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
   const { reduced } = useMotion();
   const [active, setActive] = useState(0);
 
@@ -101,7 +119,7 @@ export function HeroPhotoStage() {
           <Image
             key={slide.src}
             src={slide.src}
-            alt={slide.alt}
+            alt={isEn ? slide.altEn : slide.alt}
             fill
             priority={i === 0}
             sizes="100vw"
@@ -121,14 +139,14 @@ export function HeroPhotoStage() {
         }}
       />
       <span className="label-mono absolute bottom-7 left-7 text-[9px] text-cream/85 sm:bottom-9 sm:left-9">
-        {HERO_SLIDES[active].caption}
+        {isEn ? HERO_SLIDES[active].captionEn : HERO_SLIDES[active].caption}
       </span>
       <div className="absolute bottom-[18px] left-7 flex items-center gap-1.5 sm:bottom-[22px] sm:left-9">
         {HERO_SLIDES.map((slide, i) => (
           <button
             key={slide.src}
             type="button"
-            aria-label={`${i + 1}번째 사진으로 이동`}
+            aria-label={isEn ? `Go to photo ${i + 1}` : `${i + 1}번째 사진으로 이동`}
             onClick={() => setActive(i)}
             className="h-[3px] rounded-full transition-all duration-500"
             style={{

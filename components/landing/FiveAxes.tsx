@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RADAR_CX, RADAR_CY, radarLabelPoint, radarPoint, radarRing, radarShape } from "@/lib/radar";
-import { AXES, AXIS_LABELS, type Axis } from "@/lib/types";
+import { AXES, AXIS_LABELS, AXIS_LABELS_EN, type Axis } from "@/lib/types";
 
 /**
  * DESIGN-HANDOFF-V2.md "1. 랜딩 > 다섯 축" + "Motion > 3. 스크롤텔링".
@@ -36,6 +36,20 @@ const AXIS_DESC: Record<Axis, string> = {
   nature: "창과 초록의 몫. 채광이 인테리어의 기준선이 되는 사람과, 조명으로 충분한 사람이 나뉩니다.",
 };
 
+/** AXIS_DESC의 영문판 — /en 랜딩 다국어 확장(STEP 18). */
+const AXIS_DESC_EN: Record<Axis, string> = {
+  sociability:
+    "Whether your home invites people in, or lets you retreat from them. This axis decides how big the dining area is, and whether a guest room exists.",
+  minimalism:
+    "Whether you keep things, or clear them away. This decides whether storage disappears into the walls, or sits in the middle of the room.",
+  activity:
+    "Whether your home is where you move, or where you rest. Whether you need a multipurpose room, home gym, or workshop comes down to this axis.",
+  openness:
+    "Whether you cut walls down, or keep them. The longer your sightlines, the less cozy it feels; the shorter, the smaller and safer your world becomes.",
+  nature:
+    "How much window and greenery matter. Some people build their interior around natural light; for others, lighting is enough.",
+};
+
 /** 실제 응답이 아닌 예시값 — 문서에 적힌 [70,62,44,58,86] 그대로
  * (사교성/미니멀/활동성/개방성/자연 순서, lib/types.ts의 AXES 순서와 같다). */
 const SAMPLE_SCORES: Record<Axis, number> = {
@@ -50,7 +64,13 @@ const CX = RADAR_CX;
 const CY = RADAR_CY;
 const SHAPE_POINTS = radarShape(SAMPLE_SCORES);
 
-export function FiveAxes() {
+/** locale(기본 "ko") — /en 랜딩 다국어 확장(STEP 18). 스크롤 추적 로직·
+ * 레이더 계산은 언어와 무관해서 그대로 두고, 텍스트(헤더·축 설명·축
+ * 라벨)만 갈아끼운다. */
+export function FiveAxes({ locale = "ko" }: { locale?: "ko" | "en" }) {
+  const isEn = locale === "en";
+  const axisLabels = isEn ? AXIS_LABELS_EN : AXIS_LABELS;
+  const axisDesc = isEn ? AXIS_DESC_EN : AXIS_DESC;
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [active, setActive] = useState(0);
 
@@ -95,8 +115,12 @@ export function FiveAxes() {
     <section className="px-6 pt-[150px] pb-[100px] sm:px-10 sm:pt-[220px] sm:pb-[150px]">
       <header className="mb-16 flex flex-col gap-3 sm:mb-24" data-reveal>
         <span className="label-mono text-[10px] text-olive-mid">Five Axes</span>
-        <h2 className="font-kr text-[clamp(32px,5vw,84px)] leading-[1.02] tracking-[-0.03em]">
-          취향은 다섯 개의 축으로 읽힙니다<span className="heading-dot">.</span>
+        <h2 className={`${isEn ? "font-display" : "font-kr"} text-[clamp(32px,5vw,84px)] leading-[1.02] tracking-[-0.03em]`}>
+          {isEn ? (
+            <>Your taste, read across five axes<span className="heading-dot">.</span></>
+          ) : (
+            <>취향은 다섯 개의 축으로 읽힙니다<span className="heading-dot">.</span></>
+          )}
         </h2>
       </header>
 
@@ -136,13 +160,13 @@ export function FiveAxes() {
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3
-                  className={`font-kr text-[clamp(30px,3.6vw,56px)] leading-[1.1] tracking-[-0.02em] transition-colors duration-500 ${
+                  className={`${isEn ? "font-display" : "font-kr"} text-[clamp(30px,3.6vw,56px)] leading-[1.1] tracking-[-0.02em] transition-colors duration-500 ${
                     isActive ? "text-fg" : "text-dimmer"
                   }`}
                 >
-                  {AXIS_LABELS[axis]}
+                  {axisLabels[axis]}
                 </h3>
-                <p className="max-w-[400px] text-[15px] leading-[1.85] text-muted">{AXIS_DESC[axis]}</p>
+                <p className="max-w-[400px] text-[15px] leading-[1.85] text-muted">{axisDesc[axis]}</p>
                 <span className="label-mono text-[10px] text-dim">{AXIS_EN[axis]}</span>
               </div>
             );
@@ -235,7 +259,7 @@ export function FiveAxes() {
                       fill={isActive ? "var(--color-fg)" : "var(--color-faint)"}
                       style={{ fontFamily: "var(--font-sans)", transition: "fill 0.5s" }}
                     >
-                      {AXIS_LABELS[axis]}
+                      {axisLabels[axis]}
                     </text>
                   );
                 })}
@@ -253,7 +277,7 @@ export function FiveAxes() {
                     <span
                       className={`text-[13px] transition-colors duration-500 ${isActive ? "text-fg" : "text-faint"}`}
                     >
-                      {AXIS_LABELS[axis]}
+                      {axisLabels[axis]}
                     </span>
                     <span className="relative h-[3px] bg-hair">
                       <span

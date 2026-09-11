@@ -49,6 +49,7 @@
 - [x] STEP 15. Kenney Furniture Kit(CC0) GLTF 가구 38종 통합 — 카테고리 탭 팔레트, 씬 라이트 그레이지+코퍼 리컬러
 - [x] STEP 16. 다국어(영문) 확장 — `/en/studio`(3D 룸빌더), `/en/result/interiors`(AI 인테리어 추천) 번역 (집 아틀라스·로그인은 계속 한국어만)
 - [x] STEP 17. 다국어(영문) 확장 마무리 — `/en/atlas`(집 아틀라스 갤러리·상세·등록), `/en/login`, `/en/reset-password` 번역. 이제 전 기능이 `/en`에서도 동작한다(게시물 본문 등 유저가 직접 쓴 콘텐츠는 원문 언어 그대로).
+- [x] STEP 18. `/en` 랜딩 풀스크롤 번역 — STEP 11 때 축약했던 다섯 축·집 유형 4칸·에디터 프리뷰·인용·CTA 섹션을 한국어 랜딩과 동일하게 채워 넣었다(components/landing/* 각 섹션에 locale prop 추가, 로직·사진은 공유).
 
 ## 시작하기
 
