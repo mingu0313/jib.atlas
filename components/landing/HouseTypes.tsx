@@ -13,14 +13,35 @@ function byId(id: string) {
 }
 
 /** 전체 템플릿 중 성향이 뚜렷하게 갈리는 4개를 대표로 뽑는다 — DESIGN-HANDOFF-V2.md
- * "집 유형 4칸"의 사진 4장(type-serene/open/precision/social)과 실제 결이 맞는 템플릿으로
- * 짝지었다. "영문명"은 실제 데이터에 없는 필드라, 지어낸 고유명 대신 무드를 요약하는
- * 짧은 영문 태그로 대체했다(진짜 유형명은 그 아래 한글로 그대로 보여준다). */
+ * "집 유형 4칸"의 사진과 실제 결이 맞는 템플릿으로 짝지었다. "영문명"은 실제 데이터에
+ * 없는 필드라, 지어낸 고유명 대신 무드를 요약하는 짧은 영문 태그로 대체했다(진짜
+ * 유형명은 그 아래 한글로 그대로 보여준다).
+ *
+ * 사진 출처 — "4칸이 다 같은 베이지 원룸 사진처럼 보이고, 설명이랑도 안 맞는다"는
+ * 피드백을 받았다(예: "실용적·붙박이 수납" 설명에 가구 하나 없는 새하얀 빈 공간
+ * 사진, "온 가족" 설명에 좁은 바 카운터 사진). type-*.jpg 4장은 애초에 한 촬영
+ * 톤(따뜻한 베이지, 1인 원룸 스케일)으로만 골라져 있어서 구조적으로 서로 안 갈렸다.
+ * 대신 data/interior-styles.json(결과 페이지 인테리어 매칭용 10개 스타일, 각각
+ * 공간감·색감이 뚜렷이 다름)에서 실제로 설명과 맞는 사진을 가져왔다 — 스타일
+ * 매칭 로직(lib/interiorMatching.ts)과는 별개로 사진 에셋만 재사용하는 것이라
+ * 서로 영향 없음.
+ *   - Serene Nest(t9, 조용한 스튜디오): 기존 그대로 — 나무 사이로 볕 드는 창가
+ *     리딩 체어, 1인 스케일이 문구와 잘 맞았음.
+ *   - Open Loft(t1, 천장까지 트인 개방감): interior-industrial-loft.jpg — 나선
+ *     계단 + 복층 + 높은 천장이 있는 실제 로프트 구조라 "탁 트인" 문구에 훨씬
+ *     직접적으로 맞음.
+ *   - Precision Box(t11, 붙박이 수납·효율적 동선): interior-scandinavian-calm.jpg
+ *     — 벽 한쪽을 가득 채운 붙박이 로우 수납장이 "물건에 자리를 정해두고 숨긴다"는
+ *     문구를 사진으로 그대로 보여줌.
+ *   - Social House(t5, 대가족이 모여 사는 집): interior-active-urban.jpg — 아일랜드
+ *     바스툴 4개 + 넉넉한 거실 + 정원으로 이어지는 슬라이딩 도어까지, "사람이
+ *     모이는 걸 전제로 지어진 집" 스케일이 실제로 느껴짐.
+ * 네 장 다 이미 4:5 비율로 준비돼 있어 크롭 없이 그대로 들어간다. */
 const FEATURED = [
   { num: "01", tag: "Serene Nest", photo: "/photos/type-serene.jpg", template: byId("t9") },
-  { num: "02", tag: "Open Loft", photo: "/photos/type-open.jpg", template: byId("t1") },
-  { num: "03", tag: "Precision Box", photo: "/photos/type-precision.jpg", template: byId("t11") },
-  { num: "04", tag: "Social House", photo: "/photos/type-social.jpg", template: byId("t5") },
+  { num: "02", tag: "Open Loft", photo: "/photos/interior-industrial-loft.jpg", template: byId("t1") },
+  { num: "03", tag: "Precision Box", photo: "/photos/interior-scandinavian-calm.jpg", template: byId("t11") },
+  { num: "04", tag: "Social House", photo: "/photos/interior-active-urban.jpg", template: byId("t5") },
 ];
 
 export function HouseTypes() {
