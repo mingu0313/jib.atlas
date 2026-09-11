@@ -32,9 +32,10 @@ export function StepDimensions({ onBack, onNext }: { onBack: () => void; onNext:
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
-        <h1 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
+        {/* StepShape.tsx와 같은 이유로 h2 — 페이지 h1은 app/studio/page.tsx. */}
+        <h2 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
           치수를 정해보세요<span className="heading-dot">.</span>
-        </h1>
+        </h2>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
           숫자를 직접 입력해도 되고, 오른쪽 평면도의 벽을 드래그해서 바꿔도 돼요. 20cm~1000cm 사이에서만
           조정돼요.

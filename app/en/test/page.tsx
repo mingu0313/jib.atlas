@@ -109,6 +109,9 @@ export default function EnglishTestPage() {
 
   return (
     <main className={`grid grid-cols-1 lg:min-h-screen ${currentQuestion.photo ? "lg:grid-cols-[40fr_60fr]" : ""}`}>
+      {/* app/test/page.tsx와 같은 이유(접근성/시맨틱 구조) — 페이지 전체를
+          대표하는 h1이 없어서 보강. */}
+      <h1 className="sr-only">Take the Quiz — jib.atlas</h1>
       {currentQuestion.photo && (
         <div className="relative hidden overflow-hidden rounded-r-[36px] bg-photo-bg lg:block">
           <Image

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { breadcrumbJsonLd } from "@/lib/breadcrumbJsonLd";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient } from "@/lib/supabase/server";
 import type { HousePhoto, HousePost } from "@/lib/types";
@@ -83,6 +84,15 @@ export default async function AtlasPage({ searchParams }: PageProps<"/atlas">) {
 
   return (
     <main className="flex min-h-screen flex-col bg-bg text-fg">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(breadcrumbJsonLd([{ name: "홈", path: "/" }, { name: "집 아틀라스", path: "/atlas" }])).replace(
+            /</g,
+            "\\u003c",
+          ),
+        }}
+      />
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-6 py-5 sm:px-8">
         <div className="flex items-center gap-[18px] sm:gap-[22px]">
           <Link href="/" className="font-display text-[22px] text-fg">

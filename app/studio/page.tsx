@@ -101,6 +101,10 @@ export default function StudioPage() {
 
   return (
     <main className="flex min-h-screen flex-col bg-bg text-fg">
+      {/* 시각적으로는 상단바의 라벨(아래)이 이 역할을 하지만, 페이지에 h1이
+          하나도 없으면 스크린 리더·검색엔진이 이 화면의 주제를 단번에 못
+          읽는다 — 디자인은 그대로 두고 접근성 전용으로만 추가. */}
+      <h1 className="sr-only">인테리어 스튜디오 — jib.atlas</h1>
       {/* 상단바 */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-6 py-5 sm:px-8">
         <div className="flex items-center gap-[18px] sm:gap-[22px]">

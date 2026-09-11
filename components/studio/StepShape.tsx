@@ -13,9 +13,12 @@ export function StepShape({ onNext }: { onNext: () => void }) {
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
-        <h1 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
+        {/* 단계별 부제목 — 페이지 전체의 h1은 app/studio/page.tsx의
+            sr-only 타이틀 하나로 통일하고, 여기는 h2로 낮췄다(안 그러면
+            4단계 전부가 h1이라 한 페이지에 h1이 여러 개 있는 셈이 된다). */}
+        <h2 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
           방 모양을 선택하세요<span className="heading-dot">.</span>
-        </h1>
+        </h2>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
           자유 편집은 아직이지만, 치수는 다음 단계에서 원하는 대로 바꿀 수 있어요.
         </p>

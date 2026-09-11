@@ -119,6 +119,10 @@ export default function TestPage() {
 
   return (
     <main className={`grid grid-cols-1 lg:min-h-screen ${currentQuestion.photo ? "lg:grid-cols-[40fr_60fr]" : ""}`}>
+      {/* 문항 자체는 h2(BinaryQuestionCard)라, 페이지 전체를 대표하는 h1이
+          하나도 없다 — 디자인은 그대로 두고 접근성/시맨틱 구조 보강용으로만
+          추가. */}
+      <h1 className="sr-only">라이프스타일 진단 — jib.atlas</h1>
       {/* 좌: 사진 + 대형 넘버 — 이미지 선택형 문항은 옵션 사진 두 장이 이미
           화면의 시각 정보라 이 패널을 안 쓴다. */}
       {currentQuestion.photo && (

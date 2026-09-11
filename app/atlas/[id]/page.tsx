@@ -5,6 +5,7 @@ import { AtlasPostActions } from "@/components/atlas/AtlasPostActions";
 import { AtlasPostOwnerActions } from "@/components/atlas/AtlasPostOwnerActions";
 import { RoomIsoCard } from "@/components/atlas/RoomIsoCard";
 import { StudioRoomViewer } from "@/components/atlas/StudioRoomViewer";
+import { breadcrumbJsonLd } from "@/lib/breadcrumbJsonLd";
 import { getHousePhotoUrl } from "@/lib/houseAtlas";
 import { createClient, getUserSafe } from "@/lib/supabase/server";
 import type { HouseComment, HousePhoto, HousePost } from "@/lib/types";
@@ -87,6 +88,18 @@ export default async function AtlasPostPage({ params }: PageProps<"/atlas/[id]">
 
   return (
     <main className="flex min-h-screen flex-col bg-bg text-fg">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(
+            breadcrumbJsonLd([
+              { name: "홈", path: "/" },
+              { name: "집 아틀라스", path: "/atlas" },
+              { name: typedPost.title, path: `/atlas/${id}` },
+            ]),
+          ).replace(/</g, "\\u003c"),
+        }}
+      />
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-hair px-6 py-5 sm:px-8">
         <div className="flex items-center gap-[18px] sm:gap-[22px]">
           <Link href="/" className="font-display text-[22px] text-fg">

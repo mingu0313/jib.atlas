@@ -12,9 +12,10 @@ export function StepFinish({ onBack, onNext }: { onBack: () => void; onNext: () 
   return (
     <div className="flex flex-col gap-12">
       <div className="flex flex-col gap-3">
-        <h1 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
+        {/* StepShape.tsx와 같은 이유로 h2 — 페이지 h1은 app/studio/page.tsx. */}
+        <h2 className="font-kr text-[clamp(26px,3.4vw,40px)] leading-[1.15]">
           문과 창문을 놓고, 마감재를 골라보세요<span className="heading-dot">.</span>
-        </h1>
+        </h2>
         <p className="max-w-lg text-[14px] leading-[1.8] text-muted">
           오른쪽 평면도에서 문/창문을 배치·이동하면 3D 뷰도 바로 따라와요. 놓인 항목을 클릭하면 삭제 버튼이 떠요.
         </p>
