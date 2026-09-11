@@ -30,9 +30,13 @@ function byId(id: string) {
  *   - Open Loft(t1, 천장까지 트인 개방감): interior-industrial-loft.jpg — 나선
  *     계단 + 복층 + 높은 천장이 있는 실제 로프트 구조라 "탁 트인" 문구에 훨씬
  *     직접적으로 맞음.
- *   - Precision Box(t11, 붙박이 수납·효율적 동선): interior-scandinavian-calm.jpg
- *     — 벽 한쪽을 가득 채운 붙박이 로우 수납장이 "물건에 자리를 정해두고 숨긴다"는
- *     문구를 사진으로 그대로 보여줌.
+ *   - Precision Box(t11, 붙박이 수납·효율적 동선): 처음엔 interior-scandinavian-calm.jpg를
+ *     썼는데 "Open Loft랑 너무 겹쳐 보인다"는 피드백을 받았다 — 둘 다 "가구
+ *     몇 개 놓인 널찍한 방" 와이드샷이라, 사진만으론 실루엣이 비슷했다.
+ *     Serene Nest처럼 성격이 뚜렷한 사진이 필요해서 interior-artisan-studio.jpg로
+ *     교체 — 마주보게 짝지은 쿠션·오토만, 리본 창까지 좌우 대칭으로 딱 맞춘
+ *     구도 자체가 "제자리에 정확히" 있다는 인상을 준다. 톤(카키 벽)도 Open
+ *     Loft(어두운 인더스트리얼)·Social House(중성 그레이)와 겹치지 않음.
  *   - Social House(t5, 대가족이 모여 사는 집): interior-active-urban.jpg — 아일랜드
  *     바스툴 4개 + 넉넉한 거실 + 정원으로 이어지는 슬라이딩 도어까지, "사람이
  *     모이는 걸 전제로 지어진 집" 스케일이 실제로 느껴짐.
@@ -40,7 +44,7 @@ function byId(id: string) {
 const FEATURED = [
   { num: "01", tag: "Serene Nest", photo: "/photos/type-serene.jpg", template: byId("t9") },
   { num: "02", tag: "Open Loft", photo: "/photos/interior-industrial-loft.jpg", template: byId("t1") },
-  { num: "03", tag: "Precision Box", photo: "/photos/interior-scandinavian-calm.jpg", template: byId("t11") },
+  { num: "03", tag: "Precision Box", photo: "/photos/interior-artisan-studio.jpg", template: byId("t11") },
   { num: "04", tag: "Social House", photo: "/photos/interior-active-urban.jpg", template: byId("t5") },
 ];
 
